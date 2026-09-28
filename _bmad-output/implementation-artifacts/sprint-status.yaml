@@ -1,0 +1,40 @@
+# generated: 09-28-2026 12:00
+# project: Smart Shopping List
+# tracking_system: file-system
+# story_location: "_bmad-output/implementation-artifacts"
+
+# NOTE: Generated manually — uv/Python not available in this environment.
+# Refresh by re-running bmad-sprint-planning after installing uv.
+
+generated: 09-28-2026 12:00
+last_updated: 09-28-2026 12:00
+project: Smart Shopping List
+project_key: NOKEY
+tracking_system: file-system
+story_location: "_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: backlog
+  1-1-navigable-app-shell: backlog
+  1-2-ingredient-system: backlog
+  1-3-recipe-management: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-weekly-calendar-grid: backlog
+  2-2-assign-and-remove-meals: backlog
+  2-3-mark-as-cooked: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-pantry-management: backlog
+  3-2-cooked-pantry-deduction: backlog
+  3-3-live-shopping-list: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-todays-meals-and-availability: backlog
+  4-2-cook-now-filters-and-recipe-detail: backlog
+  epic-4-retrospective: optional
+
+action_items: []
