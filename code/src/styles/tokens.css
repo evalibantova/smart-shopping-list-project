@@ -626,12 +626,38 @@ body {
   flex-wrap: wrap;
 }
 
-/* Recipe detail panel */
-.recipe-detail-panel {
+/* Single recipe detail pane — panel on desktop, overlay on mobile */
+.recipe-detail-pane {
   flex: 1;
-  overflow-y: auto;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--bg);
+}
+
+.recipe-detail-pane-back {
+  display: none; /* hidden on desktop */
+}
+
+@media (max-width: 767px) {
+  .recipe-detail-pane {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+  }
+
+  .recipe-detail-pane.has-selection {
+    transform: translateX(0);
+  }
+
+  .recipe-detail-pane-back {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    flex-shrink: 0;
+  }
 }
 
 .recipe-detail-header {
@@ -979,20 +1005,6 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Recipe detail mobile overlay */
-.recipe-detail-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 150;
-  overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform 0.25s ease;
-}
-
-.recipe-detail-overlay.open {
-  transform: translateX(0);
-}
 
 /* Add/Remove new tag color swatches */
 .color-swatch {

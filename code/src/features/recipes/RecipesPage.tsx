@@ -15,7 +15,6 @@ export function RecipesPage() {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | undefined>()
   const [showAddToWeek, setShowAddToWeek] = useState(false)
   const [addToWeekRecipe, setAddToWeekRecipe] = useState<Recipe | null>(null)
-  const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
 
   const filtered = recipes.filter(r => {
     if (!query) return true
@@ -24,11 +23,6 @@ export function RecipesPage() {
   })
 
   const selectedRecipe = recipes.find(r => r.id === selectedId)
-
-  function handleSelect(r: Recipe) {
-    setSelectedId(r.id)
-    setMobileDetailOpen(true)
-  }
 
   function handleEdit() {
     setEditingRecipe(selectedRecipe)
@@ -80,7 +74,7 @@ export function RecipesPage() {
                 <div
                   key={r.id}
                   className={`recipe-row${selectedId === r.id ? ' selected' : ''}`}
-                  onClick={() => handleSelect(r)}
+                  onClick={() => setSelectedId(r.id)}
                 >
                   <span className="recipe-row-emoji">{r.emoji || '🍽️'}</span>
                   <div className="recipe-row-info">
@@ -96,51 +90,31 @@ export function RecipesPage() {
           </div>
         </div>
 
-        {/* Desktop detail panel */}
-        <div className="recipe-detail-panel" style={{ display: 'none' }} id="desktop-detail">
-          {selectedRecipe ? (
-            <RecipeDetail
-              recipe={selectedRecipe}
-              context="recipes"
-              onEdit={handleEdit}
-              onAddToWeek={handleAddToWeek}
-            />
-          ) : (
-            <div className="empty-state">
-              <span className="empty-state-emoji">👈</span>
-              <span className="empty-state-title">Select a recipe</span>
-              <span className="empty-state-desc">Pick a recipe from the list to see details.</span>
-            </div>
-          )}
-        </div>
-
-        {/* Desktop detail (hidden on mobile via CSS, shown on desktop) */}
-        <style>{`
-          @media (min-width: 768px) {
-            #desktop-detail { display: flex !important; flex-direction: column; }
-          }
-        `}</style>
-
-        {/* Mobile overlay */}
-        <div className={`recipe-detail-overlay${mobileDetailOpen && selectedRecipe ? ' open' : ''}`}>
-          <div className="page-header">
+        {/* Single detail pane — flex panel on desktop, slide-in overlay on mobile */}
+        <div className={`recipe-detail-pane${selectedId ? ' has-selection' : ''}`}>
+          <div className="recipe-detail-pane-back">
             <button
               className="btn btn-ghost btn-sm"
-              onClick={() => setMobileDetailOpen(false)}
+              onClick={() => setSelectedId(null)}
               style={{ display: 'flex', alignItems: 'center', gap: 4 }}
             >
               <ChevronLeft size={16} /> Back
             </button>
-            <div />
           </div>
-          {selectedRecipe && (
-            <div style={{ padding: '0 16px 16px', overflowY: 'auto', flex: 1 }}>
+          {selectedRecipe ? (
+            <div style={{ padding: '16px', overflowY: 'auto', flex: 1 }}>
               <RecipeDetail
                 recipe={selectedRecipe}
                 context="recipes"
                 onEdit={handleEdit}
                 onAddToWeek={handleAddToWeek}
               />
+            </div>
+          ) : (
+            <div className="empty-state">
+              <span className="empty-state-emoji">👈</span>
+              <span className="empty-state-title">Select a recipe</span>
+              <span className="empty-state-desc">Pick a recipe from the list to see details.</span>
             </div>
           )}
         </div>
