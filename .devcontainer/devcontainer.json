@@ -1,0 +1,25 @@
+{
+  "name": "Orange Agentic Environment",
+  "image": "registry.gitlab.tech.orange/unified-cloud-p/technology-office/ia-support/container/claude-code",
+  "remoteUser": "claude-user",
+  "workspaceFolder": "/data/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/data/${localWorkspaceFolderBasename},type=bind,consistency=cached",
+  "mounts": [
+    "source=claude-code-prefs,target=/home/claude-user,type=volume"
+  ],
+  "containerEnv": {
+    "ANTHROPIC_AUTH_TOKEN": "${localEnv:ANTHROPIC_AUTH_TOKEN}"
+  },
+  "overrideCommand": true,
+  "features": {
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "ms-python.python",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}
