@@ -105,18 +105,24 @@ export function ShoppingListPage() {
                 const checked = checkedIds.has(item.ingredientId)
                 const displayQty = item.deficit % 1 === 0 ? item.deficit : parseFloat(item.deficit.toFixed(2))
                 return (
-                  <div
+                  <label
                     key={item.ingredientId}
                     className={`shopping-item${checked ? ' checked' : ''}`}
-                    onClick={() => toggleCheck(item.ingredientId)}
                   >
-                    <div className={`shopping-checkbox${checked ? ' checked' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleCheck(item.ingredientId)}
+                      aria-label={item.name}
+                      className="shopping-checkbox-input"
+                    />
+                    <div className={`shopping-checkbox${checked ? ' checked' : ''}`} aria-hidden="true">
                       {checked && <span style={{ color: 'white', fontSize: 11, fontWeight: 800 }}>✓</span>}
                     </div>
                     <span className="shopping-item-name">{item.name}</span>
                     <span className="shopping-item-qty">{displayQty} {item.unit}</span>
                     <span className="auto-badge">auto</span>
-                  </div>
+                  </label>
                 )
               })}
             </div>
