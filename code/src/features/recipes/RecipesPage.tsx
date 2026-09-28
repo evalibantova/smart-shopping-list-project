@@ -123,7 +123,7 @@ export function RecipesPage() {
 
         {/* Mobile overlay */}
         <div className={`recipe-detail-overlay${mobileDetailOpen && selectedRecipe ? ' open' : ''}`}>
-          <div className="page-header" style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="page-header">
             <button
               className="btn btn-ghost btn-sm"
               onClick={() => setMobileDetailOpen(false)}
@@ -131,14 +131,7 @@ export function RecipesPage() {
             >
               <ChevronLeft size={16} /> Back
             </button>
-            <div style={{ display: 'flex', gap: 4 }}>
-              {selectedRecipe && (
-                <>
-                  <button className="btn btn-ghost btn-sm" onClick={handleEdit}>Edit</button>
-                  <button className="btn btn-primary btn-sm" onClick={handleAddToWeek}>Add to week</button>
-                </>
-              )}
-            </div>
+            <div />
           </div>
           {selectedRecipe && (
             <div style={{ padding: '0 16px 16px', overflowY: 'auto', flex: 1 }}>

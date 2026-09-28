@@ -559,6 +559,13 @@ body {
   background: var(--surface);
 }
 
+@media (max-width: 767px) {
+  .recipe-list-panel {
+    width: 100%;
+    border-right: none;
+  }
+}
+
 .recipe-list-search {
   padding: 12px;
   border-bottom: 1px solid var(--border);
@@ -667,7 +674,7 @@ body {
 .servings-scaler button {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-mid);
+  border: none;
   background: var(--surface);
   cursor: pointer;
   font-size: 16px;
@@ -772,6 +779,14 @@ body {
   text-decoration: line-through;
 }
 
+.shopping-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
 .shopping-checkbox {
   width: 18px;
   height: 18px;
@@ -796,7 +811,6 @@ body {
   font-weight: 700;
   color: var(--coral);
   padding: 2px 5px;
-  border: 1px solid var(--coral);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
