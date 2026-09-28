@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Pencil, CalendarPlus, Check, Trash2 } from 'lucide-react'
 import { TagChip } from '../ui/TagChip'
 import { useStore } from '../../store'
+import { useShallow } from 'zustand/shallow'
 import type { MealPlanEntry, Recipe, RecipeDetailContext } from '../../types'
 
 interface RecipeDetailProps {
@@ -22,9 +23,15 @@ export function RecipeDetail({
   onRemoveFromPlan,
 }: RecipeDetailProps) {
   const [servings, setServings] = useState(mealPlanEntry?.servings ?? recipe.servings)
-  const { tags, updateMealPlanEntry, showToast } = useStore()
+  const { tags, updateMealPlanEntry, showToast, ingredientsDb } = useStore(
+    useShallow(s => ({
+      tags: s.tags,
+      updateMealPlanEntry: s.updateMealPlanEntry,
+      showToast: s.showToast,
+      ingredientsDb: s.ingredientsDb,
+    }))
+  )
   const scale = recipe.servings > 0 ? servings / recipe.servings : 1
-  const ingredientsDb = useStore(s => s.ingredientsDb)
 
   const isCooked = mealPlanEntry?.cooked ?? false
 
@@ -81,9 +88,9 @@ export function RecipeDetail({
 
       <div className="servings-scaler">
         <span style={{ color: 'var(--text-dim)', fontSize: 12 }}>Servings:</span>
-        <button onClick={() => setServings(Math.max(1, servings - 1))}>−</button>
+        <button type="button" onClick={() => setServings(prev => Math.max(1, prev - 1))}>−</button>
         <span style={{ fontWeight: 700, minWidth: 24, textAlign: 'center' }}>{servings}</span>
-        <button onClick={() => setServings(servings + 1)}>+</button>
+        <button type="button" onClick={() => setServings(prev => prev + 1)}>+</button>
         {servings !== recipe.servings && (
           <span className="servings-reset" onClick={() => setServings(recipe.servings)}>reset</span>
         )}

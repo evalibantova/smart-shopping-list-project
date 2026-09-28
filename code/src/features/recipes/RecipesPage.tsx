@@ -104,6 +104,7 @@ export function RecipesPage() {
           {selectedRecipe ? (
             <div style={{ padding: '16px', overflowY: 'auto', flex: 1 }}>
               <RecipeDetail
+                key={selectedRecipe.id}
                 recipe={selectedRecipe}
                 context="recipes"
                 onEdit={handleEdit}
