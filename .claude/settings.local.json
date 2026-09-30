@@ -10,7 +10,14 @@
       "Bash(npm --version)",
       "Bash(apt-get install *)",
       "Bash(python3 -m playwright install chromium)",
-      "Bash(PLAYWRIGHT_BROWSERS_PATH=/data/playwright-browsers npx playwright install chromium)"
+      "Bash(git *)",
+      "Bash(uv run *)",
+      "WebFetch(domain:fridgely.app)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npx tsc *)",
+      "Bash(git -C /data/shopping-list status)",
+      "Bash(git -C /data/shopping-list diff)"
     ]
   }
 }
