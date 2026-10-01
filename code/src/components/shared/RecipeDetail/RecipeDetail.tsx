@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, CalendarPlus } from 'lucide-react'
+import { Pencil, CalendarPlus, Trash2 } from 'lucide-react'
 import { useIngredientsStore } from '../../../store/ingredientsStore'
 import { useTagsStore } from '../../../store/tagsStore'
 import TagChip from '../../ui/TagChip/TagChip'
@@ -8,9 +8,11 @@ import type { Recipe } from '../../../types/recipe'
 interface RecipeDetailProps {
   recipe: Recipe
   onEdit: () => void
+  onAddToWeek?: () => void
+  onRemove?: () => void
 }
 
-export default function RecipeDetail({ recipe, onEdit }: RecipeDetailProps) {
+export default function RecipeDetail({ recipe, onEdit, onAddToWeek, onRemove }: RecipeDetailProps) {
   const [localServings, setLocalServings] = useState(recipe.servings)
   const ingredientsDb = useIngredientsStore(s => s.ingredientsDb)
   const tags = useTagsStore(s => s.tags)
@@ -54,11 +56,22 @@ export default function RecipeDetail({ recipe, onEdit }: RecipeDetailProps) {
           <button
             className="rd-act"
             data-testid="recipe-detail-add-to-week-btn"
-            disabled
+            disabled={!onAddToWeek}
+            onClick={onAddToWeek}
             aria-label="Add to week"
           >
             <CalendarPlus size={18} strokeWidth={2} />
           </button>
+          {onRemove && (
+            <button
+              className="rd-act danger"
+              data-testid="meal-plan-remove-btn"
+              onClick={onRemove}
+              aria-label="Remove from plan"
+            >
+              <Trash2 size={18} strokeWidth={2} />
+            </button>
+          )}
         </div>
       </div>
 
