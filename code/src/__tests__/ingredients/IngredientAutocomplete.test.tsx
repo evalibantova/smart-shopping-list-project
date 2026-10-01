@@ -194,10 +194,66 @@ describe('AC7 — No freeform bypass: aria-invalid signals unbound rows', () => 
 })
 
 describe('AC8 — Newly created ingredient appears in autocomplete', () => {
-  it('new ingredient added to store appears in dropdown suggestions', () => {
+  it('ingredient added directly to store appears in dropdown suggestions', () => {
     useIngredientsStore.getState().addIngredient('Quinoa', 'g', 'Pantry & Dry Goods')
     renderAutocomplete({ name: 'Quinoa', ingredientId: null, unit: '' })
     expect(screen.getByTestId('autocomplete-dropdown')).toBeInTheDocument()
     expect(screen.getByText('Quinoa')).toBeInTheDocument()
+  })
+
+  it('full round-trip: after onCreateNew fires and parent adds to store, ingredient appears in suggestions', async () => {
+    const user = userEvent.setup()
+    const addIngredient = useIngredientsStore.getState().addIngredient
+    let boundId: string | null = null
+    let boundUnit = ''
+
+    // onCreateNew simulates what the parent form would do
+    const onCreateNew = vi.fn((newName: string, newUnit: string) => {
+      const created = addIngredient(newName, newUnit, 'Other')
+      boundId = created.id
+      boundUnit = created.defaultUnit
+    })
+
+    const { rerender } = renderAutocomplete({
+      name: 'Quinoa XYZ Unique',
+      ingredientId: null,
+      unit: '',
+      onCreateNew,
+    })
+
+    await user.click(screen.getByTestId('create-new-option'))
+    await user.selectOptions(screen.getByTestId('new-ingredient-unit-select'), 'g')
+    await user.click(screen.getByTestId('confirm-create-new'))
+
+    expect(onCreateNew).toHaveBeenCalledWith('Quinoa XYZ Unique', 'g')
+
+    // Simulate parent binding the new ingredient (clears input + sets id)
+    rerender(
+      <IngredientAutocomplete
+        name="Quinoa XYZ Unique"
+        ingredientId={boundId}
+        unit={boundUnit}
+        onSelect={vi.fn()}
+        onChange={vi.fn()}
+        onCreateNew={onCreateNew}
+      />
+    )
+
+    // Now the ingredient is bound — unit display should appear
+    expect(screen.getByTestId('unit-display')).toBeInTheDocument()
+
+    // Searching for it again (unbound) should find it in the store
+    rerender(
+      <IngredientAutocomplete
+        name="Quinoa XYZ Unique"
+        ingredientId={null}
+        unit=""
+        onSelect={vi.fn()}
+        onChange={vi.fn()}
+        onCreateNew={onCreateNew}
+      />
+    )
+    expect(screen.getByTestId('autocomplete-dropdown')).toBeInTheDocument()
+    expect(screen.getByText('Quinoa XYZ Unique')).toBeInTheDocument()
   })
 })

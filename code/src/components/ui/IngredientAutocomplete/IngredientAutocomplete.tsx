@@ -29,17 +29,20 @@ export default function IngredientAutocomplete({
   const isUnbound = name.length > 0 && ingredientId === null
   const isInvalid = isUnbound && !creatingNew
 
-  const suggestions = name.length === 0
+  const allMatches = name.length === 0
     ? []
-    : ingredientsDb
-        .filter(i => i.name.toLowerCase().includes(name.toLowerCase()))
-        .slice(0, MAX_SUGGESTIONS)
+    : ingredientsDb.filter(i => i.name.toLowerCase().includes(name.toLowerCase()))
 
-  const hasMatch = suggestions.some(
+  const suggestions = allMatches.slice(0, MAX_SUGGESTIONS)
+
+  // Check full DB for exact match (not just visible suggestions) to avoid
+  // showing "Create" for an ingredient that exists beyond the 8-result cap.
+  const hasMatch = allMatches.some(
     i => i.name.toLowerCase() === name.toLowerCase()
   )
   const showCreate = name.length > 0 && !hasMatch && !creatingNew
-  const showDropdown = (suggestions.length > 0 || showCreate) && ingredientId === null
+  const showDropdown =
+    (suggestions.length > 0 || showCreate) && ingredientId === null && !creatingNew
 
   function handleSelect(ingredient: Ingredient) {
     setCreatingNew(false)
