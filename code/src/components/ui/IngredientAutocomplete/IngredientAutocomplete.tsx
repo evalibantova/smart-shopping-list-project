@@ -51,9 +51,8 @@ export default function IngredientAutocomplete({
   const showDropdown =
     (suggestions.length > 0 || showCreate) && ingredientId === null && !creatingNew && !dismissed
 
-  // Invalid only when unbound with no matching suggestions — suppress while
-  // the user is still choosing from a visible list of matches.
-  const isInvalid = isUnbound && !creatingNew && suggestions.length === 0
+  // Invalid when the user blurred (dismissed) with text that isn't bound to an ingredient.
+  const isInvalid = isUnbound && !creatingNew && dismissed
 
   function handleSelect(ingredient: Ingredient) {
     setCreatingNew(false)

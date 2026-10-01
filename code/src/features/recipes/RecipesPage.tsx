@@ -149,6 +149,7 @@ export default function RecipesPage() {
 
   const detailContent = selectedRecipe ? (
     <RecipeDetail
+      key={selectedId}
       recipe={selectedRecipe}
       onEdit={() => openEdit(selectedRecipe)}
     />
@@ -236,6 +237,7 @@ export default function RecipesPage() {
               <div style={{ flex: 1, overflowY: 'auto' }}>
                 {selectedRecipe && (
                   <RecipeDetail
+                    key={selectedId}
                     recipe={selectedRecipe}
                     onEdit={() => openEdit(selectedRecipe)}
                   />

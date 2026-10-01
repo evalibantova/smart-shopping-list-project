@@ -10,7 +10,8 @@ export const recipeService = {
 
   update(id: string, data: Partial<Omit<Recipe, 'id' | 'createdAt'>>): Recipe {
     const recipes = useRecipesStore.getState().recipes
-    const existing = recipes.find(r => r.id === id)!
+    const existing = recipes.find(r => r.id === id)
+    if (!existing) throw new Error(`Recipe ${id} not found`)
     const updated: Recipe = { ...existing, ...data }
     useRecipesStore.setState({ recipes: recipes.map(r => (r.id === id ? updated : r)) })
     return updated

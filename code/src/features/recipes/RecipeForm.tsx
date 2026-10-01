@@ -9,6 +9,7 @@ import type { Recipe, RecipeIngredient } from '../../types/recipe'
 import type { Ingredient, IngredientUnit } from '../../types/ingredient'
 
 interface IngredientRow {
+  rowId: string
   ingredientId: string | null
   name: string
   quantity: string
@@ -44,12 +45,13 @@ export default function RecipeForm({ recipe, onClose }: RecipeFormProps) {
 
   const [ingredientRows, setIngredientRows] = useState<IngredientRow[]>(() => {
     if (!recipe || recipe.ingredients.length === 0) {
-      return [{ ingredientId: null, name: '', quantity: '', unit: '' }]
+      return [{ rowId: crypto.randomUUID(), ingredientId: null, name: '', quantity: '', unit: '' }]
     }
     const db = useIngredientsStore.getState().ingredientsDb
     return recipe.ingredients.map(ri => {
       const ing = db.find(i => i.id === ri.ingredientId)
       return {
+        rowId: crypto.randomUUID(),
         ingredientId: ri.ingredientId,
         name: ing?.name ?? ri.ingredientId,
         quantity: String(ri.quantity),
@@ -90,7 +92,7 @@ export default function RecipeForm({ recipe, onClose }: RecipeFormProps) {
   }
 
   function addIngredientRow() {
-    setIngredientRows(rows => [...rows, { ingredientId: null, name: '', quantity: '', unit: '' }])
+    setIngredientRows(rows => [...rows, { rowId: crypto.randomUUID(), ingredientId: null, name: '', quantity: '', unit: '' }])
   }
 
   function removeIngredientRow(idx: number) {
@@ -113,7 +115,7 @@ export default function RecipeForm({ recipe, onClose }: RecipeFormProps) {
 
   function buildIngredients(): RecipeIngredient[] {
     return ingredientRows
-      .filter(r => r.ingredientId && r.quantity)
+      .filter(r => r.ingredientId && Number(r.quantity) > 0)
       .map(r => ({ ingredientId: r.ingredientId!, quantity: Number(r.quantity) }))
   }
 
@@ -251,7 +253,7 @@ export default function RecipeForm({ recipe, onClose }: RecipeFormProps) {
           <div data-testid="recipe-form-ingredients" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {ingredientRows.map((row, idx) => (
               <div
-                key={idx}
+                key={row.rowId}
                 data-testid="recipe-form-ingredient-row"
                 style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}
               >
