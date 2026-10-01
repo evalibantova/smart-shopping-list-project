@@ -101,6 +101,14 @@ describe('AC2 — Desktop sidebar (≥768px)', () => {
     expect(mpLink).toHaveClass('nav-link--active')
     expect(mpLink).toHaveAttribute('aria-current', 'page')
   })
+
+  it('every sidebar link contains an svg icon', () => {
+    renderApp('/recipes')
+    const links = within(screen.getByTestId('sidebar')).getAllByRole('link')
+    links.forEach(link => {
+      expect(link.querySelector('svg')).toBeInTheDocument()
+    })
+  })
 })
 
 describe('AC3 — Mobile bottom nav (<768px)', () => {
@@ -148,6 +156,14 @@ describe('AC3 — Mobile bottom nav (<768px)', () => {
   it('main content has page--mobile class providing bottom padding', () => {
     renderApp('/recipes')
     expect(document.querySelector('.page--mobile')).toBeInTheDocument()
+  })
+
+  it('every bottom nav item contains an svg icon', () => {
+    renderApp('/recipes')
+    const links = within(screen.getByTestId('bottom-nav')).getAllByRole('link')
+    links.forEach(link => {
+      expect(link.querySelector('svg')).toBeInTheDocument()
+    })
   })
 })
 
@@ -238,8 +254,13 @@ describe('AC7 — Page header is always a single flex row', () => {
     expect(document.querySelector('.page-header .page-header-controls')).toBeInTheDocument()
   })
 
-  it('MealPlannerPage header also has .page-header', () => {
-    renderApp('/meal-planner')
-    expect(document.querySelector('.page-header')).toBeInTheDocument()
-  })
+  it.each(['/meal-planner', '/shopping-list', '/pantry', '/cook-now'])(
+    '%s page has .page-header with h1 and .page-header-controls',
+    (path) => {
+      renderApp(path)
+      expect(document.querySelector('.page-header')).toBeInTheDocument()
+      expect(document.querySelector('.page-header h1')).toBeInTheDocument()
+      expect(document.querySelector('.page-header .page-header-controls')).toBeInTheDocument()
+    }
+  )
 })
