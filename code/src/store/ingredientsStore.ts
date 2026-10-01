@@ -18,7 +18,7 @@ export const useIngredientsStore = create<IngredientsState>()(
 
       seedIngredients() {
         if (get().ingredientsDb.length > 0) return
-        set({ ingredientsDb: INGREDIENTS_SEED })
+        set({ ingredientsDb: [...INGREDIENTS_SEED] })
       },
 
       addIngredient(name, defaultUnit, category) {

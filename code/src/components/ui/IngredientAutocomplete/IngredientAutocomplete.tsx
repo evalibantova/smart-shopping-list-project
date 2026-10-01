@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useIngredientsStore } from '../../../store/ingredientsStore'
+import { INGREDIENT_UNITS } from '../../../types/ingredient'
 import type { Ingredient, IngredientUnit } from '../../../types/ingredient'
 
-const VALID_UNITS: IngredientUnit[] = ['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp']
 const MAX_SUGGESTIONS = 8
 
 interface Props {
@@ -25,9 +25,16 @@ export default function IngredientAutocomplete({
   const ingredientsDb = useIngredientsStore(s => s.ingredientsDb)
   const [creatingNew, setCreatingNew] = useState(false)
   const [newUnit, setNewUnit] = useState<IngredientUnit>('g')
+  // dismissed becomes true when the user explicitly closes the dropdown (blur/Escape);
+  // it resets whenever name changes so re-typing reopens the dropdown.
+  const [dismissed, setDismissed] = useState(false)
+
+  useEffect(() => {
+    setDismissed(false)
+    if (name === '') setCreatingNew(false)
+  }, [name])
 
   const isUnbound = name.length > 0 && ingredientId === null
-  const isInvalid = isUnbound && !creatingNew
 
   const allMatches = name.length === 0
     ? []
@@ -42,10 +49,15 @@ export default function IngredientAutocomplete({
   )
   const showCreate = name.length > 0 && !hasMatch && !creatingNew
   const showDropdown =
-    (suggestions.length > 0 || showCreate) && ingredientId === null && !creatingNew
+    (suggestions.length > 0 || showCreate) && ingredientId === null && !creatingNew && !dismissed
+
+  // Invalid only when unbound with no matching suggestions — suppress while
+  // the user is still choosing from a visible list of matches.
+  const isInvalid = isUnbound && !creatingNew && suggestions.length === 0
 
   function handleSelect(ingredient: Ingredient) {
     setCreatingNew(false)
+    setDismissed(true)
     onSelect(ingredient)
   }
 
@@ -63,6 +75,10 @@ export default function IngredientAutocomplete({
     onChange(e.target.value)
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Escape') setDismissed(true)
+  }
+
   return (
     <div style={{ position: 'relative' }}>
       <input
@@ -70,6 +86,8 @@ export default function IngredientAutocomplete({
         type="text"
         value={name}
         onChange={handleInputChange}
+        onBlur={() => setDismissed(true)}
+        onKeyDown={handleKeyDown}
         readOnly={ingredientId !== null}
         aria-invalid={isInvalid ? 'true' : undefined}
         className="form-input"
@@ -130,7 +148,7 @@ export default function IngredientAutocomplete({
             onChange={e => setNewUnit(e.target.value as IngredientUnit)}
             className="form-input"
           >
-            {VALID_UNITS.map(u => (
+            {INGREDIENT_UNITS.map(u => (
               <option key={u} value={u}>{u}</option>
             ))}
           </select>

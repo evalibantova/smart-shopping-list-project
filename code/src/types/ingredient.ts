@@ -1,4 +1,5 @@
-export type IngredientUnit = 'g' | 'ml' | 'kg' | 'l' | 'pcs' | 'cloves' | 'tbsp' | 'tsp'
+export const INGREDIENT_UNITS = ['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp'] as const
+export type IngredientUnit = typeof INGREDIENT_UNITS[number]
 
 export type IngredientCategory =
   | 'Produce'
