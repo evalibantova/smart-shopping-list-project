@@ -2,16 +2,7 @@
    Meal Planner — Story 2.1
    ═══════════════════════════════════════════════ */
 
-/* ── Header ── */
-.meal-planner-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  flex-shrink: 0;
-}
-
+/* ── Header title ── */
 .meal-planner-title {
   font-size: 22px;
   font-weight: 800;
@@ -24,6 +15,11 @@
   .meal-planner-title {
     font-size: 18px;
   }
+}
+
+/* Grid row group helper — display: contents makes this element invisible to the grid */
+.planner-row-group {
+  display: contents;
 }
 
 /* ── Week Nav ── */
@@ -248,11 +244,7 @@
   font-weight: 500;
   line-height: 1.35;
   color: var(--charcoal);
-  /* NO overflow: hidden, NO text-overflow: ellipsis, NO white-space: nowrap */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  /* Wraps naturally to up to 2 lines — no ellipsis, no overflow:hidden, no nowrap */
 }
 
 .cooked-check {

@@ -74,10 +74,10 @@ export default function MealPlannerPage() {
   return (
     <div className="page">
       {/* ── Page Header ── */}
-      <header className="meal-planner-header" data-testid="page-header">
+      <header className="page-header" data-testid="page-header">
         <h1 className="meal-planner-title" data-testid="page-title">Meal Planner</h1>
 
-        <div className="week-nav" data-testid="week-nav">
+        <div className="page-header-controls week-nav" data-testid="week-nav">
           <button
             className="week-nav-btn"
             data-testid="nav-prev"
@@ -133,7 +133,7 @@ export default function MealPlannerPage() {
 
           {/* ── 3 meal rows ── */}
           {MEAL_TYPES.map(meal => (
-            <div key={meal} style={{ display: 'contents' }}>
+            <div key={meal} className="planner-row-group">
               {/* Row label cell */}
               <div className="meal-label-cell">
                 <span className="meal-label">{MEAL_LABELS[meal]}</span>

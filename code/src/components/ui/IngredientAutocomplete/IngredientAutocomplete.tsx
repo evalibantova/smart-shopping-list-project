@@ -51,8 +51,8 @@ export default function IngredientAutocomplete({
   const showDropdown =
     (suggestions.length > 0 || showCreate) && ingredientId === null && !creatingNew && !dismissed
 
-  // Invalid when the user blurred (dismissed) with text that isn't bound to an ingredient.
-  const isInvalid = isUnbound && !creatingNew && dismissed
+  // Invalid when text is entered but not yet bound to a canonical ingredient.
+  const isInvalid = isUnbound && !creatingNew
 
   function handleSelect(ingredient: Ingredient) {
     setCreatingNew(false)
