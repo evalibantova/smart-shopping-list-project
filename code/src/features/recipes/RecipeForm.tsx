@@ -118,10 +118,11 @@ export default function RecipeForm({ recipe, onClose }: RecipeFormProps) {
   }
 
   function handleSave() {
+    if (!name.trim()) return
     const data = {
       emoji,
-      name,
-      servings: Number(servings),
+      name: name.trim(),
+      servings: Number(servings) || 1,
       tagIds: selectedTagIds,
       ingredients: buildIngredients(),
       notes,

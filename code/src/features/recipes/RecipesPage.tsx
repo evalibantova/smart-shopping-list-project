@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, ChevronLeft } from 'lucide-react'
 import { useIsMobile } from '../../hooks/useIsMobile'
 import { useRecipesStore } from '../../store/recipesStore'
@@ -29,6 +29,13 @@ export default function RecipesPage() {
   })
 
   const selectedRecipe = recipes.find(r => r.id === selectedId) ?? null
+
+  // Clear selection if the selected recipe was deleted
+  useEffect(() => {
+    if (selectedId && !recipes.some(r => r.id === selectedId)) {
+      setSelectedId(null)
+    }
+  }, [recipes, selectedId])
 
   function openCreate() {
     setEditRecipe(undefined)

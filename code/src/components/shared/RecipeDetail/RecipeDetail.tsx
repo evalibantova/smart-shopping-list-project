@@ -94,25 +94,14 @@ export default function RecipeDetail({ recipe, onEdit }: RecipeDetailProps) {
           +
         </button>
         <span style={{ color: 'var(--text-dim)', fontSize: '12px' }}>servings</span>
-        {localServings !== recipe.servings && (
-          <button
-            className="btn btn-ghost btn-xs"
-            data-testid="recipe-detail-servings-reset"
-            onClick={reset}
-          >
-            reset
-          </button>
-        )}
-        {localServings === recipe.servings && (
-          <button
-            className="btn btn-ghost btn-xs"
-            data-testid="recipe-detail-servings-reset"
-            onClick={reset}
-            style={{ opacity: 0.4 }}
-          >
-            reset
-          </button>
-        )}
+        <button
+          className="btn btn-ghost btn-xs"
+          data-testid="recipe-detail-servings-reset"
+          onClick={reset}
+          style={{ opacity: localServings === recipe.servings ? 0.4 : 1 }}
+        >
+          reset
+        </button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
