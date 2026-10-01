@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../../App'
 import { useMealPlanStore } from '../../store/mealPlanStore'
@@ -73,26 +72,23 @@ describe('AC2 — Week Navigation', () => {
     expect(screen.getByTestId('week-label')).toHaveTextContent('21 – 27 Sep 2026')
   })
 
-  it('clicking next advances to following week', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) })
+  it('clicking next advances to following week', () => {
     renderPlannerPage()
-    await user.click(screen.getByTestId('nav-next'))
+    fireEvent.click(screen.getByTestId('nav-next'))
     expect(screen.getByTestId('week-label')).toHaveTextContent('28 Sep – 4 Oct 2026')
   })
 
-  it('clicking prev goes back to previous week', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) })
+  it('clicking prev goes back to previous week', () => {
     renderPlannerPage()
-    await user.click(screen.getByTestId('nav-prev'))
+    fireEvent.click(screen.getByTestId('nav-prev'))
     expect(screen.getByTestId('week-label')).toHaveTextContent('14 – 20 Sep 2026')
   })
 
-  it('clicking today returns to current week from a future week', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) })
+  it('clicking today returns to current week from a future week', () => {
     renderPlannerPage()
-    await user.click(screen.getByTestId('nav-next'))
-    await user.click(screen.getByTestId('nav-next'))
-    await user.click(screen.getByTestId('nav-today'))
+    fireEvent.click(screen.getByTestId('nav-next'))
+    fireEvent.click(screen.getByTestId('nav-next'))
+    fireEvent.click(screen.getByTestId('nav-today'))
     expect(screen.getByTestId('week-label')).toHaveTextContent('21 – 27 Sep 2026')
   })
 
@@ -102,10 +98,9 @@ describe('AC2 — Week Navigation', () => {
     expect(todayBtn).toHaveAttribute('data-dimmed', 'true')
   })
 
-  it('today button has data-dimmed=false when on a different week', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) })
+  it('today button has data-dimmed=false when on a different week', () => {
     renderPlannerPage()
-    await user.click(screen.getByTestId('nav-next'))
+    fireEvent.click(screen.getByTestId('nav-next'))
     const todayBtn = screen.getByTestId('nav-today')
     expect(todayBtn).toHaveAttribute('data-dimmed', 'false')
   })
@@ -128,10 +123,9 @@ describe('AC3 — Today Highlighting', () => {
     expect(todayHeaders).toHaveLength(1)
   })
 
-  it('no column is highlighted when viewing a different week', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) })
+  it('no column is highlighted when viewing a different week', () => {
     renderPlannerPage()
-    await user.click(screen.getByTestId('nav-next'))
+    fireEvent.click(screen.getByTestId('nav-next'))
     const dayHeaders = screen.getAllByTestId('day-header')
     const todayHeaders = dayHeaders.filter(h => h.getAttribute('data-today') === 'true')
     expect(todayHeaders).toHaveLength(0)
@@ -264,10 +258,9 @@ describe('AC8 — Date Range Format', () => {
     expect(label).not.toContain(' - ')
   })
 
-  it('cross-month week shows correct format (Sep–Oct boundary)', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) })
+  it('cross-month week shows correct format (Sep–Oct boundary)', () => {
     renderPlannerPage()
-    await user.click(screen.getByTestId('nav-next'))
+    fireEvent.click(screen.getByTestId('nav-next'))
     // Next week: 28 Sep – 4 Oct 2026
     expect(screen.getByTestId('week-label')).toHaveTextContent('28 Sep – 4 Oct 2026')
   })

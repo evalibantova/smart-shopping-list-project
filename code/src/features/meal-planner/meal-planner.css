@@ -1,0 +1,281 @@
+/* ═══════════════════════════════════════════════
+   Meal Planner — Story 2.1
+   ═══════════════════════════════════════════════ */
+
+/* ── Header ── */
+.meal-planner-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  flex-shrink: 0;
+}
+
+.meal-planner-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--charcoal);
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .meal-planner-title {
+    font-size: 18px;
+  }
+}
+
+/* ── Week Nav ── */
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.week-nav-btn {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--charcoal);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.week-nav-btn:hover {
+  background: var(--surface2);
+}
+
+.week-nav-btn:active {
+  transform: scale(0.97);
+}
+
+.week-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--charcoal);
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.today-btn {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--charcoal);
+  border-radius: 4px;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.today-btn:hover {
+  background: var(--surface2);
+}
+
+.today-btn[data-dimmed="true"] {
+  opacity: 0.3;
+}
+
+/* ── Grid Wrapper (scrollable) ── */
+.planner-grid-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  /* Scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.planner-grid-wrapper::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.planner-grid-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+
+/* ── Grid ── */
+.planner-grid {
+  display: grid;
+  /* 26px label column + 7 day columns, each min 110px */
+  grid-template-columns: 26px repeat(7, minmax(110px, 1fr));
+  min-width: calc(26px + 7 * 110px);
+}
+
+/* ── Day Headers ── */
+.day-header-spacer {
+  /* empty top-left cell above the label column */
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.day-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  padding: 8px 6px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.day-header[data-today="true"] .day-name,
+.day-header[data-today="true"] .day-date {
+  color: var(--coral);
+}
+
+.day-name {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-mid);
+  display: block;
+}
+
+.day-date {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--charcoal);
+  display: block;
+  line-height: 1.2;
+}
+
+/* ── Meal Rows ── */
+.meal-label-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.meal-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+}
+
+/* ── Meal Slot Cell ── */
+.meal-slot {
+  min-height: 100px;
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.meal-slot:hover {
+  background: var(--surface2);
+}
+
+/* ── Empty Slot ── */
+.slot-add {
+  width: 100%;
+  flex: 1;
+  min-height: 60px;
+  background: rgba(0, 0, 0, 0.02);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-dim);
+  border-radius: 2px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.slot-add:hover {
+  background: var(--coral-pale);
+  color: var(--coral);
+}
+
+/* ── Slot Item (populated meal card) ── */
+.slot-item {
+  background: rgba(0, 0, 0, 0.03);
+  padding: 5px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.slot-item.cooked {
+  background: rgba(240, 112, 69, 0.08);
+}
+
+.slot-emoji-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.slot-name {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--charcoal);
+  /* NO overflow: hidden, NO text-overflow: ellipsis, NO white-space: nowrap */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cooked-check {
+  color: var(--coral);
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+/* Inline add-more button inside a slot that has items */
+.slot-add-more {
+  background: transparent;
+  border: 1px dashed var(--border);
+  cursor: pointer;
+  width: 100%;
+  padding: 2px;
+  font-size: 12px;
+  color: var(--text-dim);
+  border-radius: 2px;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.slot-add-more:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+}
