@@ -141,3 +141,202 @@
   font-weight: 600;
   color: var(--coral);
 }
+
+/* === Buttons === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.12s;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--charcoal);
+  color: var(--surface);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--charcoal2);
+}
+
+.btn-coral {
+  background: var(--coral);
+  color: var(--surface);
+}
+
+.btn-coral:hover:not(:disabled) {
+  background: var(--coral-dark);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-mid);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--surface2);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-mid);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface2);
+}
+
+.btn-danger {
+  background: var(--red-pale);
+  color: var(--red);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(224, 92, 92, 0.18);
+}
+
+.btn-amber {
+  background: var(--amber-pale);
+  color: var(--amber);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-xs {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+/* === Icon action buttons === */
+.rd-act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-mid);
+  transition: color 0.12s, background 0.12s;
+  flex-shrink: 0;
+}
+
+.rd-act:hover:not(:disabled) {
+  background: var(--surface2);
+}
+
+.rd-act:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.rd-act.accent {
+  color: var(--charcoal);
+}
+
+.rd-act.danger {
+  color: var(--red);
+}
+
+/* === Form inputs === */
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--surface2);
+  border: none;
+  border-bottom: 2px solid transparent;
+  outline: none;
+  color: var(--text);
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.form-input:focus {
+  background: var(--surface);
+  border-bottom-color: var(--coral);
+}
+
+.form-input::placeholder {
+  color: var(--text-dim);
+}
+
+/* === Tag chip (flat colored text, no pill) === */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* === Modal (picker-modal) === */
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.picker-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.picker-modal-card {
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  width: 480px;
+  max-width: 94vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.20s ease;
+}
+
+@media (max-width: 767px) {
+  .picker-modal-backdrop {
+    align-items: flex-end;
+  }
+  .picker-modal-card {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 92vh;
+  }
+}
