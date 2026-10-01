@@ -109,6 +109,18 @@ describe('AC2 — Desktop sidebar (≥768px)', () => {
       expect(link.querySelector('svg')).toBeInTheDocument()
     })
   })
+
+  it.each([
+    ['Recipes',       '/recipes'],
+    ['Meal Planner',  '/meal-planner'],
+    ['Shopping List', '/shopping-list'],
+    ['Pantry',        '/pantry'],
+    ['Cook Now',      '/cook-now'],
+  ])('sidebar link "%s" points to the clean path %s', (label, href) => {
+    renderApp('/recipes')
+    const link = within(screen.getByTestId('sidebar')).getByRole('link', { name: label })
+    expect(link).toHaveAttribute('href', href)
+  })
 })
 
 describe('AC3 — Mobile bottom nav (<768px)', () => {
@@ -164,6 +176,18 @@ describe('AC3 — Mobile bottom nav (<768px)', () => {
     links.forEach(link => {
       expect(link.querySelector('svg')).toBeInTheDocument()
     })
+  })
+
+  it.each([
+    ['Recipes',       '/recipes'],
+    ['Meal Planner',  '/meal-planner'],
+    ['Pantry',        '/pantry'],
+    ['Cook Now',      '/cook-now'],
+    ['Shopping List', '/shopping-list'],
+  ])('bottom nav link "%s" points to the clean path %s', (label, href) => {
+    renderApp('/recipes')
+    const link = within(screen.getByTestId('bottom-nav')).getByRole('link', { name: label })
+    expect(link).toHaveAttribute('href', href)
   })
 })
 
@@ -255,10 +279,12 @@ describe('AC7 — Page header is always a single flex row', () => {
   })
 
   it.each(['/meal-planner', '/shopping-list', '/pantry', '/cook-now'])(
-    '%s page has .page-header with h1 and .page-header-controls',
+    '%s page has .page-header (flex row) with h1 and .page-header-controls',
     (path) => {
       renderApp(path)
-      expect(document.querySelector('.page-header')).toBeInTheDocument()
+      const header = document.querySelector('.page-header')
+      expect(header).toBeInTheDocument()
+      expect(header).not.toHaveClass('flex-col')
       expect(document.querySelector('.page-header h1')).toBeInTheDocument()
       expect(document.querySelector('.page-header .page-header-controls')).toBeInTheDocument()
     }
