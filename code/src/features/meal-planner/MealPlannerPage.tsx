@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, CalendarCheck } from 'lucide-react'
-import { useMealPlanStore, type MealType } from '../../store/mealPlanStore'
+import { useMealPlanStore, type MealType, type PlannedMeal } from '../../store/mealPlanStore'
+import { useRecipesStore } from '../../store/recipesStore'
+import type { Recipe } from '../../types/recipe'
+import RecipePicker from '../../components/shared/RecipePicker/RecipePicker'
+import RecipeDetail from '../../components/shared/RecipeDetail/RecipeDetail'
+import AddToWeekModal from '../../components/shared/AddToWeekModal/AddToWeekModal'
 import './meal-planner.css'
 
 // ── Date helpers ───────────────────────────────────────────────────────────
@@ -55,7 +60,14 @@ function formatWeekRange(monday: Date): string {
 
 export default function MealPlannerPage() {
   const slots = useMealPlanStore(s => s.slots)
+  const addMeal = useMealPlanStore(s => s.addMeal)
+  const removeMeal = useMealPlanStore(s => s.removeMeal)
+  const recipes = useRecipesStore(s => s.recipes)
+
   const [weekOffset, setWeekOffset] = useState(0)
+  const [pickerSlot, setPickerSlot] = useState<{ date: string; meal: MealType } | null>(null)
+  const [detailMeal, setDetailMeal] = useState<{ meal: PlannedMeal; date: string; mealType: MealType } | null>(null)
+  const [addToWeekFor, setAddToWeekFor] = useState<Recipe | null>(null)
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -71,8 +83,13 @@ export default function MealPlannerPage() {
   const isCurrentWeek = weekOffset === 0
   const weekLabel = formatWeekRange(displayMonday)
 
+  // Look up the recipe for the detail overlay
+  const detailRecipe = detailMeal
+    ? recipes.find(r => r.id === detailMeal.meal.recipeId) ?? null
+    : null
+
   return (
-    <div className="page">
+    <div className="page page--fit">
       {/* ── Page Header ── */}
       <header className="page-header" data-testid="page-header">
         <h1 className="meal-planner-title" data-testid="page-title">Meal Planner</h1>
@@ -132,17 +149,17 @@ export default function MealPlannerPage() {
           })}
 
           {/* ── 3 meal rows ── */}
-          {MEAL_TYPES.map(meal => (
-            <div key={meal} className="planner-row-group">
+          {MEAL_TYPES.map(mealType => (
+            <div key={mealType} className="planner-row-group">
               {/* Row label cell */}
               <div className="meal-label-cell">
-                <span className="meal-label">{MEAL_LABELS[meal]}</span>
+                <span className="meal-label">{MEAL_LABELS[mealType]}</span>
               </div>
 
               {/* 7 slot cells */}
               {weekDays.map(day => {
                 const iso = toISO(day)
-                const key = `${iso}-${meal}`
+                const key = `${iso}-${mealType}`
                 const meals = slots[key] ?? []
 
                 return (
@@ -156,7 +173,8 @@ export default function MealPlannerPage() {
                       <button
                         className="slot-add"
                         data-testid="slot-add"
-                        aria-label={`Add meal to ${MEAL_LABELS[meal]} on ${iso}`}
+                        aria-label={`Add meal to ${MEAL_LABELS[mealType]} on ${iso}`}
+                        onClick={() => setPickerSlot({ date: iso, meal: mealType })}
                       >
                         +
                       </button>
@@ -167,6 +185,14 @@ export default function MealPlannerPage() {
                             key={m.id}
                             className={`slot-item${m.cooked ? ' cooked' : ''}`}
                             data-testid="slot-item"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setDetailMeal({ meal: m, date: iso, mealType })}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                setDetailMeal({ meal: m, date: iso, mealType })
+                              }
+                            }}
                           >
                             <div
                               className="slot-emoji-badge"
@@ -185,8 +211,9 @@ export default function MealPlannerPage() {
                         ))}
                         <button
                           className="slot-add-more"
-                          data-testid="slot-add"
-                          aria-label={`Add another meal to ${MEAL_LABELS[meal]} on ${iso}`}
+                          data-testid="slot-add-more"
+                          aria-label={`Add another meal to ${MEAL_LABELS[mealType]} on ${iso}`}
+                          onClick={(e) => { e.stopPropagation(); setPickerSlot({ date: iso, meal: mealType }) }}
                         >
                           +
                         </button>
@@ -199,6 +226,48 @@ export default function MealPlannerPage() {
           ))}
         </div>
       </div>
+
+      {/* ── Recipe Picker Modal ── */}
+      {pickerSlot && (
+        <RecipePicker
+          onSelect={(recipe) => {
+            addMeal(pickerSlot.date, pickerSlot.meal, recipe.id, recipe.servings, recipe.name, recipe.emoji)
+            setPickerSlot(null)
+          }}
+          onClose={() => setPickerSlot(null)}
+        />
+      )}
+
+      {/* ── Meal Detail Overlay ── */}
+      {detailMeal && detailRecipe && (
+        <div
+          className="picker-modal-backdrop"
+          data-testid="meal-plan-overlay"
+          onClick={(e) => { if (e.target === e.currentTarget) setDetailMeal(null) }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="picker-modal-card">
+            <RecipeDetail
+              recipe={detailRecipe}
+              onEdit={() => {}}
+              onAddToWeek={() => setAddToWeekFor(detailRecipe)}
+              onRemove={() => {
+                removeMeal(detailMeal.date, detailMeal.mealType, detailMeal.meal.id)
+                setDetailMeal(null)
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── Add to Week Modal ── */}
+      {addToWeekFor && (
+        <AddToWeekModal
+          recipe={addToWeekFor}
+          onClose={() => { setAddToWeekFor(null); setDetailMeal(null) }}
+        />
+      )}
     </div>
   )
 }
