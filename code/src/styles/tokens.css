@@ -16,6 +16,15 @@
   --amber-pale: rgba(245, 166, 35, 0.12);
   --red: #e05c5c;
   --red-pale: rgba(224, 92, 92, 0.10);
+
+  /* Tag palette */
+  --tag-green: #4caf50;
+  --tag-blue: #2196f3;
+  --tag-purple: #9c27b0;
+  --tag-brown: #795548;
+  --tag-slate: #607d8b;
+  --tag-pink: #e91e63;
+
   --border: rgba(0, 0, 0, 0.07);
   --border-mid: rgba(0, 0, 0, 0.13);
   --text: #1a1a1a;

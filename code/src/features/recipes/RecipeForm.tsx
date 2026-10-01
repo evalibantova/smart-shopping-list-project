@@ -21,8 +21,14 @@ interface RecipeFormProps {
 }
 
 const TAG_COLORS = [
-  'var(--coral)', 'var(--amber)', '#4caf50', '#2196f3',
-  '#9c27b0', '#795548', '#607d8b', '#e91e63',
+  'var(--coral)',
+  'var(--amber)',
+  'var(--tag-green)',
+  'var(--tag-blue)',
+  'var(--tag-purple)',
+  'var(--tag-brown)',
+  'var(--tag-slate)',
+  'var(--tag-pink)',
 ]
 
 export default function RecipeForm({ recipe, onClose }: RecipeFormProps) {
