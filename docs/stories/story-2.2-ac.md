@@ -10,7 +10,7 @@
 
 ## AC2 — Filled Slot Add-More Tap → Recipe Picker Opens
 
-- Clicking the `.slot-add-more` button (`data-testid="slot-add"`) on a slot that already contains one or more meal cards opens the same recipe picker modal.
+- Clicking the `.slot-add-more` button (`data-testid="slot-add-more"`) on a slot that already contains one or more meal cards opens the same recipe picker modal.
 - The picker is scoped to the slot of the `+` button that was clicked (same `date` + `mealType` capture as AC1).
 - Selecting a recipe from this picker pushes a new `.slot-item` card below the existing cards in that slot (no existing cards are replaced or removed).
 - The picker modal behavior (backdrop, focus, Escape) is identical to AC1.
