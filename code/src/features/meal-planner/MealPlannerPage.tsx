@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, CalendarCheck } from 'lucide-react'
 import { useMealPlanStore, type MealType, type PlannedMeal } from '../../store/mealPlanStore'
 import { useRecipesStore } from '../../store/recipesStore'
@@ -68,6 +68,17 @@ export default function MealPlannerPage() {
   const [pickerSlot, setPickerSlot] = useState<{ date: string; meal: MealType } | null>(null)
   const [detailMeal, setDetailMeal] = useState<{ meal: PlannedMeal; date: string; mealType: MealType } | null>(null)
   const [addToWeekFor, setAddToWeekFor] = useState<Recipe | null>(null)
+
+  // Close the meal-plan overlay when Escape is pressed.
+  // Skip if AddToWeekModal is open — it handles its own Escape.
+  useEffect(() => {
+    if (!detailMeal || addToWeekFor) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDetailMeal(null)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [detailMeal, addToWeekFor])
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)

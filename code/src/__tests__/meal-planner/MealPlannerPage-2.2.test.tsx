@@ -379,6 +379,105 @@ describe('AC9 — Add to Week modal opens with all required elements', () => {
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
+// AC6-extra — Escape key closes the meal-plan overlay
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('AC6-extra — Escape key closes the meal-plan overlay', () => {
+  beforeEach(() => {
+    useMealPlanStore.setState({ slots: slotsWithOneMeal })
+  })
+
+  it('Escape key closes the meal-plan overlay', async () => {
+    renderPlannerPage()
+    fireEvent.click(screen.getByTestId('slot-item'))
+    expect(screen.getByTestId('meal-plan-overlay')).toBeInTheDocument()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByTestId('meal-plan-overlay')).not.toBeInTheDocument()
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AC3-extra — Filter clears when picker is closed and reopened
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('AC3-extra — picker search filter clears when modal is closed and reopened', () => {
+  beforeEach(() => {
+    useRecipesStore.setState({ recipes: [testRecipe, testRecipe2] })
+    useMealPlanStore.setState({ slots: slotsWithOneMeal })
+  })
+
+  it('picker search filter clears when modal is closed and reopened', async () => {
+    renderPlannerPage()
+    // Open picker via slot-add-more (slot has one meal already)
+    fireEvent.click(screen.getByTestId('slot-add-more'))
+    // Type a filter that narrows to 1 result
+    fireEvent.change(screen.getByTestId('recipe-picker-search'), { target: { value: 'past' } })
+    expect(screen.getAllByTestId('recipe-picker-item')).toHaveLength(1)
+    // Close the picker via Escape
+    fireEvent.keyDown(screen.getByTestId('recipe-picker-modal'), { key: 'Escape' })
+    expect(screen.queryByTestId('recipe-picker-modal')).not.toBeInTheDocument()
+    // Reopen picker
+    fireEvent.click(screen.getByTestId('slot-add-more'))
+    // Both recipes should be shown (filter was reset)
+    expect(screen.getAllByTestId('recipe-picker-item')).toHaveLength(2)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AC8-extra — Removing one of two meals leaves the remaining card and slot-add-more
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('AC8-extra — removing one of two meals leaves the remaining card and slot-add-more', () => {
+  const seededMeal2 = {
+    id: 'pm2',
+    recipeId: 'r2',
+    servings: 4,
+    cooked: false,
+    recipeName: 'Pizza',
+    recipeEmoji: '🍕',
+  }
+
+  beforeEach(() => {
+    useRecipesStore.setState({ recipes: [testRecipe, testRecipe2] })
+    useMealPlanStore.setState({
+      slots: {
+        [`${MONDAY_ISO}-breakfast`]: [seededMeal, seededMeal2],
+      },
+    })
+  })
+
+  it('removing one of two meals leaves the remaining card and slot-add-more', async () => {
+    renderPlannerPage()
+    // Click the first slot-item to open the overlay for the first meal
+    const items = screen.getAllByTestId('slot-item')
+    fireEvent.click(items[0])
+    fireEvent.click(screen.getByTestId('meal-plan-remove-btn'))
+    // Exactly 1 slot-item should remain
+    expect(screen.getAllByTestId('slot-item')).toHaveLength(1)
+    // slot-add-more should still be present (slot not empty)
+    expect(screen.getByTestId('slot-add-more')).toBeInTheDocument()
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AC7-extra — Cooked toggle button is present but disabled in the meal-plan overlay
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('AC7-extra — cooked toggle button is present but disabled in the meal-plan overlay', () => {
+  beforeEach(() => {
+    useMealPlanStore.setState({ slots: slotsWithOneMeal })
+  })
+
+  it('cooked toggle button is present but disabled in the meal-plan overlay', async () => {
+    renderPlannerPage()
+    fireEvent.click(screen.getByTestId('slot-item'))
+    const cookedBtn = screen.getByTestId('recipe-detail-cooked-btn')
+    expect(cookedBtn).toBeInTheDocument()
+    expect(cookedBtn).toBeDisabled()
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
 // AC10 — Confirm in Add to Week
 // ─────────────────────────────────────────────────────────────────────────────
 

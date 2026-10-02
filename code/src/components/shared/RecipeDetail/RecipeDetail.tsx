@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, CalendarPlus, Trash2 } from 'lucide-react'
+import { Pencil, CalendarPlus, Trash2, CheckCircle } from 'lucide-react'
 import { useIngredientsStore } from '../../../store/ingredientsStore'
 import { useTagsStore } from '../../../store/tagsStore'
 import TagChip from '../../ui/TagChip/TagChip'
@@ -9,10 +9,11 @@ interface RecipeDetailProps {
   recipe: Recipe
   onEdit: () => void
   onAddToWeek?: () => void
+  onToggleCooked?: () => void
   onRemove?: () => void
 }
 
-export default function RecipeDetail({ recipe, onEdit, onAddToWeek, onRemove }: RecipeDetailProps) {
+export default function RecipeDetail({ recipe, onEdit, onAddToWeek, onToggleCooked: _onToggleCooked, onRemove }: RecipeDetailProps) {
   const [localServings, setLocalServings] = useState(recipe.servings)
   const ingredientsDb = useIngredientsStore(s => s.ingredientsDb)
   const tags = useTagsStore(s => s.tags)
@@ -61,6 +62,14 @@ export default function RecipeDetail({ recipe, onEdit, onAddToWeek, onRemove }: 
             aria-label="Add to week"
           >
             <CalendarPlus size={18} strokeWidth={2} />
+          </button>
+          <button
+            className="rd-act"
+            data-testid="recipe-detail-cooked-btn"
+            disabled
+            aria-label="Mark as cooked"
+          >
+            <CheckCircle size={18} strokeWidth={2} />
           </button>
           {onRemove && (
             <button
