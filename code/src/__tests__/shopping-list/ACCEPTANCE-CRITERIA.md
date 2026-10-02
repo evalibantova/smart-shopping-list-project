@@ -37,7 +37,7 @@
 - Clicking an unchecked checkbox marks the item as checked.
 - A checked item's name text has `text-decoration: line-through`.
 - A checked item renders at reduced opacity (≤ 0.5).
-- Checked items remain visible in the list — they are not removed from the DOM until "Clear checked" is activated.
+- Checked items remain visible in the list (strikethrough, reduced opacity) until "Clear checked" is pressed, at which point they are removed.
 - Checked items are displayed below unchecked items within their category group.
 
 ## AC5 — Uncheck an Item
@@ -59,9 +59,9 @@
 
 - A "Clear checked" button (`data-testid="shopping-list-clear-btn"`) appears in the page header when at least one item is checked.
 - The button is absent (not rendered) when zero items are checked.
-- Clicking "Clear checked" resets all checked items to unchecked.
-- After clearing: the progress bar resets to "0 / N checked" and 0 % fill.
-- The items that were checked remain in the list (still visible, now unchecked).
+- Clicking "Clear checked" removes all currently checked items from the visible list and resets the checked state.
+- After clearing: dismissed items are no longer rendered; the progress bar updates to reflect remaining items.
+- If all items are cleared, the empty state (AC8) is shown.
 
 ## AC8 — Empty State
 

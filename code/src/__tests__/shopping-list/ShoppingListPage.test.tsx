@@ -543,29 +543,30 @@ describe('AC7 — Clear Checked Button', () => {
     expect(screen.getByTestId('shopping-list-clear-btn')).toBeInTheDocument()
   })
 
-  it('clicking "Clear checked" unchecks all checked items', () => {
+  it('clicking "Clear checked" removes checked items from the visible list', () => {
     renderShoppingListPage()
-    const checkboxes = screen.getAllByTestId('shopping-list-checkbox')
-    for (const cb of checkboxes) fireEvent.click(cb)
+    // Check only the first item
+    fireEvent.click(screen.getAllByTestId('shopping-list-checkbox')[0])
     fireEvent.click(screen.getByTestId('shopping-list-clear-btn'))
-    const afterCheckboxes = screen.getAllByTestId('shopping-list-checkbox')
-    for (const cb of afterCheckboxes) expect(cb).not.toBeChecked()
+    // One item dismissed → only 1 remains visible
+    expect(screen.getAllByTestId('shopping-list-item')).toHaveLength(1)
   })
 
-  it('after clearing, the progress bar shows "0 / N checked"', () => {
+  it('after clearing all items, the empty state is shown', () => {
     renderShoppingListPage()
     const checkboxes = screen.getAllByTestId('shopping-list-checkbox')
     for (const cb of checkboxes) fireEvent.click(cb)
     fireEvent.click(screen.getByTestId('shopping-list-clear-btn'))
-    expect(screen.getByTestId('shopping-list-progress')).toHaveTextContent('0 / 2 checked')
+    expect(screen.getByTestId('shopping-list-empty')).toBeInTheDocument()
   })
 
-  it('items remain in the list after clearing (not removed from DOM)', () => {
+  it('after clearing, the progress bar reflects remaining items', () => {
     renderShoppingListPage()
-    const checkboxes = screen.getAllByTestId('shopping-list-checkbox')
-    for (const cb of checkboxes) fireEvent.click(cb)
+    // Check only first of 2 items, then clear
+    fireEvent.click(screen.getAllByTestId('shopping-list-checkbox')[0])
     fireEvent.click(screen.getByTestId('shopping-list-clear-btn'))
-    expect(screen.getAllByTestId('shopping-list-item')).toHaveLength(2)
+    // 1 item remains, 0 checked
+    expect(screen.getByTestId('shopping-list-progress')).toHaveTextContent('0 / 1 checked')
   })
 
   it('"Clear checked" button is hidden again after clearing', () => {

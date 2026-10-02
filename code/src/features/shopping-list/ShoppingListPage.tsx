@@ -43,6 +43,7 @@ export default function ShoppingListPage() {
   const ingredientsDb = useIngredientsStore(s => s.ingredientsDb)
 
   const [checked, setChecked] = useState<Set<string>>(new Set())
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set())
 
   // ── Derive shopping list ─────────────────────────────────────────────────
 
@@ -85,30 +86,34 @@ export default function ShoppingListPage() {
     return items
   }, [slots, recipes, ingredientsDb])
 
-  // ── Group by category ────────────────────────────────────────────────────
+  // ── Filter dismissed items ────────────────────────────────────────────────
 
-  const grouped = useMemo(() => {
+  const visibleItems = useMemo(
+    () => shoppingItems.filter(item => !dismissed.has(item.ingredientId)),
+    [shoppingItems, dismissed]
+  )
+
+  const visibleGrouped = useMemo(() => {
     const map = new Map<IngredientCategory, ShoppingItem[]>()
-    for (const item of shoppingItems) {
+    for (const item of visibleItems) {
       const list = map.get(item.category) ?? []
       list.push(item)
       map.set(item.category, list)
     }
-    // Sort items within each category alphabetically
     for (const list of map.values()) {
       list.sort((a, b) => a.name.localeCompare(b.name))
     }
     return map
-  }, [shoppingItems])
+  }, [visibleItems])
 
   // ── Active categories in fixed order ─────────────────────────────────────
 
-  const activeCategories = CATEGORY_ORDER.filter(cat => grouped.has(cat))
+  const activeCategories = CATEGORY_ORDER.filter(cat => visibleGrouped.has(cat))
 
   // ── Progress ─────────────────────────────────────────────────────────────
 
-  const totalCount = shoppingItems.length
-  const checkedCount = shoppingItems.filter(item => checked.has(item.ingredientId)).length
+  const totalCount = visibleItems.length
+  const checkedCount = visibleItems.filter(item => checked.has(item.ingredientId)).length
   const progressPct = totalCount > 0 ? (checkedCount / totalCount) * 100 : 0
 
   // ── Handlers ─────────────────────────────────────────────────────────────
@@ -126,6 +131,7 @@ export default function ShoppingListPage() {
   }
 
   function clearChecked() {
+    setDismissed(prev => new Set([...prev, ...checked]))
     setChecked(new Set())
   }
 
@@ -184,7 +190,7 @@ export default function ShoppingListPage() {
           /* Category groups */
           <ul className="sl-list">
             {activeCategories.map(cat => {
-              const items = grouped.get(cat)!
+              const items = visibleGrouped.get(cat)!
               return (
                 <li key={cat} className="sl-category-section">
                   <h2
