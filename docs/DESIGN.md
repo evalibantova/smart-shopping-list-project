@@ -105,7 +105,8 @@ Defined as CSS custom properties on `:root`:
 ```
 
 - `.app` — `display: flex; height: 100vh; overflow: hidden`
-- `.page` — `flex: 1; display: flex; flex-direction: column; min-height: 0`
+- `.page` — `flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto` — the page itself scrolls by default.
+- `.page--fit` — modifier that sets `overflow-y: hidden` on `.page`. Use on pages where a full-height inner panel owns the scroll boundary (e.g. Meal Planner's `planner-grid-wrapper`). Without this modifier the page scrolls itself and the inner panel never fills the viewport height.
 - `.page-header` — `display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 16px; flex-shrink: 0` — **title and primary controls share one row**. Never use `flex-direction: column` here.
 - `.page-body` — `flex: 1; overflow: hidden; display: flex`
 

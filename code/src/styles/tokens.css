@@ -58,6 +58,12 @@
   overflow-y: auto;
 }
 
+/* Fit variant: page owns no scroll — inner panel is the scroll boundary.
+   Use on pages where a full-height grid/list handles its own overflow (e.g. Meal Planner). */
+.page--fit {
+  overflow-y: hidden;
+}
+
 /* Bottom padding when mobile nav is visible */
 .page--mobile {
   padding-bottom: 60px;
