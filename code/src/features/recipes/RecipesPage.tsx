@@ -4,6 +4,7 @@ import { useIsMobile } from '../../hooks/useIsMobile'
 import { useRecipesStore } from '../../store/recipesStore'
 import { useTagsStore } from '../../store/tagsStore'
 import RecipeDetail from '../../components/shared/RecipeDetail/RecipeDetail'
+import AddToWeekModal from '../../components/shared/AddToWeekModal/AddToWeekModal'
 import RecipeForm from './RecipeForm'
 import TagChip from '../../components/ui/TagChip/TagChip'
 import type { Recipe } from '../../types/recipe'
@@ -17,6 +18,7 @@ export default function RecipesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editRecipe, setEditRecipe] = useState<Recipe | undefined>(undefined)
+  const [addToWeekRecipe, setAddToWeekRecipe] = useState<Recipe | null>(null)
 
   const filtered = recipes.filter(r => {
     const q = search.toLowerCase()
@@ -152,6 +154,7 @@ export default function RecipesPage() {
       key={selectedId}
       recipe={selectedRecipe}
       onEdit={() => openEdit(selectedRecipe)}
+      onAddToWeek={() => setAddToWeekRecipe(selectedRecipe)}
     />
   ) : (
     <div
@@ -240,6 +243,7 @@ export default function RecipesPage() {
                     key={selectedId}
                     recipe={selectedRecipe}
                     onEdit={() => openEdit(selectedRecipe)}
+                    onAddToWeek={() => setAddToWeekRecipe(selectedRecipe)}
                   />
                 )}
               </div>
@@ -250,6 +254,9 @@ export default function RecipesPage() {
 
       {showForm && (
         <RecipeForm recipe={editRecipe} onClose={closeForm} />
+      )}
+      {addToWeekRecipe && (
+        <AddToWeekModal recipe={addToWeekRecipe} onClose={() => setAddToWeekRecipe(null)} />
       )}
     </div>
   )
