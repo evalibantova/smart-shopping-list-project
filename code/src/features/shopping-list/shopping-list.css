@@ -1,0 +1,194 @@
+/* ── Shopping List Page ────────────────────────────────────────────────── */
+
+.sl-page {
+  background: var(--bg);
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.sl-header {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sl-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin: 0;
+}
+
+.sl-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Progress Bar ─────────────────────────────────────────────────────────── */
+
+.sl-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sl-progress-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+
+.sl-progress-bar {
+  width: 120px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sl-progress-fill {
+  height: 100%;
+  background: var(--coral);
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+/* ── Clear button ─────────────────────────────────────────────────────────── */
+
+.sl-clear-btn {
+  font-size: 12px;
+}
+
+/* ── Body / List ──────────────────────────────────────────────────────────── */
+
+.sl-body {
+  padding: 0 16px 24px;
+  overflow-y: auto;
+}
+
+.sl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Category section ─────────────────────────────────────────────────────── */
+
+.sl-category-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sl-category-heading {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+
+.sl-category-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ── Individual item ──────────────────────────────────────────────────────── */
+
+.sl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.15s;
+}
+
+.sl-item:last-child {
+  border-bottom: none;
+}
+
+.sl-item[data-checked="true"] {
+  opacity: 0.45;
+}
+
+.sl-item[data-checked="true"] .sl-item-name {
+  text-decoration: line-through;
+  color: var(--text-mid);
+}
+
+/* ── Checkbox ─────────────────────────────────────────────────────────────── */
+
+.sl-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--coral);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Item name ────────────────────────────────────────────────────────────── */
+
+.sl-item-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--charcoal);
+  transition: text-decoration 0.1s;
+}
+
+/* ── Quantity ─────────────────────────────────────────────────────────────── */
+
+.sl-item-qty {
+  font-size: 13px;
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+
+/* ── Auto badge ───────────────────────────────────────────────────────────── */
+
+.sl-auto-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--surface);
+  background: var(--coral);
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+
+.sl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.sl-empty-icon {
+  font-size: 40px;
+}
+
+.sl-empty-msg {
+  font-size: 15px;
+  color: var(--text-mid);
+  margin: 0;
+}
