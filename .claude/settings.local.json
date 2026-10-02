@@ -1,16 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install *)",
-      "Bash(which wkhtmltoimage *)",
-      "Bash(dpkg -l)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(git *)",
       "Bash(python3 -m pip list)",
-      "Bash(node -e \"const p=require\\('puppeteer-core'\\); console.log\\('puppeteer-core ok'\\)\")",
-      "Bash(node -e \"require\\('@playwright/test'\\)\")",
-      "Bash(npm --version)",
       "Bash(apt-get install *)",
-      "Bash(python3 -m playwright install chromium)",
-      "Bash(PLAYWRIGHT_BROWSERS_PATH=/data/playwright-browsers npx playwright install chromium)"
+      "Bash(uv run *)"
     ]
   }
 }
