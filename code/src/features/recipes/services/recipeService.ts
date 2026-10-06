@@ -6,7 +6,8 @@ export const recipeService = {
   getAll(): Recipe[] {
     const raw = localStorage.getItem(KEY)
     if (!raw) return []
-    return JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
   },
 
   create(recipe: Omit<Recipe, 'id'>): Recipe {
