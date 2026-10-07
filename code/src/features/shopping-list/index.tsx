@@ -19,13 +19,28 @@ export default function ShoppingListPage() {
     [entries, recipes, ingredientsDb, weekStart]
   )
 
+  const allItemIds = useMemo(
+    () => new Set(allItems.map((i) => i.ingredientId)),
+    [allItems]
+  )
+
+  // Reconcile against current allItems so stale IDs don't corrupt progress math
+  const effectiveCheckedIds = useMemo(
+    () => new Set([...checkedIds].filter((id) => allItemIds.has(id))),
+    [checkedIds, allItemIds]
+  )
+  const effectiveClearedIds = useMemo(
+    () => new Set([...clearedIds].filter((id) => allItemIds.has(id))),
+    [clearedIds, allItemIds]
+  )
+
   const visibleItems = useMemo(
-    () => allItems.filter((item) => !clearedIds.has(item.ingredientId)),
-    [allItems, clearedIds]
+    () => allItems.filter((item) => !effectiveClearedIds.has(item.ingredientId)),
+    [allItems, effectiveClearedIds]
   )
 
   const totalCount = allItems.length
-  const doneCount = checkedIds.size + clearedIds.size
+  const doneCount = effectiveCheckedIds.size + effectiveClearedIds.size
 
   function toggleChecked(ingredientId: string) {
     setCheckedIds((prev) => {
@@ -40,21 +55,24 @@ export default function ShoppingListPage() {
   }
 
   function clearChecked() {
-    setClearedIds((prev) => new Set([...prev, ...checkedIds]))
+    setClearedIds((prev) => new Set([...prev, ...effectiveCheckedIds]))
     setCheckedIds(new Set())
   }
+
+  const knownCategoryKeys = useMemo(() => new Set(CATEGORY_ORDER.map((c) => c.key)), [])
 
   const groupedItems = useMemo(() => {
     const byCategory = new Map<string, typeof visibleItems>()
     for (const item of visibleItems) {
-      const list = byCategory.get(item.category) ?? []
+      const cat = knownCategoryKeys.has(item.category) ? item.category : 'Other'
+      const list = byCategory.get(cat) ?? []
       list.push(item)
-      byCategory.set(item.category, list)
+      byCategory.set(cat, list)
     }
     return CATEGORY_ORDER
       .map((cat) => ({ ...cat, items: byCategory.get(cat.key) ?? [] }))
       .filter((g) => g.items.length > 0)
-  }, [visibleItems])
+  }, [visibleItems, knownCategoryKeys])
 
   const isEmpty = allItems.length === 0
 
@@ -62,7 +80,7 @@ export default function ShoppingListPage() {
     <div className="page">
       <div className="page-header">
         <h1>Shopping List</h1>
-        {checkedIds.size > 0 && (
+        {effectiveCheckedIds.size > 0 && (
           <button
             data-testid="shopping-list-clear-checked"
             onClick={clearChecked}
@@ -150,7 +168,7 @@ export default function ShoppingListPage() {
                   <span>{group.key}</span>
                 </div>
                 {group.items.map((item) => {
-                  const checked = checkedIds.has(item.ingredientId)
+                  const checked = effectiveCheckedIds.has(item.ingredientId)
                   return (
                     <div
                       key={item.ingredientId}

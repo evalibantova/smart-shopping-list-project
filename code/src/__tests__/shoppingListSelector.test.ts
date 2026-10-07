@@ -112,4 +112,31 @@ describe('computeShoppingList', () => {
     const result = computeShoppingList([entry], [RECIPE_PASTA], [ING_CHICKEN], WEEK_START)
     expect(result).toHaveLength(0)
   })
+
+  it('(h) recipe.servings === 0 does not divide-by-zero — scale defaults to 1', () => {
+    const zeroServingsRecipe: Recipe = { ...RECIPE_PASTA, servings: 0 }
+    const entry = makeEntry({ recipeId: 'recipe-pasta', servings: 4 })
+    // Should not throw; returns items at scale 1 (raw quantities)
+    expect(() => computeShoppingList([entry], [zeroServingsRecipe], DB, WEEK_START)).not.toThrow()
+    const result = computeShoppingList([entry], [zeroServingsRecipe], DB, WEEK_START)
+    const tomato = result.find((i) => i.ingredientId === 'ing-tomato')
+    expect(tomato?.quantity).toBe(4) // raw recipe quantity × scale 1
+  })
+
+  it('(i) fractional quantities are rounded to 2 decimal places', () => {
+    const recipe: Recipe = { ...RECIPE_PASTA, servings: 3 }
+    const entry = makeEntry({ servings: 1, recipeId: 'recipe-pasta' })
+    // tomato: 4 * (1/3) = 1.333... → rounds to 1.33
+    const result = computeShoppingList([entry], [recipe], DB, WEEK_START)
+    const tomato = result.find((i) => i.ingredientId === 'ing-tomato')
+    expect(tomato?.quantity).toBe(1.33)
+  })
+
+  it('(j) entries on different days within the same week are both included', () => {
+    const e1 = makeEntry({ date: '2026-10-05', servings: 2 }) // Monday
+    const e2 = makeEntry({ date: '2026-10-09', servings: 2 }) // Friday
+    const result = computeShoppingList([e1, e2], [RECIPE_PASTA], DB, WEEK_START)
+    const tomato = result.find((i) => i.ingredientId === 'ing-tomato')
+    expect(tomato?.quantity).toBe(8) // 4 from each entry (scale=1 each)
+  })
 })
