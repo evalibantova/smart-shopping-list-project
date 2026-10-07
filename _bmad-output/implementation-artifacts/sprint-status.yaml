@@ -7,33 +7,36 @@
 # Refresh by re-running bmad-sprint-planning after installing uv.
 
 generated: 09-28-2026 12:00
-last_updated: 10-07-2026 08:10
+last_updated: 10-07-2026
 project: Smart Shopping List
 project_key: NOKEY
 tracking_system: file-system
 story_location: "_bmad-output/implementation-artifacts"
 
+# MVP scope: Stories 1.1, 1.2, 1.3, 2.1, 2.2, 3.3 per docs/SCOPE.md
+# Out of scope for this build: 2.3, 3.1, 3.2, 4.1, 4.2
+
 development_status:
   epic-1: in-progress
-  1-1-navigable-app-shell: review
-  1-2-ingredient-system: backlog
+  1-1-navigable-app-shell: done
+  1-2-ingredient-system: done
   1-3-recipe-management: backlog
   epic-1-retrospective: optional
 
   epic-2: backlog
   2-1-weekly-calendar-grid: backlog
   2-2-assign-remove-meals: backlog
-  2-3-mark-as-cooked: backlog
+  2-3-mark-as-cooked: out-of-scope
   epic-2-retrospective: optional
 
   epic-3: backlog
-  3-1-pantry-management: backlog
-  3-2-cooked-pantry-deduction: backlog
+  3-1-pantry-management: out-of-scope
+  3-2-cooked-pantry-deduction: out-of-scope
   3-3-live-shopping-list: backlog
   epic-3-retrospective: optional
 
   epic-4: backlog
-  4-1-today-s-meals-availability: backlog
-  4-2-cook-now-filters-recipe-detail: backlog
+  4-1-today-s-meals-availability: out-of-scope
+  4-2-cook-now-filters-recipe-detail: out-of-scope
   epic-4-retrospective: optional
 action_items: []
