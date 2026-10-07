@@ -93,6 +93,7 @@ body {
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.04em;
+  white-space: nowrap;
 }
 
 @media (max-width: 767px) {

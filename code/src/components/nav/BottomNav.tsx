@@ -12,7 +12,8 @@ export default function BottomNav() {
         left: 0,
         right: 0,
         height: '60px',
-        background: 'var(--charcoal)',
+        background: 'var(--surface)',
+        borderTop: '1px solid var(--border)',
         alignItems: 'stretch',
         zIndex: 100,
       }}
@@ -29,7 +30,7 @@ export default function BottomNav() {
             justifyContent: 'center',
             gap: '3px',
             textDecoration: 'none',
-            color: isActive ? 'var(--coral)' : 'var(--nav-text-inactive-mobile)',
+            color: isActive ? 'var(--coral)' : 'var(--text-dim)',
             fontSize: '10px',
             fontWeight: 600,
           })}

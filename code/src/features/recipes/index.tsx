@@ -73,7 +73,7 @@ export default function RecipesPage() {
       <div className="page-header">
         <h1>Recipes</h1>
         <Button
-          intent="coral"
+          intent="primary"
           size="sm"
           onClick={() => setModal({ type: 'add' })}
         >
