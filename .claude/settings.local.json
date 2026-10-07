@@ -8,8 +8,12 @@
       "Bash(apt-get install *)",
       "Bash(uv run *)",
       "Bash(grep *)",
-      "Bash(git -C *)",
-      "Read(//tmp/**)"
+      "Bash(git -C /data diff --unified=0 f857c9daf3c661293533d69b0d4cf39e0094ec53 -- _bmad-output/)",
+      "Bash(git -C /data ls-files --others --exclude-standard code/)",
+      "Read(//tmp/**)",
+      "Bash(./node_modules/.bin/eslint --version)",
+      "Bash(echo \"LINT_EXIT: $?\")",
+      "Bash(echo \"BUILD_EXIT: $?\")"
     ]
   }
 }

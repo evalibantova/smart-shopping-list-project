@@ -1,0 +1,93 @@
+import { IngredientDbEntry } from '../types/ingredients'
+
+type IngredientSeed = Omit<IngredientDbEntry, 'id'>
+
+export const INGREDIENTS_SEED: IngredientSeed[] = [
+  // Produce (20)
+  { name: 'Onion', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Garlic', default_unit: 'cloves', category: 'Produce' },
+  { name: 'Tomato', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Carrot', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Potato', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Bell pepper', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Spinach', default_unit: 'g', category: 'Produce' },
+  { name: 'Broccoli', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Cucumber', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Lemon', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Lime', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Celery', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Zucchini', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Avocado', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Ginger', default_unit: 'g', category: 'Produce' },
+  { name: 'Mushrooms', default_unit: 'g', category: 'Produce' },
+  { name: 'Cherry tomatoes', default_unit: 'g', category: 'Produce' },
+  { name: 'Kale', default_unit: 'g', category: 'Produce' },
+  { name: 'Sweet potato', default_unit: 'pcs', category: 'Produce' },
+  { name: 'Leek', default_unit: 'pcs', category: 'Produce' },
+
+  // Fish & Seafood (10)
+  { name: 'Salmon fillet', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Tuna', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Shrimp', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Cod fillet', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Sardines', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Mackerel', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Crab meat', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Prawns', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Squid', default_unit: 'g', category: 'Fish & Seafood' },
+  { name: 'Mussels', default_unit: 'g', category: 'Fish & Seafood' },
+
+  // Meat (15)
+  { name: 'Chicken breast', default_unit: 'g', category: 'Meat' },
+  { name: 'Chicken thigh', default_unit: 'g', category: 'Meat' },
+  { name: 'Chicken stock', default_unit: 'ml', category: 'Pantry & Dry Goods' },
+  { name: 'Ground beef', default_unit: 'g', category: 'Meat' },
+  { name: 'Beef steak', default_unit: 'g', category: 'Meat' },
+  { name: 'Pork loin', default_unit: 'g', category: 'Meat' },
+  { name: 'Bacon', default_unit: 'g', category: 'Meat' },
+  { name: 'Lamb chops', default_unit: 'g', category: 'Meat' },
+  { name: 'Sausages', default_unit: 'pcs', category: 'Meat' },
+  { name: 'Turkey breast', default_unit: 'g', category: 'Meat' },
+  { name: 'Beef stock', default_unit: 'ml', category: 'Pantry & Dry Goods' },
+  { name: 'Pork belly', default_unit: 'g', category: 'Meat' },
+  { name: 'Duck breast', default_unit: 'g', category: 'Meat' },
+  { name: 'Ham', default_unit: 'g', category: 'Meat' },
+  { name: 'Minced lamb', default_unit: 'g', category: 'Meat' },
+
+  // Dairy (10)
+  { name: 'Milk', default_unit: 'ml', category: 'Dairy' },
+  { name: 'Butter', default_unit: 'g', category: 'Dairy' },
+  { name: 'Cheddar cheese', default_unit: 'g', category: 'Dairy' },
+  { name: 'Parmesan', default_unit: 'g', category: 'Dairy' },
+  { name: 'Cream', default_unit: 'ml', category: 'Dairy' },
+  { name: 'Yogurt', default_unit: 'g', category: 'Dairy' },
+  { name: 'Eggs', default_unit: 'pcs', category: 'Dairy' },
+  { name: 'Mozzarella', default_unit: 'g', category: 'Dairy' },
+  { name: 'Sour cream', default_unit: 'g', category: 'Dairy' },
+  { name: 'Cream cheese', default_unit: 'g', category: 'Dairy' },
+
+  // Pantry & Dry Goods (16)
+  { name: 'Olive oil', default_unit: 'tbsp', category: 'Pantry & Dry Goods' },
+  { name: 'Salt', default_unit: 'tsp', category: 'Pantry & Dry Goods' },
+  { name: 'Black pepper', default_unit: 'tsp', category: 'Pantry & Dry Goods' },
+  { name: 'Flour', default_unit: 'g', category: 'Pantry & Dry Goods' },
+  { name: 'Sugar', default_unit: 'g', category: 'Pantry & Dry Goods' },
+  { name: 'Rice', default_unit: 'g', category: 'Pantry & Dry Goods' },
+  { name: 'Pasta', default_unit: 'g', category: 'Pantry & Dry Goods' },
+  { name: 'Soy sauce', default_unit: 'tbsp', category: 'Pantry & Dry Goods' },
+  { name: 'Vinegar', default_unit: 'tbsp', category: 'Pantry & Dry Goods' },
+  { name: 'Honey', default_unit: 'tbsp', category: 'Pantry & Dry Goods' },
+  { name: 'Tomato paste', default_unit: 'tbsp', category: 'Pantry & Dry Goods' },
+  { name: 'Cumin', default_unit: 'tsp', category: 'Pantry & Dry Goods' },
+  { name: 'Paprika', default_unit: 'tsp', category: 'Pantry & Dry Goods' },
+  { name: 'Canned tomatoes', default_unit: 'g', category: 'Pantry & Dry Goods' },
+  { name: 'Coconut milk', default_unit: 'ml', category: 'Pantry & Dry Goods' },
+  { name: 'Chickpeas', default_unit: 'g', category: 'Pantry & Dry Goods' },
+
+  // Other (5)
+  { name: 'Vegetable stock', default_unit: 'ml', category: 'Other' },
+  { name: 'White wine', default_unit: 'ml', category: 'Other' },
+  { name: 'Red wine', default_unit: 'ml', category: 'Other' },
+  { name: 'Baking powder', default_unit: 'tsp', category: 'Other' },
+  { name: 'Vanilla extract', default_unit: 'tsp', category: 'Other' },
+]
