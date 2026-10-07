@@ -7,22 +7,22 @@
 # Refresh by re-running bmad-sprint-planning after installing uv.
 
 generated: 09-28-2026 12:00
-last_updated: 09-28-2026 12:00
+last_updated: 10-07-2026 08:10
 project: Smart Shopping List
 project_key: NOKEY
 tracking_system: file-system
 story_location: "_bmad-output/implementation-artifacts"
 
 development_status:
-  epic-1: backlog
-  1-1-navigable-app-shell: backlog
+  epic-1: in-progress
+  1-1-navigable-app-shell: review
   1-2-ingredient-system: backlog
   1-3-recipe-management: backlog
   epic-1-retrospective: optional
 
   epic-2: backlog
   2-1-weekly-calendar-grid: backlog
-  2-2-assign-and-remove-meals: backlog
+  2-2-assign-remove-meals: backlog
   2-3-mark-as-cooked: backlog
   epic-2-retrospective: optional
 
@@ -33,8 +33,7 @@ development_status:
   epic-3-retrospective: optional
 
   epic-4: backlog
-  4-1-todays-meals-and-availability: backlog
-  4-2-cook-now-filters-and-recipe-detail: backlog
+  4-1-today-s-meals-availability: backlog
+  4-2-cook-now-filters-recipe-detail: backlog
   epic-4-retrospective: optional
-
 action_items: []
