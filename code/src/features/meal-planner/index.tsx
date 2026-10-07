@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { CalendarCheck, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useStore } from '../../store'
 import { recipeService } from '../recipes/services/recipeService'
@@ -179,7 +179,7 @@ export default function MealPlannerPage() {
 
           {/* Slot rows */}
           {SLOTS.map((slot) => (
-            <>
+            <React.Fragment key={slot.key}>
               <div
                 key={slot.key + '-label'}
                 style={{
@@ -227,7 +227,7 @@ export default function MealPlannerPage() {
                             borderRadius: '4px',
                             padding: '4px 6px',
                             background: entry.cooked
-                              ? 'rgba(240,112,69,0.08)'
+                              ? 'color-mix(in srgb, var(--coral) 8%, transparent)'
                               : 'var(--surface2)',
                             display: 'flex',
                             alignItems: 'flex-start',
@@ -286,7 +286,7 @@ export default function MealPlannerPage() {
                   </div>
                 )
               })}
-            </>
+            </React.Fragment>
           ))}
         </div>
       </div>

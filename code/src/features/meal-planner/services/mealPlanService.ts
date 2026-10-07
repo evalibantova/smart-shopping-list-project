@@ -31,7 +31,7 @@ export function create(entry: Omit<MealPlanEntry, 'id'>): MealPlanEntry {
   return newEntry
 }
 
-export function update(id: string, patch: Partial<MealPlanEntry>): MealPlanEntry {
+export function update(id: string, patch: Omit<Partial<MealPlanEntry>, 'id'>): MealPlanEntry {
   const existing = readAll()
   const index = existing.findIndex((e) => e.id === id)
   if (index === -1) throw new Error(`MealPlanEntry not found: ${id}`)

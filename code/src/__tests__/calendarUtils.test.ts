@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import {
   getWeekStart,
   toDateStr,
   getDayDates,
   formatWeekRange,
+  isToday,
 } from '../features/meal-planner/utils/calendarUtils'
 
 describe('calendarUtils', () => {
@@ -42,5 +43,19 @@ describe('calendarUtils', () => {
   it('(f) toDateStr formats as YYYY-MM-DD', () => {
     const date = new Date(2026, 8, 28) // Sep 28
     expect(toDateStr(date)).toBe('2026-09-28')
+  })
+
+  it('(g) formatWeekRange includes start month when week crosses month boundary', () => {
+    const monday = new Date(2026, 8, 28) // Sep 28 — Sunday = Oct 4
+    const result = formatWeekRange(monday)
+    expect(result).toBe('28 Sep – 4 Oct 2026')
+  })
+
+  it('(h) isToday returns true for today and false for another date', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 8, 28)) // pin to Sep 28 2026
+    expect(isToday(new Date(2026, 8, 28))).toBe(true)
+    expect(isToday(new Date(2026, 8, 27))).toBe(false)
+    vi.useRealTimers()
   })
 })

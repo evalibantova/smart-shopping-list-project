@@ -30,9 +30,13 @@ export function formatWeekRange(monday: Date): string {
   sunday.setDate(monday.getDate() + 6)
   const startDay = monday.getDate()
   const endDay = sunday.getDate()
-  const month = MONTHS[sunday.getMonth()]
+  const endMonth = MONTHS[sunday.getMonth()]
   const year = sunday.getFullYear()
-  return `${startDay} – ${endDay} ${month} ${year}`
+  if (monday.getMonth() !== sunday.getMonth()) {
+    const startMonth = MONTHS[monday.getMonth()]
+    return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${year}`
+  }
+  return `${startDay} – ${endDay} ${endMonth} ${year}`
 }
 
 export function isToday(date: Date): boolean {
