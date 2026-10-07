@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { CalendarCheck, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useStore } from '../../store'
-import { recipeService } from '../recipes/services/recipeService'
 import {
   getWeekStart,
   toDateStr,
@@ -31,10 +30,11 @@ export default function MealPlannerPage() {
     if (entries.length === 0) initMealPlan()
   }, [])
 
-  const recipeMap = useMemo(() => {
-    const all = recipeService.getAll()
-    return new Map(all.map((r) => [r.id, r]))
-  }, [])
+  const storeRecipes = useStore((s) => s.recipes)
+  const recipeMap = useMemo(
+    () => new Map(storeRecipes.map((r) => [r.id, r])),
+    [storeRecipes]
+  )
 
   const dayDates = getDayDates(weekStart)
   const isCurrentWeek = toDateStr(weekStart) === toDateStr(getWeekStart(new Date()))

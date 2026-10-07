@@ -25,8 +25,9 @@ export function RecipePickerModal({ date, slot, onClose }: Props) {
     return () => document.removeEventListener('keydown', handleKey)
   }, [onClose])
 
-  const filtered = query.trim()
-    ? recipes.filter((r) => r.name.toLowerCase().includes(query.toLowerCase()))
+  const trimmedQuery = query.trim().toLowerCase()
+  const filtered = trimmedQuery
+    ? recipes.filter((r) => r.name.toLowerCase().includes(trimmedQuery))
     : recipes
 
   function handleSelect(recipe: (typeof recipes)[0]) {

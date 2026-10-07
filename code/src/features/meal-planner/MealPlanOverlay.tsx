@@ -21,11 +21,11 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape' && !editOpen && !addToWeekOpen) onClose()
     }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
-  }, [onClose])
+  }, [onClose, editOpen, addToWeekOpen])
 
   // Close overlay if entry is removed from the store elsewhere
   useEffect(() => {
