@@ -239,7 +239,7 @@ grid-template-columns: 26px repeat(7, minmax(110px, 1fr))
 
 - Column 1 (26 px): rotated slot label (`writing-mode: vertical-rl; rotate(180deg); font-size: 9px; uppercase; 1.5 px letter-spacing`)
 - Columns 2–8: meal slots, minimum 110 px each → forces horizontal scroll on mobile (~3 days visible at once)
-- Row height: `min-height: 100px`, `flex: 1` so rows fill the available vertical space equally
+- **Row heights:** `grid-template-rows: auto 1fr 1fr 1fr` — the day-header row is auto-height; the three slot rows each take one-third of remaining vertical space so the grid fills the full page height. The outer grid wrapper must be `flex: 1; min-height: 0` and the grid itself must be `min-height: 100%` for this to work. Slot cells keep `min-height: 100px` as a floor.
 - Today column: `color: --coral` on **both** the day-name label and the date number
 
 ### Week navigation bar
@@ -271,7 +271,7 @@ Each recipe in a slot is identified by a **circular icon badge** (~24 px diamete
 | `< 768px` (mobile) | Bottom nav bar, single-column layouts, bottom-sheet modals. Page header stays a single flex row — title shrinks to 18 px so it fits alongside nav controls. |
 | `≥ 768px` (tablet/desktop) | Sidebar restored, two-column layouts (recipe list + detail), modals centered |
 
-**Recipes page mobile:** Detail panel slides in as a full-screen overlay with `transform: translateX(100%)` → `translateX(0)`. Back button appears in header.
+**Recipes page mobile:** The right (detail) panel is hidden on mobile via `.recipe-detail-panel { display: none }` — the list takes full width. Tapping a recipe triggers a full-screen overlay (`position: fixed; inset: 0`) that slides in with `transform: translateX(100%)` → `translateX(0)`. A back button (chevron-left) appears in the overlay header.
 
 ---
 

@@ -133,12 +133,14 @@ export default function MealPlannerPage() {
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
+      <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto', minHeight: 0 }}>
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: '26px repeat(7, minmax(110px, 1fr))',
+            gridTemplateRows: 'auto 1fr 1fr 1fr',
             minWidth: '800px',
+            minHeight: '100%',
           }}
         >
           {/* Header row */}

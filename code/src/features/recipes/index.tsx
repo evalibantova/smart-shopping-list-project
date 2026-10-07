@@ -202,8 +202,9 @@ export default function RecipesPage() {
           </div>
         </div>
 
-        {/* Right panel — desktop detail */}
+        {/* Right panel — desktop only */}
         <div
+          className="recipe-detail-panel"
           style={{
             flex: 1,
             display: 'flex',

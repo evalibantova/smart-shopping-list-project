@@ -108,6 +108,13 @@ body {
   display: flex;
 }
 
+/* Hide recipe detail panel on mobile — mobile overlay handles it */
+@media (max-width: 767px) {
+  .recipe-detail-panel {
+    display: none;
+  }
+}
+
 /* Navigation visibility */
 .sidebar {
   display: none;
