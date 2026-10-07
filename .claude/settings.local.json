@@ -22,7 +22,8 @@
       "Read(//home/claude-user/**)",
       "Bash(dpkg --version)",
       "Bash(LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib node *)",
-      "Bash(LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib FONTCONFIG_FILE=/tmp/chrome-fonts.conf node *)"
+      "Bash(LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib FONTCONFIG_FILE=/tmp/chrome-fonts.conf node *)",
+      "Bash(xargs rm -r)"
     ]
   }
 }
