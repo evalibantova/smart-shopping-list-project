@@ -108,10 +108,15 @@ body {
   display: flex;
 }
 
-/* Hide recipe detail panel on mobile — mobile overlay handles it */
+/* On mobile: list takes full width, detail panel hidden (mobile overlay handles detail view) */
 @media (max-width: 767px) {
+  .recipe-list-panel {
+    width: 100% !important;
+    border-right: none !important;
+  }
+
   .recipe-detail-panel {
-    display: none;
+    display: none !important;
   }
 }
 

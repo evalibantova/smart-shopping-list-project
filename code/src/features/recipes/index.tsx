@@ -92,6 +92,7 @@ export default function RecipesPage() {
       >
         {/* Left panel — recipe list */}
         <div
+          className="recipe-list-panel"
           style={{
             width: 280,
             flexShrink: 0,
