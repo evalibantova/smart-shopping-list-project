@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Pencil, CalendarPlus, Minus, Plus, RotateCcw, Trash2 } from 'lucide-react'
+import { Pencil, CalendarPlus, Minus, Plus, RotateCcw, Trash2, CheckCircle } from 'lucide-react'
 import { useStore } from '../../store'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { IconButton } from '../ui/IconButton'
@@ -11,9 +11,10 @@ interface RecipeDetailProps {
   onEdit?: () => void
   onDelete?: () => void
   onAddToWeek?: () => void
+  onRemoveFromPlan?: () => void
 }
 
-export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek }: RecipeDetailProps) {
+export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek, onRemoveFromPlan }: RecipeDetailProps) {
   const recipe = useStore((s) => s.recipes.find((r) => r.id === recipeId) ?? null)
   const tags = useStore((s) => s.tags)
   const [displayServings, setDisplayServings] = useState<number | null>(null)
@@ -88,26 +89,61 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek 
           </h2>
         </div>
 
-        <div style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
-          {onDelete && (
-            <IconButton variant="danger" onClick={onDelete} aria-label="Delete recipe">
-              <Trash2 size={18} />
+        {context === 'meal-planner' ? (
+          <div style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
+            {onEdit && (
+              <IconButton variant="default" onClick={onEdit} aria-label="Edit recipe">
+                <Pencil size={18} />
+              </IconButton>
+            )}
+            <IconButton
+              variant="accent"
+              onClick={onAddToWeek}
+              aria-label="Add to week"
+              style={{ opacity: onAddToWeek ? 1 : 0.35, cursor: onAddToWeek ? 'pointer' : 'default' }}
+            >
+              <CalendarPlus size={18} />
             </IconButton>
-          )}
-          {onEdit && (
-            <IconButton variant="default" onClick={onEdit} aria-label="Edit recipe">
-              <Pencil size={18} />
+            <IconButton
+              variant="default"
+              aria-label="Mark as cooked — coming in next update"
+              style={{ opacity: 0.35, pointerEvents: 'none' }}
+            >
+              <CheckCircle size={18} />
             </IconButton>
-          )}
-          <IconButton
-            variant="accent"
-            onClick={context !== 'recipes' ? onAddToWeek : undefined}
-            aria-label="Add to week"
-            style={{ opacity: context === 'recipes' ? 0.35 : 1, cursor: context === 'recipes' ? 'default' : 'pointer' }}
-          >
-            <CalendarPlus size={18} />
-          </IconButton>
-        </div>
+            {onRemoveFromPlan && (
+              <IconButton
+                variant="danger"
+                onClick={onRemoveFromPlan}
+                aria-label="Remove from plan"
+                data-testid="meal-plan-remove-btn"
+              >
+                <Trash2 size={18} />
+              </IconButton>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
+            {onDelete && (
+              <IconButton variant="danger" onClick={onDelete} aria-label="Delete recipe">
+                <Trash2 size={18} />
+              </IconButton>
+            )}
+            {onEdit && (
+              <IconButton variant="default" onClick={onEdit} aria-label="Edit recipe">
+                <Pencil size={18} />
+              </IconButton>
+            )}
+            <IconButton
+              variant="accent"
+              onClick={onAddToWeek}
+              aria-label="Add to week"
+              style={{ opacity: onAddToWeek ? 1 : 0.35, cursor: onAddToWeek ? 'pointer' : 'default' }}
+            >
+              <CalendarPlus size={18} />
+            </IconButton>
+          </div>
+        )}
       </div>
 
       {/* Body */}

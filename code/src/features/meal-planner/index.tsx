@@ -10,6 +10,8 @@ import {
   isToday,
   DAYS,
 } from './utils/calendarUtils'
+import { RecipePickerModal } from './RecipePickerModal'
+import { MealPlanOverlay } from './MealPlanOverlay'
 
 const SLOTS = [
   { key: 'breakfast' as const, label: 'Breakfast' },
@@ -22,6 +24,8 @@ export default function MealPlannerPage() {
   const initMealPlan = useStore((s) => s.initMealPlan)
 
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()))
+  const [pickerSlot, setPickerSlot] = useState<{ date: string; slot: 'breakfast' | 'lunch' | 'dinner' } | null>(null)
+  const [overlayEntry, setOverlayEntry] = useState<{ id: string } | null>(null)
 
   useEffect(() => {
     if (entries.length === 0) initMealPlan()
@@ -223,6 +227,8 @@ export default function MealPlannerPage() {
                         <div
                           key={entry.id}
                           className="slot-item"
+                          data-testid="slot-item"
+                          onClick={() => setOverlayEntry({ id: entry.id })}
                           style={{
                             borderRadius: '4px',
                             padding: '4px 6px',
@@ -232,9 +238,11 @@ export default function MealPlannerPage() {
                             display: 'flex',
                             alignItems: 'flex-start',
                             gap: '6px',
+                            cursor: 'pointer',
                           }}
                         >
                           <div
+                            data-testid="slot-emoji-badge"
                             style={{
                               width: '24px',
                               height: '24px',
@@ -250,6 +258,7 @@ export default function MealPlannerPage() {
                             {recipe.emoji}
                           </div>
                           <span
+                            className="slot-name"
                             style={{
                               fontSize: '12px',
                               fontWeight: 500,
@@ -264,25 +273,49 @@ export default function MealPlannerPage() {
                         </div>
                       )
                     })}
-                    <button
-                      className="slot-add"
-                      style={{
-                        margin: slotEntries.length === 0 ? 'auto' : '0 auto 0 0',
-                        background: 'none',
-                        border: 'none',
-                        fontSize: '20px',
-                        color: 'var(--text-dim)',
-                        cursor: 'pointer',
-                        padding: '4px 8px',
-                        lineHeight: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                      aria-label={`Add meal to ${slot.label} on ${dateStr}`}
-                    >
-                      +
-                    </button>
+                    {slotEntries.length === 0 ? (
+                      <button
+                        className="slot-add"
+                        data-testid="slot-add"
+                        onClick={() => setPickerSlot({ date: dateStr, slot: slot.key })}
+                        style={{
+                          margin: 'auto',
+                          background: 'none',
+                          border: 'none',
+                          fontSize: '20px',
+                          color: 'var(--text-dim)',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          lineHeight: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        aria-label={`Add meal to ${slot.label} on ${dateStr}`}
+                      >
+                        +
+                      </button>
+                    ) : (
+                      <button
+                        className="slot-add-more"
+                        data-testid="slot-add-more"
+                        onClick={() => setPickerSlot({ date: dateStr, slot: slot.key })}
+                        style={{
+                          alignSelf: 'flex-start',
+                          background: 'none',
+                          border: 'none',
+                          fontSize: '14px',
+                          color: 'var(--text-dim)',
+                          cursor: 'pointer',
+                          padding: '2px 6px',
+                          lineHeight: 1,
+                          marginTop: 2,
+                        }}
+                        aria-label={`Add another meal to ${slot.label} on ${dateStr}`}
+                      >
+                        +
+                      </button>
+                    )}
                   </div>
                 )
               })}
@@ -290,6 +323,22 @@ export default function MealPlannerPage() {
           ))}
         </div>
       </div>
+
+      {pickerSlot && (
+        <RecipePickerModal
+          date={pickerSlot.date}
+          slot={pickerSlot.slot}
+          onClose={() => setPickerSlot(null)}
+        />
+      )}
+
+      {overlayEntry && (
+        <MealPlanOverlay
+          entryId={overlayEntry.id}
+          weekStart={weekStart}
+          onClose={() => setOverlayEntry(null)}
+        />
+      )}
     </div>
   )
 }

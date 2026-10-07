@@ -5,6 +5,8 @@ import { recipeService } from './services/recipeService'
 import { Recipe } from '../../types/recipes'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
 import { AddEditRecipeModal } from './AddEditRecipeModal'
+import { AddToWeekModal } from '../meal-planner/AddToWeekModal'
+import { getWeekStart } from '../meal-planner/utils/calendarUtils'
 import { Button } from '../../components/ui/Button'
 import { IconButton } from '../../components/ui/IconButton'
 import { TagChip } from '../../components/ui/TagChip'
@@ -25,6 +27,7 @@ export default function RecipesPage() {
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
+  const [addToWeekRecipeId, setAddToWeekRecipeId] = useState<string | null>(null)
 
   // Init recipes on mount if store is empty
   useEffect(() => {
@@ -212,6 +215,7 @@ export default function RecipesPage() {
             context="recipes"
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onAddToWeek={selectedId ? () => setAddToWeekRecipeId(selectedId) : undefined}
           />
         </div>
 
@@ -252,6 +256,7 @@ export default function RecipesPage() {
               context="recipes"
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onAddToWeek={selectedId ? () => setAddToWeekRecipeId(selectedId) : undefined}
             />
           </div>
         </div>
@@ -268,6 +273,17 @@ export default function RecipesPage() {
           onClose={() => setModal({ type: 'none' })}
         />
       )}
+      {addToWeekRecipeId && (() => {
+        const recipe = recipes.find((r) => r.id === addToWeekRecipeId)
+        return recipe ? (
+          <AddToWeekModal
+            recipeId={addToWeekRecipeId}
+            defaultServings={recipe.servings}
+            weekStart={getWeekStart(new Date())}
+            onClose={() => setAddToWeekRecipeId(null)}
+          />
+        ) : null
+      })()}
     </div>
   )
 }

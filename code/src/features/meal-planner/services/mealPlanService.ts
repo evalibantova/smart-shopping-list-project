@@ -21,14 +21,10 @@ export function getAll(): MealPlanEntry[] {
   return readAll()
 }
 
-export function create(entry: Omit<MealPlanEntry, 'id'>): MealPlanEntry {
+export function create(entry: MealPlanEntry): MealPlanEntry {
   const existing = readAll()
-  const newEntry: MealPlanEntry = {
-    ...entry,
-    id: crypto.randomUUID(),
-  }
-  writeAll([...existing, newEntry])
-  return newEntry
+  writeAll([...existing, entry])
+  return entry
 }
 
 export function update(id: string, patch: Omit<Partial<MealPlanEntry>, 'id'>): MealPlanEntry {
