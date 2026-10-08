@@ -4,8 +4,10 @@ import { BrowserRouter } from 'react-router-dom'
 import './styles/tokens.css'
 import App from './App'
 import { ingredientsDbService } from './services/ingredientsDbService'
+import { seedAppDataIfEmpty } from './data/seedData'
 
 ingredientsDbService.seedIfEmpty()
+seedAppDataIfEmpty()
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('No #root element found')
