@@ -1,15 +1,30 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useStore } from '../../store'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { getWeekStart } from '../meal-planner/utils/calendarUtils'
 import { computeShoppingList, CATEGORY_ORDER } from './shoppingListSelector'
 
+function loadSet(key: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
+  } catch { return new Set() }
+}
+
 export default function ShoppingListPage() {
   const entries = useStore((s) => s.entries)
   const recipes = useStore((s) => s.recipes)
 
-  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
-  const [clearedIds, setClearedIds] = useState<Set<string>>(new Set())
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(() => loadSet('slist_checked'))
+  const [clearedIds, setClearedIds] = useState<Set<string>>(() => loadSet('slist_cleared'))
+
+  useEffect(() => {
+    localStorage.setItem('slist_checked', JSON.stringify([...checkedIds]))
+  }, [checkedIds])
+
+  useEffect(() => {
+    localStorage.setItem('slist_cleared', JSON.stringify([...clearedIds]))
+  }, [clearedIds])
 
   const weekStart = useMemo(() => getWeekStart(new Date()), [])
   const ingredientsDb = useMemo(() => ingredientsDbService.getAll(), [])
