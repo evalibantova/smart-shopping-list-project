@@ -232,6 +232,8 @@ export default function MealPlannerPage() {
                           data-testid="slot-item"
                           onClick={() => setOverlayEntry({ id: entry.id })}
                           style={{
+                            position: 'relative',
+                            overflow: 'hidden',
                             borderRadius: '4px',
                             padding: '4px 6px',
                             background: entry.cooked
@@ -243,6 +245,23 @@ export default function MealPlannerPage() {
                             cursor: 'pointer',
                           }}
                         >
+                          {entry.cooked && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                right: 2,
+                                bottom: -6,
+                                fontSize: 38,
+                                lineHeight: 1,
+                                color: 'var(--coral)',
+                                opacity: 0.14,
+                                pointerEvents: 'none',
+                                userSelect: 'none',
+                              }}
+                            >
+                              ✓
+                            </div>
+                          )}
                           <div
                             data-testid="slot-emoji-badge"
                             style={{
@@ -265,12 +284,13 @@ export default function MealPlannerPage() {
                               fontSize: '12px',
                               fontWeight: 500,
                               lineHeight: '1.3',
+                              overflow: 'hidden',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
                             }}
                           >
                             {recipe.name}
-                            {entry.cooked && (
-                              <span style={{ color: 'var(--coral)' }}> ✓</span>
-                            )}
                           </span>
                         </div>
                       )
@@ -303,15 +323,17 @@ export default function MealPlannerPage() {
                         data-testid="slot-add-more"
                         onClick={() => setPickerSlot({ date: dateStr, slot: slot.key })}
                         style={{
-                          alignSelf: 'flex-start',
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                           background: 'none',
                           border: 'none',
-                          fontSize: '14px',
+                          fontSize: '16px',
                           color: 'var(--text-dim)',
                           cursor: 'pointer',
-                          padding: '2px 6px',
+                          padding: 0,
                           lineHeight: 1,
-                          marginTop: 2,
                         }}
                         aria-label={`Add another meal to ${slot.label} on ${dateStr}`}
                       >

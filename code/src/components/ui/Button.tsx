@@ -4,7 +4,7 @@ import React from 'react'
 
 const buttonVariants = cva(
   [
-    'inline-flex items-center gap-2 font-semibold cursor-pointer transition select-none',
+    'inline-flex items-center font-semibold cursor-pointer transition select-none',
     'border-0 outline-none rounded-[var(--radius)]',
     'hover:opacity-[0.88] active:scale-[0.97]',
   ].join(' '),
@@ -19,9 +19,9 @@ const buttonVariants = cva(
         danger: 'bg-[var(--red-pale)] text-[var(--red)]',
       },
       size: {
-        default: 'h-10 px-4 text-sm',
-        sm: 'h-8 px-3 text-xs',
-        xs: 'h-6 px-2 text-xs',
+        default: 'h-10 px-4 text-sm gap-2',
+        sm: 'h-8 px-4 text-xs gap-1.5',
+        xs: 'h-6 px-2.5 text-xs gap-1',
       },
     },
     defaultVariants: {
