@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Pencil, CalendarPlus, Minus, Plus, RotateCcw, Trash2, CheckCircle } from 'lucide-react'
+import { Pencil, CalendarPlus, Minus, Plus, RotateCcw, Trash2, CheckCircle, Loader2 } from 'lucide-react'
 import { useStore } from '../../store'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { IconButton } from '../ui/IconButton'
@@ -12,9 +12,12 @@ interface RecipeDetailProps {
   onDelete?: () => void
   onAddToWeek?: () => void
   onRemoveFromPlan?: () => void
+  onCooked?: () => void
+  isCooked?: boolean
+  isCooking?: boolean
 }
 
-export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek, onRemoveFromPlan }: RecipeDetailProps) {
+export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek, onRemoveFromPlan, onCooked, isCooked, isCooking }: RecipeDetailProps) {
   const recipe = useStore((s) => s.recipes.find((r) => r.id === recipeId) ?? null)
   const tags = useStore((s) => s.tags)
   const [displayServings, setDisplayServings] = useState<number | null>(null)
@@ -106,10 +109,11 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek,
             </IconButton>
             <IconButton
               variant="default"
-              aria-label="Mark as cooked — coming in next update"
-              style={{ opacity: 0.35, pointerEvents: 'none' }}
+              onClick={onCooked}
+              aria-label={isCooked ? 'Unmark as cooked' : 'Mark as cooked'}
+              style={{ opacity: isCooking ? 0.5 : isCooked ? 0.5 : 1, pointerEvents: isCooking ? 'none' : 'auto' }}
             >
-              <CheckCircle size={18} />
+              {isCooking ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={18} />}
             </IconButton>
             {onRemoveFromPlan && (
               <IconButton

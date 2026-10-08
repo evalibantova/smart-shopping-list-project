@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useStore } from '../../store'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
-import { remove } from './services/mealPlanService'
+import { remove, update } from './services/mealPlanService'
 import { AddToWeekModal } from './AddToWeekModal'
 import { AddEditRecipeModal } from '../recipes/AddEditRecipeModal'
+import { SavingIndicator } from '../../components/ui/SavingIndicator'
+import { Toast } from '../../components/ui/Toast'
 
 interface Props {
   entryId: string
@@ -16,8 +18,11 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
   const entry = useStore((s) => s.entries.find((e) => e.id === entryId))
   const recipes = useStore((s) => s.recipes)
   const removeEntry = useStore((s) => s.removeEntry)
+  const updateEntry = useStore((s) => s.updateEntry)
   const [editOpen, setEditOpen] = useState(false)
   const [addToWeekOpen, setAddToWeekOpen] = useState(false)
+  const [isCooking, setIsCooking] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -41,8 +46,23 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
     onClose()
   }
 
+  async function handleToggleCooked() {
+    if (!entry || isCooking) return
+    const prev = !!entry.cooked
+    setIsCooking(true)
+    updateEntry(entry.id, { cooked: !prev })
+    try {
+      await update(entry.id, { cooked: !prev })
+    } catch {
+      updateEntry(entry.id, { cooked: prev })
+      setToastMsg('Could not save — please try again.')
+    } finally {
+      setIsCooking(false)
+    }
+  }
+
   return createPortal(
-    <>
+    <div style={{ position: 'relative' }}>
       <div
         data-testid="meal-plan-overlay"
         onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
@@ -78,9 +98,15 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
             onEdit={() => setEditOpen(true)}
             onAddToWeek={() => setAddToWeekOpen(true)}
             onRemoveFromPlan={handleRemove}
+            onCooked={handleToggleCooked}
+            isCooked={!!entry?.cooked}
+            isCooking={isCooking}
           />
         </div>
       </div>
+
+      <SavingIndicator visible={isCooking} />
+      {toastMsg && <Toast message={toastMsg} onDismiss={() => setToastMsg('')} />}
 
       {editOpen && recipe && (
         <AddEditRecipeModal
@@ -98,7 +124,7 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
           onClose={() => setAddToWeekOpen(false)}
         />
       )}
-    </>,
+    </div>,
     document.body
   )
 }
