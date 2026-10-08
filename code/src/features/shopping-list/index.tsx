@@ -54,8 +54,8 @@ export default function ShoppingListPage() {
     [allItems, effectiveClearedIds]
   )
 
-  const totalCount = allItems.length
-  const doneCount = effectiveCheckedIds.size + effectiveClearedIds.size
+  const totalCount = visibleItems.length
+  const doneCount = effectiveCheckedIds.size
 
   function toggleChecked(ingredientId: string) {
     setCheckedIds((prev) => {
