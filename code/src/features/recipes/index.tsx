@@ -78,6 +78,7 @@ export default function RecipesPage() {
         <Button
           intent="primary"
           size="sm"
+          style={{ paddingInline: '1.25rem' }}
           onClick={() => setModal({ type: 'add' })}
         >
           <Plus size={14} />
