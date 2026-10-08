@@ -31,6 +31,9 @@ _bmad/custom/config.user.toml
 # BMad generated output (optional — commit if you want history)
 # _bmad-output/
 
+# Screenshots (generated artifacts — never commit)
+screenshots_*/
+
 # PHP cache
 *.cache
 shopping-list.sublime-project
