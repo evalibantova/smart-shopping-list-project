@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ChevronLeft, Plus, Search } from 'lucide-react'
 import { useStore } from '../../store'
 import { recipeService } from './services/recipeService'
@@ -10,6 +10,7 @@ import { getWeekStart } from '../../utils/calendar'
 import { Button } from '../../components/ui/Button'
 import { IconButton } from '../../components/ui/IconButton'
 import { TagChip } from '../../components/ui/TagChip'
+import { computeAvailability } from '../cook-now/utils/cookNowUtils'
 
 export function filterRecipes(recipes: Recipe[], tags: Tag[], query: string): Recipe[] {
   return query.trim()
@@ -30,10 +31,18 @@ type ModalState =
 export default function RecipesPage() {
   const recipes = useStore((s) => s.recipes)
   const tags = useStore((s) => s.tags)
+  const pantryItems = useStore((s) => s.pantryItems)
   const selectedId = useStore((s) => s.selectedId)
   const selectRecipe = useStore((s) => s.selectRecipe)
   const removeRecipe = useStore((s) => s.removeRecipe)
   const initRecipes = useStore((s) => s.initRecipes)
+
+  const selectedIngredientAvailability = useMemo(() => {
+    if (!selectedId) return undefined
+    const recipe = recipes.find((r) => r.id === selectedId)
+    if (!recipe) return undefined
+    return computeAvailability(recipe, { servings: recipe.servings }, pantryItems).ingredientAvailability
+  }, [selectedId, recipes, pantryItems])
 
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
@@ -223,6 +232,7 @@ export default function RecipesPage() {
           <RecipeDetail
             recipeId={selectedId}
             context="recipes"
+            ingredientAvailability={selectedIngredientAvailability}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onAddToWeek={selectedId ? () => setAddToWeekRecipeId(selectedId) : undefined}
@@ -265,6 +275,7 @@ export default function RecipesPage() {
             <RecipeDetail
               recipeId={selectedId}
               context="recipes"
+              ingredientAvailability={selectedIngredientAvailability}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onAddToWeek={selectedId ? () => setAddToWeekRecipeId(selectedId) : undefined}

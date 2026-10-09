@@ -1,233 +1,248 @@
-import { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronLeft } from 'lucide-react'
 import { useStore } from '../../store'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
+import { AddToWeekModal } from '../../components/shared/AddToWeekModal'
+import { AddEditRecipeModal } from '../recipes/AddEditRecipeModal'
 import { FilterTabs } from '../../components/ui/FilterTabs'
-import { Button } from '../../components/ui/Button'
+import { IconButton } from '../../components/ui/IconButton'
+import { TagChip } from '../../components/ui/TagChip'
 import { computeAvailability } from './utils/cookNowUtils'
+import { getWeekStart } from '../meal-planner/utils/calendarUtils'
 
 const FILTER_TABS = ['All', 'Ready', 'Almost'] as const
 type Filter = 'All' | 'Ready' | 'Almost'
 
 export default function CookNowPage() {
   const recipes = useStore((s) => s.recipes)
+  const tags = useStore((s) => s.tags)
   const pantryItems = useStore((s) => s.pantryItems)
   const initPantry = useStore((s) => s.initPantry)
 
   const [filter, setFilter] = useState<Filter>('All')
-  const [openRecipeId, setOpenRecipeId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [addToWeekOpen, setAddToWeekOpen] = useState(false)
 
-  useEffect(() => {
-    initPantry()
-  }, [])
+  useEffect(() => { initPantry() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Build availability for every recipe, checking for at least 1 serving
-  const cookableRecipes = recipes
-    .map((recipe) => {
-      const avail = computeAvailability(recipe, { servings: 1 }, pantryItems)
-      return { recipe, avail }
-    })
-    .filter((m) => m.avail.tier !== 'far')
-    .sort((a, b) => {
-      // Ready before Almost, then by name
-      if (a.avail.tier !== b.avail.tier) return a.avail.tier === 'ready' ? -1 : 1
-      return a.recipe.name.localeCompare(b.recipe.name)
-    })
+  const weekStart = getWeekStart(new Date())
 
-  const filteredRecipes = cookableRecipes.filter((m) => {
-    if (filter === 'All') return true
-    if (filter === 'Ready') return m.avail.tier === 'ready'
-    if (filter === 'Almost') return m.avail.tier === 'almost'
-    return true
-  })
+  const recipesWithAvail = useMemo(() =>
+    recipes.map((recipe) => ({
+      recipe,
+      avail: computeAvailability(recipe, { servings: recipe.servings }, pantryItems),
+    })),
+    [recipes, pantryItems]
+  )
 
-  const openMeal = openRecipeId ? cookableRecipes.find((m) => m.recipe.id === openRecipeId) : null
+  const cookable = useMemo(() =>
+    recipesWithAvail
+      .filter((m) => m.avail.tier !== 'far')
+      .sort((a, b) => {
+        if (a.avail.tier !== b.avail.tier) return a.avail.tier === 'ready' ? -1 : 1
+        return a.avail.missingCount - b.avail.missingCount || a.recipe.name.localeCompare(b.recipe.name)
+      }),
+    [recipesWithAvail]
+  )
 
-  // Close on Escape
-  useEffect(() => {
-    if (!openRecipeId) return
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpenRecipeId(null)
-    }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [openRecipeId])
+  const filtered = useMemo(() =>
+    cookable.filter((m) => {
+      if (filter === 'Ready') return m.avail.tier === 'ready'
+      if (filter === 'Almost') return m.avail.tier === 'almost'
+      return true
+    }),
+    [cookable, filter]
+  )
+
+  const selectedMeal = useMemo(() =>
+    selectedId ? recipesWithAvail.find((m) => m.recipe.id === selectedId) : null,
+    [selectedId, recipesWithAvail]
+  )
+
+  function handleSelect(id: string) {
+    setSelectedId(id)
+    setMobileDetailOpen(true)
+  }
+
+  function handleMobileBack() {
+    setMobileDetailOpen(false)
+  }
+
+  const selectedRecipe = selectedMeal?.recipe ?? null
 
   return (
-    <div className="page">
-      <div
-        className="page-header"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-      >
+    <div className="page page--fit">
+      <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h1>Cook Now</h1>
-        <FilterTabs
-          tabs={FILTER_TABS}
-          active={filter}
-          onChange={(tab) => setFilter(tab as Filter)}
+        <FilterTabs tabs={FILTER_TABS} active={filter} onChange={(t) => setFilter(t as Filter)} />
+      </div>
+
+      <div className="page-body" style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* Recipe list */}
+        <div
+          className="recipe-list-panel"
+          style={{
+            width: 280,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: '1px solid var(--border)',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {cookable.length === 0 ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', padding: '48px 16px', gap: 8, color: 'var(--text-dim)',
+              }}>
+                <span style={{ fontSize: 40 }}>🥘</span>
+                <span style={{ fontSize: 13, textAlign: 'center' }}>
+                  Add ingredients to your pantry to see what you can cook.
+                </span>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', padding: '48px 16px', gap: 8, color: 'var(--text-dim)',
+              }}>
+                <span style={{ fontSize: 40 }}>{filter === 'Ready' ? '✅' : '⏳'}</span>
+                <span style={{ fontSize: 13, textAlign: 'center' }}>
+                  {filter === 'Ready' ? 'No recipes ready right now' : 'No almost-ready recipes'}
+                </span>
+              </div>
+            ) : (
+              filtered.map(({ recipe, avail }) => {
+                const recipeTags = tags.filter((t) => recipe.tagIds.includes(t.id))
+                const isSelected = recipe.id === selectedId
+                return (
+                  <div
+                    key={recipe.id}
+                    onClick={() => handleSelect(recipe.id)}
+                    style={{
+                      padding: '10px 12px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid var(--border)',
+                      background: isSelected ? 'var(--surface3)' : 'transparent',
+                      transition: 'background 0.1s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'var(--surface2)'
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'transparent'
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 20, lineHeight: 1 }}>{recipe.emoji || '🍽️'}</span>
+                        <span style={{
+                          fontSize: 13, fontWeight: 600, color: 'var(--text)',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {recipe.name}
+                        </span>
+                      </div>
+                      {recipeTags.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, paddingLeft: 28 }}>
+                          {recipeTags.map((tag) => (
+                            <TagChip key={tag.id} name={tag.name} color={tag.color} size="sm" />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Missing count or ready indicator */}
+                    <div style={{ flexShrink: 0, minWidth: 20, textAlign: 'right' }}>
+                      {avail.tier === 'ready' ? (
+                        <span style={{
+                          display: 'inline-block', width: 8, height: 8,
+                          borderRadius: '50%', background: 'var(--coral)',
+                        }} />
+                      ) : (
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--amber)' }}>
+                          {avail.missingCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Right panel — desktop only */}
+        <div className="recipe-detail-panel" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+          <RecipeDetail
+            recipeId={selectedId}
+            context="cook-now"
+            ingredientAvailability={selectedMeal?.avail.ingredientAvailability}
+            onEdit={selectedId ? () => setEditOpen(true) : undefined}
+            onAddToWeek={selectedId ? () => setAddToWeekOpen(true) : undefined}
+          />
+        </div>
+
+        {/* Mobile overlay */}
+        <div
+          aria-hidden={!mobileDetailOpen}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 200,
+            background: 'var(--surface)',
+            display: 'flex',
+            flexDirection: 'column',
+            transform: mobileDetailOpen ? 'translateX(0)' : 'translateX(100%)',
+            transition: 'transform 0.25s ease',
+          }}
+        >
+          <div style={{
+            display: 'flex', alignItems: 'center', padding: '8px 4px',
+            borderBottom: '1px solid var(--border)', flexShrink: 0,
+          }}>
+            <IconButton variant="default" onClick={handleMobileBack} aria-label="Back">
+              <ChevronLeft size={20} />
+            </IconButton>
+            <span style={{ fontSize: 15, fontWeight: 700, marginLeft: 4 }}>
+              {selectedRecipe?.name ?? 'Recipe'}
+            </span>
+          </div>
+          <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+            <RecipeDetail
+              recipeId={selectedId}
+              context="cook-now"
+              ingredientAvailability={selectedMeal?.avail.ingredientAvailability}
+              onEdit={selectedId ? () => setEditOpen(true) : undefined}
+              onAddToWeek={selectedId ? () => setAddToWeekOpen(true) : undefined}
+            />
+          </div>
+        </div>
+      </div>
+
+      {editOpen && selectedRecipe && (
+        <AddEditRecipeModal
+          mode="edit"
+          recipe={selectedRecipe}
+          onClose={() => setEditOpen(false)}
         />
-      </div>
-
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {cookableRecipes.length === 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 12,
-              padding: '48px 16px',
-              color: 'var(--text-dim)',
-            }}
-          >
-            <span style={{ fontSize: 48 }}>🥘</span>
-            <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-mid)' }}>
-              Nothing cookable right now
-            </span>
-            <span style={{ fontSize: 13, textAlign: 'center' }}>
-              Add ingredients to your pantry to see what you can cook.
-            </span>
-          </div>
-        )}
-
-        {cookableRecipes.length > 0 && filteredRecipes.length === 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 12,
-              padding: '48px 16px',
-              color: 'var(--text-dim)',
-            }}
-          >
-            <span style={{ fontSize: 48 }}>{filter === 'Ready' ? '✅' : '⏳'}</span>
-            <span style={{ fontSize: 15, fontWeight: 600 }}>
-              {filter === 'Ready' ? 'No recipes ready right now' : 'No almost-ready recipes'}
-            </span>
-          </div>
-        )}
-
-        {filteredRecipes.map(({ recipe, avail }) => {
-          const { tier, missingCount, maxServings } = avail
-          return (
-            <div
-              key={recipe.id}
-              data-testid={`cook-now-card-${recipe.id}`}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 12,
-                padding: '12px 14px',
-                borderRadius: 'var(--radius)',
-                boxShadow:
-                  tier === 'ready'
-                    ? '0 0 0 2px var(--coral)'
-                    : '0 0 0 2px var(--amber)',
-                background: 'var(--surface)',
-              }}
-            >
-              {/* Emoji */}
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '50%',
-                  background: 'var(--surface2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 20,
-                  flexShrink: 0,
-                }}
-              >
-                {recipe.emoji || '🍽️'}
-              </div>
-
-              {/* Text */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'var(--text)',
-                    overflow: 'hidden',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                  }}
-                >
-                  {recipe.name}
-                </div>
-                <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {tier === 'ready' ? (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--coral)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 8 }}>●</span> Ready · {maxServings} serving{maxServings !== 1 ? 's' : ''}
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--amber)' }}>
-                      {missingCount} missing · up to {maxServings} serving{maxServings !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Action */}
-              <Button
-                intent={tier === 'ready' ? 'primary' : 'amber'}
-                size="sm"
-                onClick={() => setOpenRecipeId(recipe.id)}
-              >
-                {tier === 'ready' ? 'Cook it' : 'Cook anyway'}
-              </Button>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Recipe detail overlay */}
-      {openMeal &&
-        createPortal(
-          <div
-            data-testid="cook-now-overlay"
-            onClick={(e) => { if (e.target === e.currentTarget) setOpenRecipeId(null) }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 1000,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(0,0,0,0.4)',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-              padding: '16px',
-            }}
-          >
-            <div
-              style={{
-                background: 'var(--surface)',
-                boxShadow: 'var(--shadow-md)',
-                width: '100%',
-                maxWidth: 480,
-                maxHeight: '90vh',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-                borderRadius: 'var(--radius)',
-              }}
-            >
-              <RecipeDetail
-                recipeId={openMeal.recipe.id}
-                context="cook-now"
-                ingredientAvailability={openMeal.avail.ingredientAvailability}
-              />
-            </div>
-          </div>,
-          document.body
-        )}
+      )}
+      {addToWeekOpen && selectedId && (() => {
+        const recipe = recipes.find((r) => r.id === selectedId)
+        return recipe ? (
+          <AddToWeekModal
+            recipeId={selectedId}
+            defaultServings={recipe.servings}
+            weekStart={weekStart}
+            onClose={() => setAddToWeekOpen(false)}
+          />
+        ) : null
+      })()}
     </div>
   )
 }
