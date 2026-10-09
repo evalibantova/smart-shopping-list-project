@@ -18,12 +18,11 @@ export default function ShoppingListPage() {
   const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
   const addPantryItem = useStore((s) => s.addPantryItem)
 
-  const [checkedIds, setCheckedIds] = useState<Set<string>>(() => loadSet('slist_checked'))
+  // Snapshots of checked items — keyed by ingredientId, holds the item at check time.
+  // Kept separate from allItems so that adding to pantry (which drops the item from allItems)
+  // doesn't make the item disappear before "Clear checked" is tapped.
+  const [checkedSnapshots, setCheckedSnapshots] = useState<Map<string, ShoppingItem>>(new Map())
   const [clearedIds, setClearedIds] = useState<Set<string>>(() => loadSet('slist_cleared'))
-
-  useEffect(() => {
-    localStorage.setItem('slist_checked', JSON.stringify([...checkedIds]))
-  }, [checkedIds])
 
   useEffect(() => {
     localStorage.setItem('slist_cleared', JSON.stringify([...clearedIds]))
@@ -42,55 +41,60 @@ export default function ShoppingListPage() {
     [allItems]
   )
 
-  // Reconcile against current allItems so stale IDs don't corrupt progress math
-  const effectiveCheckedIds = useMemo(
-    () => new Set([...checkedIds].filter((id) => allItemIds.has(id))),
-    [checkedIds, allItemIds]
-  )
+  // Stale clearedIds (from prior sessions) are filtered out so they don't hide new items
   const effectiveClearedIds = useMemo(
     () => new Set([...clearedIds].filter((id) => allItemIds.has(id))),
     [clearedIds, allItemIds]
   )
 
-  const visibleItems = useMemo(
-    () => allItems.filter((item) => !effectiveClearedIds.has(item.ingredientId)),
-    [allItems, effectiveClearedIds]
-  )
+  const checkedIds = useMemo(() => new Set(checkedSnapshots.keys()), [checkedSnapshots])
+
+  // Visible = live unchecked items + checked snapshots (both minus cleared)
+  const visibleItems = useMemo(() => {
+    const result: ShoppingItem[] = []
+    for (const item of allItems) {
+      if (!effectiveClearedIds.has(item.ingredientId) && !checkedIds.has(item.ingredientId)) {
+        result.push(item)
+      }
+    }
+    for (const [id, item] of checkedSnapshots) {
+      if (!effectiveClearedIds.has(id)) {
+        result.push(item)
+      }
+    }
+    return result
+  }, [allItems, checkedSnapshots, checkedIds, effectiveClearedIds])
 
   const totalCount = visibleItems.length
-  const doneCount = effectiveCheckedIds.size
+  const doneCount = checkedSnapshots.size
 
   function toggleChecked(item: ShoppingItem) {
     const { ingredientId, quantity } = item
-    const isChecked = checkedIds.has(ingredientId)
+    const isChecked = checkedSnapshots.has(ingredientId)
 
-    setCheckedIds((prev) => {
-      const next = new Set(prev)
-      if (isChecked) next.delete(ingredientId)
-      else next.add(ingredientId)
-      return next
-    })
-
-    const hasPantryEntry = pantryItems.some((p) => p.ingredientId === ingredientId)
-    try {
-      if (!isChecked && !hasPantryEntry) {
-        addPantryItem({ ingredientId, quantity })
-      } else {
-        batchUpdatePantry([{ ingredientId, delta: isChecked ? -quantity : quantity }])
+    if (isChecked) {
+      setCheckedSnapshots((prev) => { const m = new Map(prev); m.delete(ingredientId); return m })
+      try {
+        batchUpdatePantry([{ ingredientId, delta: -quantity }])
+      } catch { /* best-effort pantry reversal */ }
+    } else {
+      setCheckedSnapshots((prev) => new Map([...prev, [ingredientId, item]]))
+      const hasPantryEntry = pantryItems.some((p) => p.ingredientId === ingredientId)
+      try {
+        if (!hasPantryEntry) {
+          addPantryItem({ ingredientId, quantity })
+        } else {
+          batchUpdatePantry([{ ingredientId, delta: quantity }])
+        }
+      } catch {
+        setCheckedSnapshots((prev) => { const m = new Map(prev); m.delete(ingredientId); return m })
       }
-    } catch {
-      setCheckedIds((prev) => {
-        const next = new Set(prev)
-        if (isChecked) next.add(ingredientId)
-        else next.delete(ingredientId)
-        return next
-      })
     }
   }
 
   function clearChecked() {
-    setClearedIds((prev) => new Set([...prev, ...effectiveCheckedIds]))
-    setCheckedIds(new Set())
+    setClearedIds((prev) => new Set([...prev, ...checkedSnapshots.keys()]))
+    setCheckedSnapshots(new Map())
   }
 
   const knownCategoryKeys = useMemo(() => new Set(CATEGORY_ORDER.map((c) => c.key)), [])
@@ -108,13 +112,13 @@ export default function ShoppingListPage() {
       .filter((g) => g.items.length > 0)
   }, [visibleItems, knownCategoryKeys])
 
-  const isEmpty = allItems.length === 0
+  const isEmpty = allItems.length === 0 && checkedSnapshots.size === 0
 
   return (
     <div className="page">
       <div className="page-header">
         <h1>Shopping List</h1>
-        {effectiveCheckedIds.size > 0 && (
+        {checkedSnapshots.size > 0 && (
           <button
             data-testid="shopping-list-clear-checked"
             onClick={clearChecked}
@@ -202,7 +206,7 @@ export default function ShoppingListPage() {
                   <span>{group.key}</span>
                 </div>
                 {group.items.map((item) => {
-                  const checked = effectiveCheckedIds.has(item.ingredientId)
+                  const checked = checkedSnapshots.has(item.ingredientId)
                   return (
                     <div
                       key={item.ingredientId}
