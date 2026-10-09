@@ -23,7 +23,15 @@
       "Bash(dpkg --version)",
       "Bash(LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib node *)",
       "Bash(LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib FONTCONFIG_FILE=/tmp/chrome-fonts.conf node *)",
-      "Bash(xargs rm -r)"
+      "Bash(xargs rm -r)",
+      "Bash(cp /data/code/package.json /tmp/package.json)",
+      "Bash(cp /data/code/package-lock.json /tmp/package-lock.json)",
+      "Bash(/tmp/node_modules/.bin/vitest --run)",
+      "Bash(ln -sf /data/code/src src)",
+      "Bash(ln -sf /data/code/vite.config.ts vite.config.ts)",
+      "Bash(ln -sf /data/code/tsconfig.json tsconfig.json)",
+      "Bash(/tmp/node_modules/.bin/vitest --run --config /tmp/vitest.config.ts)",
+      "Bash(/tmp/node_modules/.bin/tsc --project /data/code/tsconfig.app.json --noEmit)"
     ]
   }
 }

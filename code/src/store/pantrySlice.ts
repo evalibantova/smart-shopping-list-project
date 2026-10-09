@@ -8,6 +8,7 @@ export interface PantrySlice {
   addPantryItem: (data: Omit<PantryItem, 'id' | 'maxStock'> & { maxStock?: number }) => void
   updatePantryItem: (id: string, patch: Partial<PantryItem>) => void
   deletePantryItem: (id: string) => void
+  batchUpdatePantry: (deltas: { ingredientId: string; delta: number }[]) => void
 }
 
 export const pantrySlice: StateCreator<PantrySlice> = (set, get) => ({
@@ -59,6 +60,43 @@ export const pantrySlice: StateCreator<PantrySlice> = (set, get) => ({
         ),
       }))
       throw new Error('Could not save pantry item — please try again.')
+    }
+  },
+
+  batchUpdatePantry: (deltas) => {
+    const items = get().pantryItems
+
+    // Pass 1: find matched items and compute new quantities (snapshot before any apply)
+    const matched: Array<{ item: PantryItem; snapshot: PantryItem; newQty: number }> = []
+    for (const { ingredientId, delta } of deltas) {
+      const item = items.find((i) => i.ingredientId === ingredientId)
+      if (!item) continue
+      matched.push({ item, snapshot: { ...item }, newQty: Math.max(0, item.quantity + delta) })
+    }
+
+    if (matched.length === 0) return
+
+    // Pass 2: apply all optimistic store updates
+    const idToNewQty = new Map(matched.map(({ item, newQty }) => [item.id, newQty]))
+    set((state) => ({
+      pantryItems: state.pantryItems.map((i) =>
+        idToNewQty.has(i.id) ? { ...i, quantity: idToNewQty.get(i.id)! } : i
+      ),
+    }))
+
+    // Pass 3: persist each change; on any failure restore all from snapshots and rethrow
+    try {
+      for (const { item, newQty } of matched) {
+        update(item.id, { quantity: newQty })
+      }
+    } catch (err) {
+      const idToSnapshot = new Map(matched.map(({ item, snapshot }) => [item.id, snapshot]))
+      set((state) => ({
+        pantryItems: state.pantryItems.map((i) =>
+          idToSnapshot.has(i.id) ? idToSnapshot.get(i.id)! : i
+        ),
+      }))
+      throw err
     }
   },
 

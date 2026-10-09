@@ -7,6 +7,20 @@ import { AddToWeekModal } from '../../components/shared/AddToWeekModal'
 import { AddEditRecipeModal } from '../recipes/AddEditRecipeModal'
 import { SavingIndicator } from '../../components/ui/SavingIndicator'
 import { Toast } from '../../components/ui/Toast'
+import type { Recipe } from '../../types/recipes'
+import type { MealPlanEntry } from '../../types/mealPlan'
+
+export function buildCookDeltas(
+  recipe: Recipe,
+  entry: Pick<MealPlanEntry, 'servings'>,
+  newCooked: boolean
+): { ingredientId: string; delta: number }[] {
+  const scale = recipe.servings > 0 ? entry.servings / recipe.servings : 1
+  return recipe.ingredients.map((ing) => ({
+    ingredientId: ing.ingredientId,
+    delta: newCooked ? -(ing.quantity * scale) : ing.quantity * scale,
+  }))
+}
 
 interface Props {
   entryId: string
@@ -19,6 +33,7 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
   const recipes = useStore((s) => s.recipes)
   const removeEntry = useStore((s) => s.removeEntry)
   const updateEntry = useStore((s) => s.updateEntry)
+  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
   const [editOpen, setEditOpen] = useState(false)
   const [addToWeekOpen, setAddToWeekOpen] = useState(false)
   const [isCooking, setIsCooking] = useState(false)
@@ -49,11 +64,26 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
   async function handleToggleCooked() {
     if (!entry || isCooking) return
     const prev = !!entry.cooked
+    const newCooked = !prev
     setIsCooking(true)
-    updateEntry(entry.id, { cooked: !prev })
+
+    const deltas = recipe ? buildCookDeltas(recipe, entry, newCooked) : []
+
+    updateEntry(entry.id, { cooked: newCooked })
+
     try {
-      await update(entry.id, { cooked: !prev })
+      batchUpdatePantry(deltas)
     } catch {
+      updateEntry(entry.id, { cooked: prev })
+      setToastMsg('Could not save — please try again.')
+      setIsCooking(false)
+      return
+    }
+
+    try {
+      await update(entry.id, { cooked: newCooked })
+    } catch {
+      try { batchUpdatePantry(deltas.map((d) => ({ ...d, delta: -d.delta }))) } catch { /* best-effort reversal */ }
       updateEntry(entry.id, { cooked: prev })
       setToastMsg('Could not save — please try again.')
     } finally {
