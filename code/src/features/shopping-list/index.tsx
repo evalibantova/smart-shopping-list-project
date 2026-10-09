@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useStore } from '../../store'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { getWeekStart } from '../meal-planner/utils/calendarUtils'
-import { computeShoppingList, CATEGORY_ORDER } from './shoppingListSelector'
+import { computeShoppingList, CATEGORY_ORDER, type ShoppingItem } from './shoppingListSelector'
 
 function loadSet(key: string): Set<string> {
   try {
@@ -15,6 +15,8 @@ export default function ShoppingListPage() {
   const entries = useStore((s) => s.entries)
   const recipes = useStore((s) => s.recipes)
   const pantryItems = useStore((s) => s.pantryItems)
+  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
+  const addPantryItem = useStore((s) => s.addPantryItem)
 
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => loadSet('slist_checked'))
   const [clearedIds, setClearedIds] = useState<Set<string>>(() => loadSet('slist_cleared'))
@@ -58,16 +60,32 @@ export default function ShoppingListPage() {
   const totalCount = visibleItems.length
   const doneCount = effectiveCheckedIds.size
 
-  function toggleChecked(ingredientId: string) {
+  function toggleChecked(item: ShoppingItem) {
+    const { ingredientId, quantity } = item
+    const isChecked = checkedIds.has(ingredientId)
+
     setCheckedIds((prev) => {
       const next = new Set(prev)
-      if (next.has(ingredientId)) {
-        next.delete(ingredientId)
-      } else {
-        next.add(ingredientId)
-      }
+      if (isChecked) next.delete(ingredientId)
+      else next.add(ingredientId)
       return next
     })
+
+    const hasPantryEntry = pantryItems.some((p) => p.ingredientId === ingredientId)
+    try {
+      if (!isChecked && !hasPantryEntry) {
+        addPantryItem({ ingredientId, quantity })
+      } else {
+        batchUpdatePantry([{ ingredientId, delta: isChecked ? -quantity : quantity }])
+      }
+    } catch {
+      setCheckedIds((prev) => {
+        const next = new Set(prev)
+        if (isChecked) next.add(ingredientId)
+        else next.delete(ingredientId)
+        return next
+      })
+    }
   }
 
   function clearChecked() {
@@ -189,7 +207,7 @@ export default function ShoppingListPage() {
                     <div
                       key={item.ingredientId}
                       data-testid="shopping-list-item"
-                      onClick={() => toggleChecked(item.ingredientId)}
+                      onClick={() => toggleChecked(item)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
