@@ -7,6 +7,7 @@ export type AvailabilityTier = 'ready' | 'almost' | 'far'
 export interface MealAvailability {
   tier: AvailabilityTier
   missingCount: number
+  maxServings: number
   ingredientAvailability: Record<string, boolean>
 }
 
@@ -22,21 +23,27 @@ export function computeAvailability(
   let missingCount = 0
   const n = recipe.ingredients.length
 
+  // Max servings from pantry (independent of requested serving scale)
+  let maxServings = recipe.servings > 0 ? Infinity : 0
   for (const ing of recipe.ingredients) {
     const pantryQty = pantryMap.get(ing.ingredientId) ?? 0
     const sufficient = pantryQty >= ing.quantity * scale
     ingredientAvailability[ing.ingredientId] = sufficient
     if (!sufficient) missingCount++
+    if (recipe.servings > 0 && ing.quantity > 0) {
+      maxServings = Math.min(maxServings, Math.floor(pantryQty * recipe.servings / ing.quantity))
+    }
   }
+  if (maxServings === Infinity) maxServings = recipe.servings
 
   let tier: AvailabilityTier
   if (n === 0 || missingCount === 0) {
     tier = 'ready'
-  } else if (missingCount < n) {
+  } else if (missingCount <= 4) {
     tier = 'almost'
   } else {
     tier = 'far'
   }
 
-  return { tier, missingCount, ingredientAvailability }
+  return { tier, missingCount, maxServings, ingredientAvailability }
 }
