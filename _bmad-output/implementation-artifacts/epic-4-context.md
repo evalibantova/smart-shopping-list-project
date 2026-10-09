@@ -4,7 +4,7 @@
 
 ## Goal
 
-Enable users to act on today's meal plan by showing each scheduled meal alongside a computed ingredient availability status. The page surfaces at a glance which meals can be cooked right now (all ingredients in pantry), which can almost be cooked (some missing), and which are far off — and lets the user open the full recipe detail to mark a meal as cooked, triggering pantry deduction automatically.
+Epic 4 completes the active-cooking loop: the Cook Now page surfaces all of today's planned meals alongside a real-time ingredient availability status derived from pantry stock. Users can filter by readiness, drill into a full ingredient checklist, and mark a meal as cooked directly from this page — triggering the same pantry deduction path established in Epic 3. This makes the transition from planning to actually cooking frictionless.
 
 ## Stories
 
@@ -13,64 +13,37 @@ Enable users to act on today's meal plan by showing each scheduled meal alongsid
 
 ## Requirements & Constraints
 
-**Functional:**
-
-- Show all meal plan entries where `date` equals today's date, regardless of cooked state (FR17).
-- Compute availability per meal by comparing pantry quantities against each recipe's ingredient quantities scaled to the entry's planned servings:
-  - **Ready** — all ingredients are in pantry at or above the required scaled quantity (coral glow, coral `●` badge, "Cook it" charcoal button).
-  - **Almost** — some but not all ingredients are below required quantity (amber glow, amber "N missing" badge, "Cook anyway" amber outline button).
-  - **Far** — many ingredients missing (reduced opacity, red badge showing missing count).
-- Filter tabs — All (default active), Ready, Almost — narrow the visible card list (FR18).
-- RecipeDetail in Cook Now context shows each ingredient with a ✓ (coral, pantry ≥ required) or ✗ (red, insufficient); quantities are scaled to planned servings (FR21).
-- The cooked toggle in this context is fully wired: marks the meal plan entry `cooked: true` AND performs pantry deduction (same logic as Story 3.2). Unmarking reverses both.
-- After toggling cooked, the Cook Now card updates immediately to reflect the new cooked state and recomputed availability.
-- Empty state required when no meals are planned today, and per-filter empty states when no cards match the active tab (FR24).
-
-**Non-functional:**
-
-- Mobile-first at ~375 px; desktop layout at ≥768 px (NFR1).
-- All mutations optimistic: store updates immediately, service call follows, roll back + toast on error (NFR2).
+- Show every meal plan entry whose `date` matches today, regardless of cooked state.
+- Compute each meal's availability by comparing pantry stock against recipe ingredients scaled to planned servings. Three tiers: Ready (all ingredients meet quantity), Almost (some missing), Far (many missing).
+- Filter tabs (All / Ready / Almost) narrow the visible card list; an appropriate empty state appears when no meals match the active filter.
+- RecipeDetail opened from Cook Now must show per-ingredient availability indicators (✓ coral / ✗ red) and have the cooked toggle fully wired — marks cooked and deducts pantry atomically, using the same rollback logic from Story 3.2.
+- All mutations are optimistic: store updates immediately, rolls back with a toast on error.
+- Mobile-first layout at ~375 px; desktop layout unlocks at 768 px.
+- Empty state required when no meals are planned for today.
 
 ## Technical Decisions
 
-**Feature location:** `src/features/cook-now/` (AD-1). No direct cross-feature imports — read store slices, call service functions.
-
-**Availability computation:** Pure derived logic. Read `mealPlanSlice` entries for today's date, join to `recipesSlice` for ingredient lists, cross-reference `pantrySlice` quantities. This is a selector/computed value, not stored state — consistent with how `shoppingListSlice` works (AD-4).
-
-**RecipeDetail component:** Lives in `src/components/shared/` and is context-aware via props. Epic 4 adds a Cook Now context variant that renders per-ingredient availability markers (✓/✗) and exposes the cooked toggle + pantry deduction path. Edit and Add to Week buttons are also present in this context (FR21).
-
-**Cooked toggle mutation flow (AD-10):**
-1. Optimistically set `cooked: true` in `mealPlanSlice` and apply pantry deductions in `pantrySlice`.
-2. Call service(s) to persist.
-3. On error: roll back both slices and show a charcoal toast.
-
-**Service layer:** Cook Now feature calls `mealPlanService` (update cooked flag) and `pantryService` (deduct quantities). No direct localStorage access (AD-2). Atomic rollback on failure matches Story 3.2's established pattern.
-
-**Data shapes:**
-- Meal plan entry: `{ id, date: "YYYY-MM-DD", slot: "breakfast"|"lunch"|"dinner", recipeId, servings, cooked }` (AD-7).
-- "Today" filter: compare `entry.date` against `new Date().toISOString().slice(0, 10)`.
-- Ingredient identity always by `ingredients_db` ID, quantities always in the ingredient's `default_unit`.
-
-**ID generation:** `crypto.randomUUID()` in MVP localStorage phase (AD-8); keys prefixed `slist_` (AD-9).
+- Feature lives in `src/features/cook-now/` (AD-1). No direct cross-feature imports; state is read from Zustand slices.
+- All data reads go through the service layer (AD-2); the feature never touches localStorage or fetch directly.
+- Meal plan entries are shaped as `{ id, date: "YYYY-MM-DD", slot: "breakfast"|"lunch"|"dinner", recipeId, servings }`. Filter today's entries by matching `date` to the current date string.
+- Availability computation is derived in-component (or as a selector): for each meal entry, iterate recipe ingredients scaled by `entry.servings / recipe.servings`, compare against pantry quantities by `ingredientId`. No new stored state is introduced.
+- The cooked toggle in Cook Now invokes the same atomic cook → pantry deduction flow from Story 3.2 (all pantry changes and the cooked flag roll back together on any failure).
+- RecipeDetail in Cook Now context is the shared component from `src/components/shared/`. The context determines which action buttons appear: Edit, Add to Week, and a fully wired cooked toggle — distinct from the Recipes and Meal Planner configurations.
+- Optimistic mutation pattern (AD-10): update Zustand immediately → call service → on error roll back store and show toast.
 
 ## UX & Interaction Patterns
 
-**Page header:** Single flex row — title left, FilterTab pills right (UX-DR2). Pills use the standard FilterTabs pattern: active tab = coral background + white text (UX-DR8). Tabs: All / Ready / Almost.
-
-**Meal cards:** Circular emoji icon badge (24 px) on left, recipe name right, availability badge below name. Visual state driven by availability tier: coral glow (Ready), amber glow (Almost), reduced opacity (Far). "Cook it" (charcoal button) or "Cook anyway" (amber outline button) opens the RecipeDetail modal.
-
-**RecipeDetail modal:** Standard modal — backdrop with blur, slideUp animation, 480 px centered on desktop, full-width bottom-sheet on mobile (UX-DR5). Per-ingredient rows show ✓ (coral) or ✗ (red) inline with name + scaled quantity + unit. Action buttons: cooked toggle (coral, check icon), Edit, Add to Week.
-
-**Saving feedback:** SavingIndicator ring (16×16 px, top-right) during in-flight mutations (UX-DR7). Toast (charcoal variant, 2.5 s auto-dismiss) on error (UX-DR6).
-
-**Animations:** Backdrop fadeIn 0.15 s, modal card slideUp 0.20 s, saving-spin 0.7 s linear infinite (UX-DR14).
-
-**No rounded corners** except slot-item cards (border-radius: 4 px); no blue anywhere; shadows not borders for elevation (UX-DR15).
+- Availability tiers drive card visual treatment:
+  - Ready → coral glow, coral ● badge, "Cook it" button (charcoal)
+  - Almost → amber glow, amber "N missing" badge, "Cook anyway" button (amber, outline style)
+  - Far → reduced opacity, red missing-count badge
+- Tapping "Cook it" or "Cook anyway" opens the RecipeDetail modal in Cook Now context.
+- FilterTab pills (UX-DR8): pill row, active tab coral background + white text. Three tabs: All (default), Ready, Almost.
+- RecipeDetail ingredient rows each show ✓ (coral) or ✗ (red) against the scaled-to-servings quantity.
+- After marking a Cook Now meal as cooked, the card on the page reflects the updated cooked state; availability indicators recompute against the updated pantry.
 
 ## Cross-Story Dependencies
 
-- **Depends on Epic 1** — RecipeDetail component (`components/shared/`) and the full ingredient/recipe data model are in place.
-- **Depends on Epic 2** — `mealPlanSlice` and `mealPlanService` (cooked flag, entry shape) are established.
-- **Depends on Epic 3** — `pantrySlice`, `pantryService`, and the cooked → pantry deduction logic (Story 3.2) must be in place before Story 4.2's cooked toggle is fully wired.
-- **Story 4.1 → Story 4.2:** Story 4.1 builds the card list and availability computation; Story 4.2 layers in the filter tabs and wires the RecipeDetail modal (including the cooked toggle). The availability status enum/logic defined in 4.1 is consumed directly by the filter logic in 4.2.
-- **Shopping list side-effect:** Marking a meal cooked via Cook Now updates `pantrySlice`, which causes the live shopping list (shoppingListSlice selectors) to recompute automatically on next render — no extra wiring needed.
+- Story 4.2 depends on Story 4.1: the card list and availability computation must exist before the filter layer and RecipeDetail integration are built.
+- Both stories depend on Epic 3's pantry deduction logic (Story 3.2): the cooked toggle's atomic deduction/rollback is reused from the shared service and store layer — no new deduction logic is needed.
+- RecipeDetail was built in Epic 1 and extended in Epic 2; Cook Now is its third context and requires a new context-aware action button configuration — no new modal component is needed.
