@@ -19,9 +19,10 @@ interface RecipeDetailProps {
   onCooked?: () => void
   isCooked?: boolean
   isCooking?: boolean
+  ingredientAvailability?: Record<string, boolean>
 }
 
-export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek, onRemoveFromPlan, onCooked, isCooked, isCooking }: RecipeDetailProps) {
+export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek, onRemoveFromPlan, onCooked, isCooked, isCooking, ingredientAvailability }: RecipeDetailProps) {
   const recipe = useStore((s) => s.recipes.find((r) => r.id === recipeId) ?? null)
   const tags = useStore((s) => s.tags)
   const [displayServings, setDisplayServings] = useState<number | null>(null)
@@ -129,6 +130,31 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek,
                 <Trash2 size={18} />
               </IconButton>
             )}
+          </div>
+        ) : context === 'cook-now' ? (
+          <div style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
+            {onEdit && (
+              <IconButton variant="default" onClick={onEdit} aria-label="Edit recipe">
+                <Pencil size={18} />
+              </IconButton>
+            )}
+            <IconButton
+              variant="accent"
+              onClick={onAddToWeek}
+              disabled={!onAddToWeek}
+              aria-label="Add to week"
+              style={{ opacity: onAddToWeek ? 1 : 0.35, cursor: onAddToWeek ? 'pointer' : 'default' }}
+            >
+              <CalendarPlus size={18} />
+            </IconButton>
+            <IconButton
+              variant="default"
+              onClick={onCooked}
+              aria-label={isCooked ? 'Unmark as cooked' : 'Mark as cooked'}
+              style={{ opacity: isCooking || isCooked ? 0.5 : 1, pointerEvents: isCooking ? 'none' : 'auto' }}
+            >
+              {isCooking ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={18} />}
+            </IconButton>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
@@ -247,7 +273,21 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek,
                       fontSize: 13,
                     }}
                   >
-                    <span style={{ color: 'var(--text)' }}>{entry.name}</span>
+                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                      {context === 'cook-now' && ingredientAvailability !== undefined && (
+                        <span
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 700,
+                            marginRight: 6,
+                            color: ingredientAvailability[ing.ingredientId] ? 'var(--coral)' : 'var(--red)',
+                          }}
+                        >
+                          {ingredientAvailability[ing.ingredientId] ? '✓' : '✗'}
+                        </span>
+                      )}
+                      {entry.name}
+                    </span>
                     <span style={{ color: 'var(--text-mid)', fontWeight: 600 }}>
                       {scaledQty} {entry.default_unit}
                     </span>
