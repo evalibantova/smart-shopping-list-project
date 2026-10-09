@@ -62,4 +62,35 @@ describe('recipesSlice — initRecipes()', () => {
     expect(state.recipes).toEqual([])
     expect(state.tags).toEqual([])
   })
+
+  it('(f) removeRecipe with id matching selectedId resets selectedId to null', () => {
+    localStorage.setItem('slist_recipes', JSON.stringify([RECIPE_FIXTURE]))
+    localStorage.setItem('slist_tags', JSON.stringify([TAG_FIXTURE]))
+
+    const store = createStore<RecipesSlice>()(recipesSlice)
+    store.getState().initRecipes()
+    store.getState().selectRecipe('r-1')
+
+    expect(store.getState().selectedId).toBe('r-1')
+
+    store.getState().removeRecipe('r-1')
+
+    expect(store.getState().selectedId).toBeNull()
+  })
+
+  it('(g) removeRecipe with id not matching selectedId leaves selectedId unchanged', () => {
+    const otherRecipe: Recipe = { ...RECIPE_FIXTURE, id: 'r-2', name: 'Other' }
+    localStorage.setItem('slist_recipes', JSON.stringify([RECIPE_FIXTURE, otherRecipe]))
+    localStorage.setItem('slist_tags', JSON.stringify([TAG_FIXTURE]))
+
+    const store = createStore<RecipesSlice>()(recipesSlice)
+    store.getState().initRecipes()
+    store.getState().selectRecipe('r-1')
+
+    expect(store.getState().selectedId).toBe('r-1')
+
+    store.getState().removeRecipe('r-2')
+
+    expect(store.getState().selectedId).toBe('r-1')
+  })
 })

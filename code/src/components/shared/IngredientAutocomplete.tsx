@@ -39,9 +39,12 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
     }
     function handleEscape(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        setShowDropdown(false)
-        setShowUnitPicker(false)
-        onChange('')
+        if (showDropdown || showUnitPicker) {
+          e.stopImmediatePropagation()
+          setShowDropdown(false)
+          setShowUnitPicker(false)
+          onChange('')
+        }
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -50,7 +53,7 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleEscape)
     }
-  }, [onChange])
+  }, [onChange, showDropdown, showUnitPicker])
 
   function handleSelect(entry: IngredientDbEntry) {
     onSelect(entry)

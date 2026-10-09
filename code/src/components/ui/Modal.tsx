@@ -28,7 +28,7 @@ const MODAL_STYLES = `
   .modal-card {
     max-width: 100%;
     max-height: 92vh;
-    border-radius: 16px 16px 0 0;
+    border-radius: var(--modal-radius-mobile);
     animation: slideUpSheet 0.22s ease;
     margin-top: auto;
   }
@@ -82,7 +82,7 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(0,0,0,0.4)',
+        background: 'var(--modal-backdrop)',
         backdropFilter: 'blur(6px)',
         WebkitBackdropFilter: 'blur(6px)',
         padding: '16px',

@@ -6,6 +6,7 @@ import {
   formatWeekRange,
   isToday,
 } from '../features/meal-planner/utils/calendarUtils'
+import { getWeekStart as getWeekStartFromUtils } from '../utils/calendar'
 
 describe('calendarUtils', () => {
   it('(a) getWeekStart of a Monday returns same date', () => {
@@ -57,5 +58,22 @@ describe('calendarUtils', () => {
     expect(isToday(new Date(2026, 8, 28))).toBe(true)
     expect(isToday(new Date(2026, 8, 27))).toBe(false)
     vi.useRealTimers()
+  })
+})
+
+describe('utils/calendar — getWeekStart', () => {
+  it('(a) Monday input returns same date', () => {
+    const monday = new Date(2026, 8, 28)
+    expect(toDateStr(getWeekStartFromUtils(monday))).toBe('2026-09-28')
+  })
+
+  it('(b) Wednesday input returns preceding Monday', () => {
+    const wed = new Date(2026, 9, 7)
+    expect(toDateStr(getWeekStartFromUtils(wed))).toBe('2026-10-05')
+  })
+
+  it('(c) Sunday input returns preceding Monday', () => {
+    const sun = new Date(2026, 9, 4)
+    expect(toDateStr(getWeekStartFromUtils(sun))).toBe('2026-09-28')
   })
 })

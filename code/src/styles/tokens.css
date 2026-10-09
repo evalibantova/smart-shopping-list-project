@@ -35,6 +35,10 @@
 
   /* Radius */
   --radius: 0;
+  --modal-radius-mobile: 16px 16px 0 0;
+
+  /* Modal */
+  --modal-backdrop: rgba(0, 0, 0, 0.4);
 
   /* Layout */
   --bottom-nav-height: 60px;

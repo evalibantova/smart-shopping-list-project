@@ -24,6 +24,7 @@ const TAG_COLORS = [
 ]
 
 interface IngredientRow {
+  rowId: string
   ingredientId: string | null
   ingredientName: string
   quantity: number
@@ -51,11 +52,12 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
   // Ingredients rows
   const [rows, setRows] = useState<IngredientRow[]>(() => {
     if (!recipe || recipe.ingredients.length === 0) {
-      return [{ ingredientId: null, ingredientName: '', quantity: 1, unit: '' }]
+      return [{ rowId: crypto.randomUUID(), ingredientId: null, ingredientName: '', quantity: 1, unit: '' }]
     }
     const db = ingredientsDbService.getAll()
     const dbMap = new Map(db.map((e) => [e.id, e]))
     return recipe.ingredients.map((ing) => ({
+      rowId: crypto.randomUUID(),
       ingredientId: ing.ingredientId,
       ingredientName: dbMap.get(ing.ingredientId)?.name ?? '',
       quantity: ing.quantity,
@@ -69,7 +71,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
   const [newTagColor, setNewTagColor] = useState(TAG_COLORS[0])
 
   function handleAddRow() {
-    setRows((prev) => [...prev, { ingredientId: null, ingredientName: '', quantity: 1, unit: '' }])
+    setRows((prev) => [...prev, { rowId: crypto.randomUUID(), ingredientId: null, ingredientName: '', quantity: 1, unit: '' }])
   }
 
   function handleRemoveRow(idx: number) {
@@ -326,7 +328,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
             INGREDIENTS
           </label>
           {rows.map((row, idx) => (
-            <div key={idx} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div key={row.rowId} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               <div style={{ flex: 1 }}>
                 <IngredientAutocomplete
                   value={row.ingredientName}

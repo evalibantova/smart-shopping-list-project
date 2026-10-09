@@ -2,14 +2,25 @@ import { useState, useEffect } from 'react'
 import { ChevronLeft, Plus, Search } from 'lucide-react'
 import { useStore } from '../../store'
 import { recipeService } from './services/recipeService'
-import { Recipe } from '../../types/recipes'
+import { Recipe, Tag } from '../../types/recipes'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
 import { AddEditRecipeModal } from './AddEditRecipeModal'
-import { AddToWeekModal } from '../meal-planner/AddToWeekModal'
-import { getWeekStart } from '../meal-planner/utils/calendarUtils'
+import { AddToWeekModal } from '../../components/shared/AddToWeekModal'
+import { getWeekStart } from '../../utils/calendar'
 import { Button } from '../../components/ui/Button'
 import { IconButton } from '../../components/ui/IconButton'
 import { TagChip } from '../../components/ui/TagChip'
+
+export function filterRecipes(recipes: Recipe[], tags: Tag[], query: string): Recipe[] {
+  return query.trim()
+    ? recipes.filter((r) => {
+        const q = query.toLowerCase()
+        if (r.name.toLowerCase().includes(q)) return true
+        const recipeTags = tags.filter((t) => r.tagIds.includes(t.id))
+        return recipeTags.some((t) => t.name.toLowerCase().includes(q))
+      })
+    : recipes
+}
 
 type ModalState =
   | { type: 'none' }
@@ -37,14 +48,7 @@ export default function RecipesPage() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filter recipes by search
-  const filtered = search.trim()
-    ? recipes.filter((r) => {
-        const q = search.toLowerCase()
-        if (r.name.toLowerCase().includes(q)) return true
-        const recipeTags = tags.filter((t) => r.tagIds.includes(t.id))
-        return recipeTags.some((t) => t.name.toLowerCase().includes(q))
-      })
-    : recipes
+  const filtered = filterRecipes(recipes, tags, search)
 
   function handleSelectRecipe(id: string) {
     selectRecipe(id)
@@ -189,6 +193,9 @@ export default function RecipesPage() {
                       >
                         {recipe.name}
                       </span>
+                      <span style={{ color: 'var(--text-muted, var(--text-dim))', fontSize: '0.75rem', flexShrink: 0 }}>
+                        {recipe.servings} srv
+                      </span>
                     </div>
                     {recipeTags.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, paddingLeft: 28 }}>
@@ -224,6 +231,7 @@ export default function RecipesPage() {
 
         {/* Mobile overlay — full-screen detail */}
         <div
+          aria-hidden={!mobileDetailOpen}
           style={{
             position: 'fixed',
             inset: 0,

@@ -1,32 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { Recipe } from '../types/recipes'
-
-// ---------------------------------------------------------------------------
-// Pure filter logic extracted from features/recipes/index.tsx
-// ---------------------------------------------------------------------------
-interface Tag {
-  id: string
-  name: string
-}
-
-function filterRecipes(recipes: Recipe[], tags: Tag[], search: string): Recipe[] {
-  return search.trim()
-    ? recipes.filter((r) => {
-        const q = search.toLowerCase()
-        if (r.name.toLowerCase().includes(q)) return true
-        const recipeTags = tags.filter((t) => r.tagIds.includes(t.id))
-        return recipeTags.some((t) => t.name.toLowerCase().includes(q))
-      })
-    : recipes
-}
-
-// ---------------------------------------------------------------------------
-// Pure servings scaler logic extracted from components/shared/RecipeDetail.tsx
-// ---------------------------------------------------------------------------
-function scaleQty(quantity: number, baseServings: number, displayServings: number): number {
-  const scale = displayServings / baseServings
-  return Math.round(quantity * scale * 100) / 100
-}
+import { filterRecipes } from '../features/recipes/index'
+import { scaleQty } from '../components/shared/RecipeDetail'
 
 // ---------------------------------------------------------------------------
 // Minimal recipe fixture builder
@@ -65,7 +40,7 @@ describe('Recipe filter logic', () => {
   })
 
   it('(c) search by tag name — returns recipe with matching tag, excludes recipe without it', () => {
-    const quickTag: Tag = { id: 'tag-1', name: 'Quick Meals' }
+    const quickTag = { id: 'tag-1', name: 'Quick Meals', color: '#f07045' }
     const tagged = makeRecipe({ name: 'Stir Fry', tagIds: ['tag-1'] })
     const untagged = makeRecipe({ name: 'Slow Roast', tagIds: [] })
     const recipes = [tagged, untagged]
@@ -92,15 +67,22 @@ describe('Recipe filter logic', () => {
 
 describe('Servings scaler logic', () => {
   it('(e) double servings doubles the quantity', () => {
-    expect(scaleQty(200, 4, 8)).toBe(400)
+    // scaleQty(qty, displayed, base): displayed=8, base=4 → scale=2
+    expect(scaleQty(200, 8, 4)).toBe(400)
   })
 
   it('(f) halve servings halves the quantity', () => {
-    expect(scaleQty(200, 4, 2)).toBe(100)
+    // scaleQty(qty, displayed, base): displayed=2, base=4 → scale=0.5
+    expect(scaleQty(200, 2, 4)).toBe(100)
   })
 
   it('(g) non-even division rounds to 2 decimal places', () => {
     // base=3, displayServings=1, qty=100 → scale=1/3 → 33.3333... → rounds to 33.33
-    expect(scaleQty(100, 3, 1)).toBe(33.33)
+    expect(scaleQty(100, 1, 3)).toBe(33.33)
+  })
+
+  it('(h) base=0 divide-by-zero guard — returns qty unchanged', () => {
+    // scaleQty(2, 1, 0) → scale defaults to 1 → result = 2
+    expect(scaleQty(2, 1, 0)).toBe(2)
   })
 })

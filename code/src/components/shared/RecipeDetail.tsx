@@ -5,6 +5,10 @@ import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { IconButton } from '../ui/IconButton'
 import { TagChip } from '../ui/TagChip'
 
+export function scaleQty(qty: number, displayed: number, base: number): number {
+  return Math.round(qty * (base > 0 ? displayed / base : 1) * 100) / 100
+}
+
 interface RecipeDetailProps {
   recipeId: string | null
   context: 'recipes' | 'meal-planner' | 'cook-now'
@@ -48,7 +52,6 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek,
 
   const base = recipe.servings
   const displayed = displayServings ?? base
-  const scale = base > 0 ? displayed / base : 1
 
   const allIngredients = ingredientsDbService.getAll()
   const ingredientMap = new Map(allIngredients.map((i) => [i.id, i]))
@@ -102,6 +105,7 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek,
             <IconButton
               variant="accent"
               onClick={onAddToWeek}
+              disabled={!onAddToWeek}
               aria-label="Add to week"
               style={{ opacity: onAddToWeek ? 1 : 0.35, cursor: onAddToWeek ? 'pointer' : 'default' }}
             >
@@ -141,6 +145,7 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek,
             <IconButton
               variant="accent"
               onClick={onAddToWeek}
+              disabled={!onAddToWeek}
               aria-label="Add to week"
               style={{ opacity: onAddToWeek ? 1 : 0.35, cursor: onAddToWeek ? 'pointer' : 'default' }}
             >
@@ -229,7 +234,7 @@ export function RecipeDetail({ recipeId, context, onEdit, onDelete, onAddToWeek,
               {recipe.ingredients.map((ing, idx) => {
                 const entry = ingredientMap.get(ing.ingredientId)
                 if (!entry) return null
-                const scaledQty = Math.round(ing.quantity * scale * 100) / 100
+                const scaledQty = scaleQty(ing.quantity, displayed, base)
                 return (
                   <div
                     key={idx}

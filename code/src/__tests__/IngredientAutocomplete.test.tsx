@@ -116,7 +116,8 @@ describe('IngredientAutocomplete', () => {
 
   it('(f) Escape key closes dropdown without calling onSelect', async () => {
     const onSelect = vi.fn()
-    await renderComponent('chi', vi.fn(), onSelect)
+    const onChange = vi.fn()
+    await renderComponent('chi', onChange, onSelect)
 
     expect(container.querySelector('[data-testid="ingredient-dropdown"]')).not.toBeNull()
 
@@ -126,6 +127,7 @@ describe('IngredientAutocomplete', () => {
 
     expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
     expect(onSelect).not.toHaveBeenCalled()
+    expect(onChange).toHaveBeenCalledWith('')
   })
 
   it('(g) mousedown outside closes dropdown and clears input', async () => {
@@ -142,6 +144,21 @@ describe('IngredientAutocomplete', () => {
     expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
     expect(onSelect).not.toHaveBeenCalled()
     expect(onChange).toHaveBeenCalledWith('')
+  })
+
+  it('(f2) Escape when both pickers are closed is a no-op — onChange not called', async () => {
+    const onChange = vi.fn()
+    const onSelect = vi.fn()
+    await renderComponent('', onChange, onSelect)
+
+    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
+
+    await act(async () => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    })
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(onSelect).not.toHaveBeenCalled()
   })
 
   it('(h) Escape while unit picker is open closes picker without creating an entry', async () => {

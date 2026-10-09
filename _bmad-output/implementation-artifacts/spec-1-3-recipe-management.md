@@ -21,10 +21,11 @@ deferred:
   - summary: >-
       Tags loaded only via initRecipes() on Recipes page mount — other pages see empty tags array
     evidence: |-
-      initRecipes() called only in RecipesPage useEffect when recipes.length === 0. Future pages needing tags (Meal Planner filters etc.) will have no tags unless user visits Recipes first.
+      RESOLVED: AppShell.tsx:13-15 calls initRecipes() at boot so tags are always available regardless of which page the user visits first.
     location: >-
       code/src/features/recipes/index.tsx
     severity: low
+    resolved: true
   - summary: >-
       recipeService.update() throws uncaught Error if recipe was deleted in another tab between modal open and save
     evidence: |-
