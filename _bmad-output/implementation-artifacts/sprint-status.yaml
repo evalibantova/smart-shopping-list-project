@@ -53,9 +53,9 @@ development_status:
   3-3-live-shopping-list: done
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-today-s-meals-availability: backlog
-  4-2-cook-now-filters-recipe-detail: backlog
+  epic-4: done
+  4-1-today-s-meals-availability: done
+  4-2-cook-now-filters-recipe-detail: done
   epic-4-retrospective: optional
 
 # Action items committed during retrospectives (section created by the retrospective workflow)
