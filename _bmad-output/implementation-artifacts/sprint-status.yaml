@@ -44,7 +44,7 @@ development_status:
   epic-2: in-progress
   2-1-weekly-calendar-grid: done
   2-2-assign-remove-meals: done
-  2-3-mark-as-cooked: backlog
+  2-3-mark-as-cooked: done
   epic-2-retrospective: optional
 
   epic-3: in-progress
@@ -65,44 +65,44 @@ action_items:
     action: "Recipe list: add servings count to rows (spec AC); remove cross-feature
       import recipes→meal-planner"
     owner: "Eva"
-    status: open
+    status: done
     ref: "/data/_bmad-output/implementation-artifacts/epic-1-retro-2026-10-08.md"
   - id: "epic-1-retro-item-2-fix-escape-handler-in-ingredientautocomp"
     epic: 1
     action: "Fix Escape handler in IngredientAutocomplete: guard open state, add stopPropagation,
       add onChange assertion to test (f)"
     owner: "Eva"
-    status: open
+    status: done
     ref: "/data/_bmad-output/implementation-artifacts/epic-1-retro-2026-10-08.md"
   - id: "epic-1-retro-item-3-fix-ingredient-row-key-replace-key-idx-w"
     epic: 1
     action: "Fix ingredient row key: replace key={idx} with stable ID in AddEditRecipeModal"
     owner: "Eva"
-    status: open
+    status: done
     ref: "/data/_bmad-output/implementation-artifacts/epic-1-retro-2026-10-08.md"
   - id: "epic-1-retro-item-4-add-disabled-aria-disabled-to-inert-add"
     epic: 1
     action: "Add disabled/aria-disabled to inert Add to Week button in RecipeDetail"
     owner: "Eva"
-    status: open
+    status: done
     ref: "/data/_bmad-output/implementation-artifacts/epic-1-retro-2026-10-08.md"
   - id: "epic-1-retro-item-5-accessibility-add-aria-hidden-to-mobile"
     epic: 1
     action: "Accessibility: add aria-hidden to mobile overlay; add modal-backdrop
       CSS token; fix Modal border-radius hardcode"
     owner: "Eva"
-    status: open
+    status: done
     ref: "/data/_bmad-output/implementation-artifacts/epic-1-retro-2026-10-08.md"
   - id: "epic-1-retro-item-6-test-gaps-extract-filterrecipes-scaleqty"
     epic: 1
     action: "Test gaps: extract filterRecipes/scaleQty as importable functions; add
       removeRecipe selectedId test"
     owner: "Eva"
-    status: open
+    status: done
     ref: "/data/_bmad-output/implementation-artifacts/epic-1-retro-2026-10-08.md"
   - id: "epic-1-retro-item-7-spec-reconcile-mark-stale-tags-init-defe"
     epic: 1
     action: "Spec reconcile: mark stale tags-init deferred item as resolved in spec-1-3"
     owner: "Eva"
-    status: open
+    status: done
     ref: "/data/_bmad-output/implementation-artifacts/epic-1-retro-2026-10-08.md"
