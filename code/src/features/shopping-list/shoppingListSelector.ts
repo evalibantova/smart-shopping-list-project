@@ -1,6 +1,7 @@
 import type { MealPlanEntry } from '../../types/mealPlan'
 import type { Recipe } from '../../types/recipes'
 import type { IngredientDbEntry } from '../../types/ingredients'
+import type { PantryItem } from '../../types/pantry'
 import { getDayDates, toDateStr } from '../meal-planner/utils/calendarUtils'
 
 export interface ShoppingItem {
@@ -24,7 +25,8 @@ export function computeShoppingList(
   entries: MealPlanEntry[],
   recipes: Recipe[],
   ingredientsDb: IngredientDbEntry[],
-  weekStart: Date
+  weekStart: Date,
+  pantryItems: PantryItem[]
 ): ShoppingItem[] {
   const weekDateSet = new Set(getDayDates(weekStart).map(toDateStr))
   const recipeMap = new Map(recipes.map((r) => [r.id, r]))
@@ -42,14 +44,23 @@ export function computeShoppingList(
     }
   }
 
+  // Build pantry map and subtract stock from totals; sum duplicates rather than last-wins
+  const pantryMap = new Map<string, number>()
+  for (const p of pantryItems) {
+    pantryMap.set(p.ingredientId, (pantryMap.get(p.ingredientId) ?? 0) + p.quantity)
+  }
+
   const items: ShoppingItem[] = []
   for (const [ingredientId, quantity] of totals) {
     const ing = ingMap.get(ingredientId)
     if (!ing) continue
+    const pantryQty = pantryMap.get(ingredientId) ?? 0
+    const deficit = Math.max(0, quantity - pantryQty)
+    if (deficit <= 0) continue
     items.push({
       ingredientId,
       name: ing.name,
-      quantity: Math.round(quantity * 100) / 100,
+      quantity: Math.round(deficit * 100) / 100,
       unit: ing.default_unit,
       category: ing.category,
     })

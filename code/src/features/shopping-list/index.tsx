@@ -14,6 +14,7 @@ function loadSet(key: string): Set<string> {
 export default function ShoppingListPage() {
   const entries = useStore((s) => s.entries)
   const recipes = useStore((s) => s.recipes)
+  const pantryItems = useStore((s) => s.pantryItems)
 
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => loadSet('slist_checked'))
   const [clearedIds, setClearedIds] = useState<Set<string>>(() => loadSet('slist_cleared'))
@@ -30,8 +31,8 @@ export default function ShoppingListPage() {
   const ingredientsDb = useMemo(() => ingredientsDbService.getAll(), [])
 
   const allItems = useMemo(
-    () => computeShoppingList(entries, recipes, ingredientsDb, weekStart),
-    [entries, recipes, ingredientsDb, weekStart]
+    () => computeShoppingList(entries, recipes, ingredientsDb, weekStart, pantryItems),
+    [entries, recipes, ingredientsDb, weekStart, pantryItems]
   )
 
   const allItemIds = useMemo(
