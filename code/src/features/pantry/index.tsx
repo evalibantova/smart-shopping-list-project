@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
+import { Plus } from 'lucide-react'
 import { useStore } from '../../store'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { IngredientAutocomplete } from '../../components/shared/IngredientAutocomplete'
 import { Button } from '../../components/ui/Button'
+import { Modal } from '../../components/ui/Modal'
 import { SavingIndicator } from '../../components/ui/SavingIndicator'
 import { Toast } from '../../components/ui/Toast'
 import type { IngredientDbEntry } from '../../types/ingredients'
@@ -52,34 +54,22 @@ function AddItemModal({ onClose, onSave }: AddItemModalProps) {
   }
 
   return (
-    <div
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--modal-backdrop)',
-        padding: 16,
-      }}
+    <Modal
+      isOpen
+      onClose={onClose}
+      title="Add Pantry Item"
+      footer={
+        <>
+          <Button intent="ghost" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button intent="coral" onClick={handleSave} disabled={saving}>
+            {saving ? 'Saving…' : 'Save'}
+          </Button>
+        </>
+      }
     >
-      <div
-        style={{
-          background: 'var(--surface)',
-          boxShadow: 'var(--shadow-md)',
-          padding: 24,
-          width: '100%',
-          maxWidth: 480,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 style={{ fontSize: 18, fontWeight: 700 }}>Add Pantry Item</h2>
-
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-mid)' }}>
             Ingredient
@@ -117,17 +107,8 @@ function AddItemModal({ onClose, onSave }: AddItemModalProps) {
         {error && (
           <p style={{ fontSize: 12, color: 'var(--red)', margin: 0 }}>{error}</p>
         )}
-
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <Button intent="ghost" onClick={onClose} disabled={saving}>
-            Cancel
-          </Button>
-          <Button intent="coral" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save'}
-          </Button>
-        </div>
       </div>
-    </div>
+    </Modal>
   )
 }
 
@@ -202,21 +183,23 @@ export default function PantryPage() {
       {toastMsg && <Toast message={toastMsg} onDismiss={() => setToastMsg('')} />}
 
       <div className="page-header">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flexShrink: 1 }}>
           <h1>Pantry</h1>
           {pantryItems.length > 0 && (
-            <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>
-              {pantryItems.length} item{pantryItems.length !== 1 ? 's' : ''} · click a row to edit
+            <span style={{ fontSize: 12, color: 'var(--text-dim)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {pantryItems.length} item{pantryItems.length !== 1 ? 's' : ''} · click to edit
             </span>
           )}
         </div>
         <Button
           intent="primary"
           size="sm"
+          style={{ paddingInline: '1.25rem' }}
           onClick={() => setShowAddModal(true)}
           data-testid="pantry-add-button"
         >
-          + Add Item
+          <Plus size={14} />
+          Add item
         </Button>
       </div>
 
@@ -259,7 +242,7 @@ export default function PantryPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 8,
-                    padding: '12px 16px',
+                    padding: '12px 24px',
                     borderBottom: '1px solid var(--border)',
                     background: 'var(--surface2)',
                     borderLeft: '3px solid var(--coral)',
@@ -338,7 +321,7 @@ export default function PantryPage() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
-                  padding: '12px 16px',
+                  padding: '12px 24px',
                   borderBottom: '1px solid var(--border)',
                   cursor: 'pointer',
                 }}

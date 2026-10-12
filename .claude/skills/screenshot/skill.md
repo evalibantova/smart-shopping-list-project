@@ -40,8 +40,9 @@ Files are named `{route}_{viewport}.png` (e.g. `recipes_mobile.png`).
    node -e "const fs=require('fs'); process.exit(fs.existsSync('/tmp/chrome-libs/usr/lib/x86_64-linux-gnu/libX11.so.6') ? 0 : 1);"
    ```
 
-2. **If libs are missing (exit code 1)** — run one-time setup first:
+2. **If libs are missing (exit code 1)** — copy the installer from the skill directory, then run it:
    ```bash
+   cp /data/.claude/skills/screenshot/install-chrome-libs.js /tmp/install-chrome-libs.js
    node /tmp/install-chrome-libs.js
    ```
 
@@ -117,4 +118,12 @@ Only `width` and `height` are set. There is no touch emulation, device pixel rat
 ## Notes
 
 - All Bash commands are pre-approved in `.claude/settings.local.json` — no permission prompts.
-- The canonical source of `screenshot-all.js` lives in this skill directory (`skills/screenshot/screenshot-all.js`). If `/tmp/screenshot-all.js` is missing after a restart, copy it from there rather than regenerating it.
+- The canonical sources of both scripts live in the skill directory (`skills/screenshot/`). If either `/tmp/screenshot-all.js` or `/tmp/install-chrome-libs.js` is missing after a restart, copy from there rather than regenerating:
+  ```bash
+  cp /data/.claude/skills/screenshot/screenshot-all.js /tmp/screenshot-all.js
+  cp /data/.claude/skills/screenshot/install-chrome-libs.js /tmp/install-chrome-libs.js
+  ```
+- **Debian trixie package names:** Several libs were renamed with a `t64` suffix in trixie — e.g. `libglib2.0-0t64` (not `libglib2.0-0`). The installer already uses the correct names.
+- **`ss` command not available:** Use `node -e "require('net').createConnection(5173,'localhost').on('connect',()=>{console.log('UP');process.exit(0)}).on('error',()=>{console.log('DOWN');process.exit(1)})"` to check if the dev server is up instead of `ss -tlnp`.
+- **`zcat` ENOBUFS:** The Packages.gz index is too large to pipe through `execSync`. The installer writes it to `/tmp/Packages.txt` first — do not change this.
+- **`waitUntil: 'load'` fires before `useEffect`:** In React apps where pages initialize data via `useEffect` (e.g. loading from localStorage into a store), the page captures the empty initial-render state. The script adds an 800 ms `waitForTimeout` after navigation to allow effects to complete. If pages still appear empty, increase this delay; never revert it or the timing bug returns.

@@ -107,7 +107,8 @@ Defined as CSS custom properties on `:root`:
 - `.app` — `display: flex; height: 100vh; overflow: hidden`
 - `.page` — `flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto` — the page itself scrolls by default.
 - `.page--fit` — modifier that sets `overflow-y: hidden` on `.page`. Use on pages where a full-height inner panel owns the scroll boundary (e.g. Meal Planner's `planner-grid-wrapper`). Without this modifier the page scrolls itself and the inner panel never fills the viewport height.
-- `.page-header` — `display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 16px; flex-shrink: 0` — **title and primary controls share one row**. Never use `flex-direction: column` here.
+- `.page-header` — `display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0` — **title and primary controls share one row**. Never use `flex-direction: column` here.
+  - **Padding rule (enforced in CSS, do not override per-page):** both sides `max(24px, env(safe-area-inset-*) + 24px)` — symmetric 24 px minimum, extended automatically on notched devices. List rows inside the page use the same `24px` horizontal padding to align content with the header. Children have `flex-shrink: 0` so buttons are never compressed; only the `h1` title is allowed to shrink.
 - `.page-body` — `flex: 1; overflow: hidden; display: flex`
 
 ### Sidebar (desktop)
@@ -133,20 +134,30 @@ Below 768 px, the sidebar collapses to a **fixed bottom bar** (60 px tall, `back
 
 ## 6. Component Library
 
-### Buttons (`.btn`)
+### Buttons (`<Button>` component)
 
-Base: `padding: 9px 18px; border: none; font-size: 13px; font-weight: 600`
+Implemented via `Button.tsx` using `class-variance-authority`. All sizes must have **visible horizontal padding** — never use a size that makes a button look like a plain label or a flush rectangle against the screen edge.
 
-| Class | Background | Text | Use |
+**Sizes:**
+
+| `size` prop | Height | H-padding | Font | Use |
+|---|---|---|---|---|
+| `default` (omit prop) | 40 px | 18 px | 13 px / 600 | Page-level actions (headers, modals) |
+| `sm` | 32 px | 14 px | 12 px / 600 | Compact actions in cards or toolbars |
+| `xs` | 24 px | 12 px | 12 px / 600 | Inline row actions (save/cancel/delete in edit rows) |
+
+**Padding rule:** Every size must feel comfortably padded — text should not crowd the button edge. 18 px / 14 px / 12 px are the minimums; do not reduce them. For page-header buttons, always use the default size so they have the same visual weight as other primary page actions.
+
+**Intents:**
+
+| `intent` prop | Background | Text | Use |
 |---|---|---|---|
-| `.btn-primary` | `--charcoal` | white | Primary action |
-| `.btn-coral` | `--coral` | white | Highlight action |
-| `.btn-secondary` | `--surface` + shadow | `--text-mid` | Secondary |
-| `.btn-amber` | `--amber` | white | Warning action |
-| `.btn-ghost` | transparent | `--text-dim` | Tertiary / clear |
-| `.btn-danger` | `rgba(red,0.1)` | `--red` | Destructive |
-| `.btn-sm` | — | — | Modifier: 12 px, 6 px padding |
-| `.btn-xs` | — | — | Modifier: 11 px, 4 px padding |
+| `primary` | `--charcoal` | white | Primary action |
+| `coral` | `--coral` | white | Highlight / confirm action |
+| `secondary` | `--surface` + shadow | `--text-mid` | Secondary |
+| `amber` | `--amber-pale` | `--amber` | Warning action |
+| `ghost` | transparent | `--text-dim` | Tertiary / cancel |
+| `danger` | `--red-pale` | `--red` | Destructive |
 
 Hover: `opacity: 0.88`. Active: `scale(0.97)`.
 
@@ -286,6 +297,8 @@ This section documents known failure modes that cause the UI to drift away from 
 | `flex-direction: column` on `.page-header` — stacks title above nav | `flex-direction: row; justify-content: space-between` — title left, nav right |
 | `h1` at 26 px on mobile causes the nav to wrap to a second line | 18 px on mobile so title + nav fit in ~375 px |
 | Adding a bottom border or separate background to the header row | Header shares the page background — no extra surface |
+| Overriding `.page-header` padding inline or per-page (`style={{ padding: … }}`) | Let the CSS rule apply — it uses `max()` + `env(safe-area-inset-right)` to guarantee 20px minimum right clearance |
+| Putting a flex-shrink button directly in `.page-header` without ensuring `flex-shrink: 0` | The CSS already sets `flex-shrink: 0` on all `.page-header > *`; only `h1` is allowed to shrink |
 
 ### Date range format
 
@@ -313,6 +326,14 @@ This section documents known failure modes that cause the UI to drift away from 
 | Background pill or highlight on active item | Coral icon + coral label only, no background |
 | Labels truncated with `…` | Labels chosen to fit at 10 px — shorten the word, don't truncate |
 | Icon size > 20 px on mobile nav | 20 × 20 px |
+
+### Buttons
+
+| ❌ Wrong | ✅ Correct |
+|---|---|
+| `size="sm"` on a page-header button — looks cramped, mismatched with title weight | Omit `size` (default) for all page-header buttons |
+| Reducing px values below minimums (`default < 18px`, `sm < 14px`, `xs < 12px`) | Keep the spec values — buttons must feel padded at every size |
+| Using `xs` in a page header to save space | Use `default`; if the header is tight, shorten the button label |
 
 ### General
 

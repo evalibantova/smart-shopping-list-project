@@ -182,6 +182,13 @@ Each item shows:
 
 Manages the household's ingredient stock levels.
 
+### First-load seed
+
+On the very first load (empty localStorage), the pantry is pre-populated with 15 realistic items so the Shopping List and Cook Now screens start in a meaningful state rather than empty:
+- **Well stocked:** Olive oil, Salt, Black pepper, Tomato paste, Canned tomatoes, Pasta, Cumin, Paprika, Chickpeas, Coconut milk
+- **Partial stock:** Butter (60 g), Eggs (4 pcs), Garlic (6 cloves), Onion (2 pcs), Ginger (8 g)
+- **Not stocked:** fresh produce (Tomato, Cucumber, Bell pepper, Avocado, Lemon) and meat — these appear on the Shopping List.
+
 ### Header
 
 Shows the total item count and a hint ("click a row to edit"). An **Add Item** button (charcoal, with + icon) opens the add form.

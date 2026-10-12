@@ -19,9 +19,9 @@ const buttonVariants = cva(
         danger: 'bg-[var(--red-pale)] text-[var(--red)]',
       },
       size: {
-        default: 'h-10 px-4 text-sm gap-2',
-        sm: 'h-8 px-4 text-xs gap-1.5',
-        xs: 'h-6 px-2.5 text-xs gap-1',
+        default: 'h-10 px-[18px] text-sm gap-2',
+        sm: 'h-8 px-[14px] text-xs gap-1.5',
+        xs: 'h-6 px-3 text-xs gap-1',
       },
     },
     defaultVariants: {

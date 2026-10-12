@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useStore } from '../../store'
+import { Button } from '../../components/ui/Button'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { getWeekStart } from '../meal-planner/utils/calendarUtils'
 import { computeShoppingList, CATEGORY_ORDER, type ShoppingItem } from './shoppingListSelector'
@@ -119,21 +120,15 @@ export default function ShoppingListPage() {
       <div className="page-header">
         <h1>Shopping List</h1>
         {checkedSnapshots.size > 0 && (
-          <button
+          <Button
+            intent="ghost"
+            size="sm"
             data-testid="shopping-list-clear-checked"
             onClick={clearChecked}
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: 'var(--coral)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px 8px',
-            }}
+            style={{ color: 'var(--coral)' }}
           >
             Clear checked
-          </button>
+          </Button>
         )}
       </div>
 

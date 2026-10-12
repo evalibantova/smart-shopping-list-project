@@ -89,11 +89,25 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  /* 20px horizontal padding keeps action buttons clear of the viewport edge on all screen sizes.
+     max() adds safe-area-inset support for notched/rounded-corner devices without breaking
+     flat screens (where env() resolves to 0). Never reduce below 20px — buttons will look
+     cropped. This rule is the single source of truth; do not override per-page. */
   padding: 14px 16px;
+  padding-inline-end: max(24px, calc(env(safe-area-inset-right, 0px) + 24px));
+  padding-inline-start: max(24px, calc(env(safe-area-inset-left, 0px) + 24px));
+  flex-shrink: 0;
+  /* Prevent child buttons from being compressed by flex layout */
+  gap: 8px;
+}
+
+.page-header > * {
   flex-shrink: 0;
 }
 
+/* Title is the only item allowed to shrink so the controls always have room */
 .page-header h1 {
+  flex-shrink: 1;
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.04em;

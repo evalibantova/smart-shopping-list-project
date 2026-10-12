@@ -2,6 +2,7 @@ import { ingredientsDbService } from '../services/ingredientsDbService'
 import { recipeService } from '../features/recipes/services/recipeService'
 import { tagService } from '../features/recipes/services/tagService'
 import { create as createMealPlan } from '../features/meal-planner/services/mealPlanService'
+import { getAll as getPantryItems, create as createPantryItem } from '../features/pantry/services/pantryService'
 
 function getMondayOfCurrentWeek(): Date {
   const today = new Date()
@@ -144,4 +145,42 @@ export function seedAppDataIfEmpty(): void {
 
   // Sun: Breakfast - Scrambled Eggs
   createMealPlan({ id: crypto.randomUUID(), date: dateStr(monday, 6), slot: 'breakfast', recipeId: scrambEggs.id, servings: 2 })
+}
+
+// Seed a realistic pantry so Shopping List and Cook Now start in an interesting
+// mixed state: dry goods well stocked, fresh produce mostly empty.
+export function seedPantryIfEmpty(): void {
+  if (getPantryItems().length > 0) return
+
+  const allIngredients = ingredientsDbService.getAll()
+  const byName: Record<string, string> = {}
+  for (const ing of allIngredients) byName[ing.name] = ing.id
+
+  // [name, quantity, maxStock]
+  const items: [string, number, number][] = [
+    // Pantry staples — well stocked
+    ['Olive oil',        10,   20],
+    ['Salt',              5,    8],
+    ['Black pepper',      3,    5],
+    ['Tomato paste',      4,   10],
+    ['Canned tomatoes', 400,  800],
+    ['Pasta',           300,  500],
+    ['Cumin',             3,    6],
+    ['Paprika',           3,    6],
+    ['Chickpeas',       400,  800],
+    ['Coconut milk',    400,  800],
+    // Dairy — partial stock
+    ['Butter',           60,  200],
+    ['Eggs',              4,   12],
+    // Produce — small partial stocks
+    ['Garlic',            6,   20],
+    ['Onion',             2,    6],
+    ['Ginger',            8,   50],
+  ]
+
+  for (const [name, quantity, maxStock] of items) {
+    const ingredientId = byName[name]
+    if (!ingredientId) continue
+    createPantryItem({ ingredientId, quantity, maxStock })
+  }
 }

@@ -118,9 +118,9 @@ if (viewports.length === 0) {
   process.exit(1);
 }
 
-// Output folder — cwd-relative by default
+// Output folder — /data by default
 const ts     = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
-const outDir = outOverride || path.join(process.cwd(), `screenshots_${ts}`);
+const outDir = outOverride || path.join('/data', `screenshots_${ts}`);
 fs.mkdirSync(outDir, { recursive: true });
 
 const browserEnv = { ...process.env, FONTCONFIG_FILE: '/tmp/chrome-fonts.conf', DISPLAY: '' };
@@ -153,6 +153,10 @@ const browserEnv = { ...process.env, FONTCONFIG_FILE: '/tmp/chrome-fonts.conf', 
       const file = path.join(outDir, `${name}_${vp.key}.png`);
       try {
         await page.goto(`${BASE_URL}${route}`, { waitUntil: 'load', timeout: 20000 });
+        // Wait for React effects (initRecipes, initPantry, etc.) to run and re-render.
+        // 'load' fires before useEffect, so without this wait, data-driven pages show
+        // their initial empty state.
+        await page.waitForTimeout(800);
         await page.screenshot({ path: file });
         console.log(`✓ ${name}_${vp.key}.png  [${vp.label} ${vp.width}x${vp.height}]`);
         results.push({ name, vp: vp.key, file, ok: true });

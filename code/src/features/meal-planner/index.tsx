@@ -86,7 +86,7 @@ export default function MealPlannerPage() {
             style={{
               fontSize: '13px',
               fontWeight: 500,
-              minWidth: '148px',
+              minWidth: '110px',
               textAlign: 'center',
               color: 'var(--text-mid)',
             }}

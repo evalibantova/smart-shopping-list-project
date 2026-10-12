@@ -385,7 +385,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              padding: '4px 0',
+              padding: '4px 8px',
               fontWeight: 600,
             }}
           >

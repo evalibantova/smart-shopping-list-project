@@ -31,7 +31,10 @@
       "Bash(ln -sf /data/code/vite.config.ts vite.config.ts)",
       "Bash(ln -sf /data/code/tsconfig.json tsconfig.json)",
       "Bash(/tmp/node_modules/.bin/vitest --run --config /tmp/vitest.config.ts)",
-      "Bash(/tmp/node_modules/.bin/tsc --project /data/code/tsconfig.app.json --noEmit)"
+      "Bash(/tmp/node_modules/.bin/tsc --project /data/code/tsconfig.app.json --noEmit)",
+      "Bash(node_modules/.bin/vitest *)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib ldd /home/claude-user/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell 2>&1 | grep \"not found\")"
     ]
   }
 }
