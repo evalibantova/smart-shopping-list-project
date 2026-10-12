@@ -37,12 +37,7 @@ export default function RecipesPage() {
   const removeRecipe = useStore((s) => s.removeRecipe)
   const initRecipes = useStore((s) => s.initRecipes)
 
-  const selectedIngredientAvailability = useMemo(() => {
-    if (!selectedId) return undefined
-    const recipe = recipes.find((r) => r.id === selectedId)
-    if (!recipe) return undefined
-    return computeAvailability(recipe, { servings: recipe.servings }, pantryItems).ingredientAvailability
-  }, [selectedId, recipes, pantryItems])
+  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
 
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
@@ -59,6 +54,16 @@ export default function RecipesPage() {
   // Filter recipes by search
   const filtered = filterRecipes(recipes, tags, search)
 
+  const recipesWithAvail = useMemo(
+    () => filtered.map((recipe) => ({ recipe, avail: computeAvailability(recipe, { servings: recipe.servings }, pantryItems) })),
+    [filtered, pantryItems]
+  )
+
+  const selectedIngredientAvailability = useMemo(() => {
+    if (!selectedId) return undefined
+    return recipesWithAvail.find((m) => m.recipe.id === selectedId)?.avail.ingredientAvailability
+  }, [selectedId, recipesWithAvail])
+
   function handleSelectRecipe(id: string) {
     selectRecipe(id)
     setMobileDetailOpen(true)
@@ -72,6 +77,17 @@ export default function RecipesPage() {
     if (!selectedId) return
     recipeService.delete(selectedId)
     removeRecipe(selectedId)
+    setMobileDetailOpen(false)
+  }
+
+  function handleCooked() {
+    if (!selectedId) return
+    const recipe = recipes.find((r) => r.id === selectedId)
+    if (!recipe) return
+    try {
+      batchUpdatePantry(recipe.ingredients.map((ing) => ({ ingredientId: ing.ingredientId, delta: -ing.quantity })))
+    } catch { /* best-effort */ }
+    selectRecipe(null)
     setMobileDetailOpen(false)
   }
 
@@ -164,7 +180,7 @@ export default function RecipesPage() {
                 </span>
               </div>
             ) : (
-              filtered.map((recipe) => {
+              recipesWithAvail.map(({ recipe, avail }) => {
                 const recipeTags = tags.filter((t) => recipe.tagIds.includes(t.id))
                 const isSelected = recipe.id === selectedId
                 return (
@@ -178,8 +194,8 @@ export default function RecipesPage() {
                       background: isSelected ? 'var(--surface3)' : 'transparent',
                       transition: 'background 0.1s',
                       display: 'flex',
-                      flexDirection: 'column',
-                      gap: 4,
+                      alignItems: 'center',
+                      gap: 8,
                     }}
                     onMouseEnter={(e) => {
                       if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'var(--surface2)'
@@ -188,31 +204,39 @@ export default function RecipesPage() {
                       if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'transparent'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 20, lineHeight: 1 }}>{recipe.emoji || '🍽️'}</span>
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: 'var(--text)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {recipe.name}
-                      </span>
-                      <span style={{ color: 'var(--text-muted, var(--text-dim))', fontSize: '0.75rem', flexShrink: 0 }}>
-                        {recipe.servings} srv
-                      </span>
-                    </div>
-                    {recipeTags.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, paddingLeft: 28 }}>
-                        {recipeTags.map((tag) => (
-                          <TagChip key={tag.id} name={tag.name} color={tag.color} size="sm" />
-                        ))}
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 20, lineHeight: 1 }}>{recipe.emoji || '🍽️'}</span>
+                        <span
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color: 'var(--text)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {recipe.name}
+                        </span>
                       </div>
-                    )}
+                      {recipeTags.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, paddingLeft: 28 }}>
+                          {recipeTags.map((tag) => (
+                            <TagChip key={tag.id} name={tag.name} color={tag.color} size="sm" />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ flexShrink: 0, minWidth: 20, textAlign: 'right' }}>
+                      {avail.tier === 'ready' ? (
+                        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--coral)' }} />
+                      ) : avail.missingCount > 0 ? (
+                        <span style={{ fontSize: 13, fontWeight: 700, color: avail.tier === 'almost' ? 'var(--amber)' : 'var(--text-dim)' }}>
+                          {avail.missingCount}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                 )
               })
@@ -236,6 +260,7 @@ export default function RecipesPage() {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onAddToWeek={selectedId ? () => setAddToWeekRecipeId(selectedId) : undefined}
+            onCooked={selectedId ? handleCooked : undefined}
           />
         </div>
 
@@ -279,6 +304,7 @@ export default function RecipesPage() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onAddToWeek={selectedId ? () => setAddToWeekRecipeId(selectedId) : undefined}
+              onCooked={selectedId ? handleCooked : undefined}
             />
           </div>
         </div>

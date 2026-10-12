@@ -4,7 +4,6 @@ import { useStore } from '../../store'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
 import { AddToWeekModal } from '../../components/shared/AddToWeekModal'
 import { AddEditRecipeModal } from '../recipes/AddEditRecipeModal'
-import { FilterTabs } from '../../components/ui/FilterTabs'
 import { IconButton } from '../../components/ui/IconButton'
 import { TagChip } from '../../components/ui/TagChip'
 import { computeAvailability } from './utils/cookNowUtils'
@@ -17,6 +16,7 @@ export default function CookNowPage() {
   const recipes = useStore((s) => s.recipes)
   const tags = useStore((s) => s.tags)
   const pantryItems = useStore((s) => s.pantryItems)
+  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
   const initPantry = useStore((s) => s.initPantry)
 
   const [filter, setFilter] = useState<Filter>('All')
@@ -70,13 +70,43 @@ export default function CookNowPage() {
     setMobileDetailOpen(false)
   }
 
+  function handleCooked() {
+    if (!selectedId) return
+    const recipe = recipes.find((r) => r.id === selectedId)
+    if (!recipe) return
+    try {
+      batchUpdatePantry(recipe.ingredients.map((ing) => ({ ingredientId: ing.ingredientId, delta: -ing.quantity })))
+    } catch { /* best-effort */ }
+    setSelectedId(null)
+    setMobileDetailOpen(false)
+  }
+
   const selectedRecipe = selectedMeal?.recipe ?? null
 
   return (
     <div className="page page--fit">
       <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h1>Cook Now</h1>
-        <FilterTabs tabs={FILTER_TABS} active={filter} onChange={(t) => setFilter(t as Filter)} />
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+          {FILTER_TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              style={{
+                borderRadius: 20,
+                padding: '5px 14px',
+                fontSize: 13,
+                fontWeight: 600,
+                border: 'none',
+                cursor: 'pointer',
+                background: filter === tab ? 'var(--coral)' : 'var(--surface2)',
+                color: filter === tab ? 'white' : 'var(--text-mid)',
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="page-body" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -92,7 +122,7 @@ export default function CookNowPage() {
             overflow: 'hidden',
           }}
         >
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
             {cookable.length === 0 ? (
               <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -185,6 +215,7 @@ export default function CookNowPage() {
             ingredientAvailability={selectedMeal?.avail.ingredientAvailability}
             onEdit={selectedId ? () => setEditOpen(true) : undefined}
             onAddToWeek={selectedId ? () => setAddToWeekOpen(true) : undefined}
+            onCooked={selectedId ? handleCooked : undefined}
           />
         </div>
 
@@ -220,6 +251,7 @@ export default function CookNowPage() {
               ingredientAvailability={selectedMeal?.avail.ingredientAvailability}
               onEdit={selectedId ? () => setEditOpen(true) : undefined}
               onAddToWeek={selectedId ? () => setAddToWeekOpen(true) : undefined}
+              onCooked={selectedId ? handleCooked : undefined}
             />
           </div>
         </div>
