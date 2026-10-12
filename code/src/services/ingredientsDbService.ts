@@ -1,5 +1,4 @@
 import { IngredientDbEntry } from '../types/ingredients'
-import { INGREDIENTS_SEED } from '../data/ingredientsSeed'
 
 const STORAGE_KEY = 'slist_ingredients_db'
 const VALID_UNITS = new Set(['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp'])
@@ -20,18 +19,6 @@ function writeAll(entries: IngredientDbEntry[]): void {
 }
 
 export const ingredientsDbService = {
-  seedIfEmpty(): void {
-    const existing = readAll()
-    if (existing.length > 0) return
-    const seeded: IngredientDbEntry[] = INGREDIENTS_SEED.map((seed) => ({
-      id: crypto.randomUUID(),
-      name: seed.name,
-      default_unit: seed.default_unit,
-      category: seed.category,
-    }))
-    writeAll(seeded)
-  },
-
   getAll(): IngredientDbEntry[] {
     return readAll()
   },

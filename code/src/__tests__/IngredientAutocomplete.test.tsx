@@ -10,7 +10,8 @@ describe('IngredientAutocomplete', () => {
 
   beforeEach(() => {
     localStorage.clear()
-    ingredientsDbService.seedIfEmpty()
+    for (const name of ['Chicken breast', 'Chicken thigh', 'Chickpeas'])
+      ingredientsDbService.create(name, 'g', 'Other')
     container = document.createElement('div')
     document.body.appendChild(container)
     act(() => {

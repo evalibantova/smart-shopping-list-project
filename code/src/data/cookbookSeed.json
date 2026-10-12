@@ -818,7 +818,7 @@
   ],
   "recipes": [
     {
-      "name": "Kyslá zemiaková polievka s klobásou a vajcom",
+      "name": "Kyslá zemiaková polievka s klobásou",
       "category": "Polievka",
       "servings": 4,
       "servingsEstimated": true,
@@ -917,7 +917,7 @@
       ]
     },
     {
-      "name": "Babkin jablkový koláč - Recept",
+      "name": "Babkin jablkový koláč",
       "category": "Dezert",
       "servings": 12,
       "servingsEstimated": true,
@@ -974,7 +974,7 @@
       ]
     },
     {
-      "name": "Bezlepkové medovníčky fotorecept",
+      "name": "Bezlepkové medovníčky",
       "category": "",
       "servings": 72,
       "servingsEstimated": false,
@@ -1199,7 +1199,7 @@
       ]
     },
     {
-      "name": "Bravčové na rasci-stará výborná klasika",
+      "name": "Bravčové na rasci",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": true,
@@ -1448,7 +1448,7 @@
       ]
     },
     {
-      "name": "Čokoládové brownies, které zvládne úplně každý - iDNES.cz",
+      "name": "Čokoládové brownies",
       "category": "Dezert",
       "servings": 16,
       "servingsEstimated": true,
@@ -1505,7 +1505,7 @@
       ]
     },
     {
-      "name": "Csalamádé tartósító nélkül télire",
+      "name": "Csalamádé na zimu",
       "category": "Iné",
       "servings": 5,
       "servingsEstimated": false,
@@ -1592,7 +1592,7 @@
       ]
     },
     {
-      "name": "Easy Croatian Mussels (Dagnje na Buzaru)",
+      "name": "Dagnje na buzaru",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": false,
@@ -1649,7 +1649,7 @@
       ]
     },
     {
-      "name": "Fašírky fotorecept",
+      "name": "Fašírky",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": false,
@@ -1775,7 +1775,7 @@
       ]
     },
     {
-      "name": "FOTORECEPT: Guláš",
+      "name": "Guláš",
       "category": "",
       "servings": 8,
       "servingsEstimated": false,
@@ -1826,7 +1826,7 @@
       ]
     },
     {
-      "name": "Fotorecept: Kuracia živánska",
+      "name": "Kuracia živánska",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": true,
@@ -1895,7 +1895,7 @@
       ]
     },
     {
-      "name": "Fotorecept: Mäkké medovníčky",
+      "name": "Mäkké medovníčky",
       "category": "Dezert",
       "servings": 10,
       "servingsEstimated": true,
@@ -2048,7 +2048,7 @@
       ]
     },
     {
-      "name": "Grilovaný baklažán - recept na grilovaný baklažán s mozzarelou a rajčinami",
+      "name": "Grilovaný baklažán s mozzarelou a rajčinami",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": true,
@@ -2213,7 +2213,7 @@
       ]
     },
     {
-      "name": "Jak uvařit vietnamskou hovězí polévku pho?",
+      "name": "Vietnamská polievka pho",
       "category": "Polievka",
       "servings": 8,
       "servingsEstimated": true,
@@ -2528,7 +2528,7 @@
       ]
     },
     {
-      "name": "Kapustový šalát podľa mojej maminy - u nás najobľúbenejší",
+      "name": "Kapustový šalát podľa maminy",
       "category": "Iné",
       "servings": 10,
       "servingsEstimated": true,
@@ -2609,7 +2609,7 @@
       ]
     },
     {
-      "name": "Klasický ryžový nákyp - Receptár | Žena.sk",
+      "name": "Klasický ryžový nákyp",
       "category": "Hlavné jedlo",
       "servings": 6,
       "servingsEstimated": true,
@@ -2804,7 +2804,7 @@
       ]
     },
     {
-      "name": "Krémeše fotorecept",
+      "name": "Krémeše",
       "category": "Dezert",
       "servings": 12,
       "servingsEstimated": true,
@@ -2867,7 +2867,7 @@
       ]
     },
     {
-      "name": "Krupicové halušky do polievky fotorecept",
+      "name": "Krupicové halušky",
       "category": "Iné",
       "servings": 4,
       "servingsEstimated": true,
@@ -3287,7 +3287,7 @@
       ]
     },
     {
-      "name": "Medové kurča - Recept",
+      "name": "Medové kurča",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": true,
@@ -3338,7 +3338,7 @@
       ]
     },
     {
-      "name": "Môj kurací perkelt s haluškami fotorecept",
+      "name": "Kurací perkelt s haluškami",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": true,
@@ -3557,7 +3557,7 @@
       ]
     },
     {
-      "name": "Paradajková polievka fotorecept",
+      "name": "Paradajková polievka",
       "category": "Polievka",
       "servings": 4,
       "servingsEstimated": true,
@@ -3644,7 +3644,7 @@
       ]
     },
     {
-      "name": "Pravé slivkové gule zo zemiakového cesta *****",
+      "name": "Slivkové gule zo zemiakového cesta",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": true,
@@ -3788,7 +3788,7 @@
       ]
     },
     {
-      "name": "Rýchla kapustnica fotorecept",
+      "name": "Rýchla kapustnica",
       "category": "Polievka",
       "servings": 4,
       "servingsEstimated": true,
@@ -3974,7 +3974,7 @@
       ]
     },
     {
-      "name": "Slepačia polievka z domácej sliepky s domácim strúhaním zo semoliny fotorecept",
+      "name": "Slepačia polievka so strúhaním",
       "category": "Polievka",
       "servings": 6,
       "servingsEstimated": true,
@@ -4214,7 +4214,7 @@
       ]
     },
     {
-      "name": "SUPER BRYNDZOVE PIROHY OD MOJEJ MAMICKY",
+      "name": "Bryndzové pirohy",
       "category": "Hlavné jedlo",
       "servings": 4,
       "servingsEstimated": true,
@@ -4415,7 +4415,7 @@
       ]
     },
     {
-      "name": "Taštičky z lístkového cesta plnené kyslou kapustou+salámovo-syrové+ovocné taštičky",
+      "name": "Taštičky z lístkového cesta s kapustou",
       "category": "Snack",
       "servings": 4,
       "servingsEstimated": true,
@@ -4460,7 +4460,7 @@
       ]
     },
     {
-      "name": "TIRAMISU z Italie (bez vajec)",
+      "name": "Tiramisu bez vajec",
       "category": "Dezert",
       "servings": 8,
       "servingsEstimated": true,

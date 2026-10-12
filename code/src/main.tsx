@@ -3,12 +3,9 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './styles/tokens.css'
 import App from './App'
-import { ingredientsDbService } from './services/ingredientsDbService'
-import { seedAppDataIfEmpty, seedPantryIfEmpty } from './data/seedData'
+import { importCookbookIfNeeded } from './data/cookbookImport'
 
-ingredientsDbService.seedIfEmpty()
-seedAppDataIfEmpty()
-seedPantryIfEmpty()
+importCookbookIfNeeded()
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('No #root element found')

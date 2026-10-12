@@ -1,38 +1,25 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { ingredientsDbService } from '../services/ingredientsDbService'
 
-const CANONICAL_UNITS = ['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp']
+const FIXTURES: [string, string][] = [
+  ['Chicken breast', 'g'],
+  ['Chicken thigh', 'g'],
+  ['Chicken stock', 'ml'],
+  ['Chickpeas', 'g'],
+  ['Garlic', 'cloves'],
+]
+
+function seedFixtures() {
+  for (const [name, unit] of FIXTURES) ingredientsDbService.create(name, unit, 'Other')
+}
 
 describe('ingredientsDbService', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
-  it('(a) seedIfEmpty on empty storage writes 76 entries each with UUID id and valid unit', () => {
-    ingredientsDbService.seedIfEmpty()
-    const all = ingredientsDbService.getAll()
-    expect(all).toHaveLength(76)
-    for (const entry of all) {
-      expect(typeof entry.id).toBe('string')
-      expect(entry.id.length).toBeGreaterThan(0)
-      expect(entry.name.length).toBeGreaterThan(0)
-      expect(CANONICAL_UNITS).toContain(entry.default_unit)
-    }
-  })
-
-  it('(b) seedIfEmpty when already populated makes no change to count or ids', () => {
-    ingredientsDbService.seedIfEmpty()
-    const firstIds = ingredientsDbService.getAll().map((e) => e.id)
-
-    ingredientsDbService.seedIfEmpty()
-    const secondIds = ingredientsDbService.getAll().map((e) => e.id)
-
-    expect(secondIds).toHaveLength(76)
-    expect(secondIds).toEqual(firstIds)
-  })
-
   it('(c) search("chi") returns only matching entries', () => {
-    ingredientsDbService.seedIfEmpty()
+    seedFixtures()
     const results = ingredientsDbService.search('chi')
     expect(results.length).toBeGreaterThan(0)
     for (const entry of results) {
@@ -47,13 +34,13 @@ describe('ingredientsDbService', () => {
   })
 
   it('(d) search("c") returns []', () => {
-    ingredientsDbService.seedIfEmpty()
+    seedFixtures()
     const results = ingredientsDbService.search('c')
     expect(results).toEqual([])
   })
 
-  it('(e) create("Tahini","tbsp","Other") writes new entry, returns it with UUID id, count becomes 77', () => {
-    ingredientsDbService.seedIfEmpty()
+  it('(e) create("Tahini","tbsp","Other") writes new entry, returns it with UUID id, count becomes 6', () => {
+    seedFixtures()
     const newEntry = ingredientsDbService.create('Tahini', 'tbsp', 'Other')
 
     expect(typeof newEntry.id).toBe('string')
@@ -63,7 +50,7 @@ describe('ingredientsDbService', () => {
     expect(newEntry.category).toBe('Other')
 
     const all = ingredientsDbService.getAll()
-    expect(all).toHaveLength(77)
+    expect(all).toHaveLength(6)
     expect(all.some((e) => e.id === newEntry.id)).toBe(true)
   })
 })
