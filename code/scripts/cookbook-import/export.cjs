@@ -1,6 +1,6 @@
 const path=require('path');const ROOT=process.env.COOKBOOK_ROOT||path.resolve(__dirname,'../../..');
 const fs=require('fs');
-const xml=fs.readFileSync(path.join(ROOT,'mycookbookrecipes.xml'),'utf8');
+const xml=fs.readFileSync(path.join(__dirname,'data','mycookbookrecipes.xml'),'utf8');
 const dec=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(+n)).replace(/&amp;/g,'&');
 const tag=(s,t)=>{const m=s.match(new RegExp(`<${t}>([\\s\\S]*?)</${t}>`));return m?dec(m[1]).replace(/\s+/g,' ').trim():''};
 const lis=(s,t)=>[...(s.match(new RegExp(`<${t}>([\\s\\S]*?)</${t}>`))?.[1]??'').matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m=>dec(m[1]).replace(/<br\s*\/?>/g,' ').trim());

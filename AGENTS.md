@@ -37,6 +37,7 @@ data/
 └── docs/
     ├── BACKEND-STACK.md             # Backend tech stack decision (Slim v4 + MySQL)
     ├── DESIGN.md                    # Design system: colors, typography, component styles
+    ├── COOKBOOK-IMPORT-WIRING.md    # What is needed to load the generated cookbook seed into the app
     ├── FUNCTIONALITY.md             # Feature spec: recipes, meal planner, shopping list, pantry
     ├── FUTURE-FEATURES.md           # Post-MVP feature backlog and AI chatbot architecture plan
     └── STACK.md                     # Frontend tech stack decisions with rationale

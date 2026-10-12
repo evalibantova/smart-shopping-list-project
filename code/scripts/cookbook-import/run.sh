@@ -1,6 +1,6 @@
 #!/bin/sh
-# Rebuilds recipes.csv, ingredients.csv and recipe_ingredients.csv from mycookbookrecipes.xml
-# in the repo root (override with COOKBOOK_ROOT). Run the steps in order.
+# Rebuilds recipes.csv, ingredients.csv and recipe_ingredients.csv from data/mycookbookrecipes.xml
+# (override output location with COOKBOOK_ROOT). Run the steps in order.
 set -e
 cd "$(dirname "$0")"
 node export.cjs    # parse XML, dedupe ingredients (canon.js), assign ids

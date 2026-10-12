@@ -4,9 +4,9 @@ const path=require('path');const ROOT=process.env.COOKBOOK_ROOT||path.resolve(__
 const fs=require('fs');
 const rd=f=>fs.readFileSync(f,'utf8').replace(/^﻿/,'').split(/\r?\n/).filter(Boolean).map(l=>{const o=[];let i=0;while(i<l.length){i++;let v='';while(i<l.length){if(l[i]=='"'){if(l[i+1]=='"'){v+='"';i+=2;continue}i++;break}v+=l[i++]}o.push(v);i++}return o});
 const csv=rs=>'﻿'+rs.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n')+'\r\n';
-const P=p=>path.join(ROOT,p);
+const P=p=>path.join(ROOT,p);const D=p=>path.join(__dirname,'data',p);
 let ing=rd(P('ingredients.csv'));const nameOf=Object.fromEntries(ing.slice(1).map(r=>[r[0],r[1]]));
-const ri=rd(P('recipe_ingredients.csv'));const props=rd(P('proposals_missing_quantities.csv')).slice(1);
+const ri=rd(P('recipe_ingredients.csv'));const props=rd(D('proposals_missing_quantities.csv')).slice(1);
 const missing=ri.slice(1).filter(r=>!r[3]);
 if(missing.length!==props.length)throw new Error(`proposals (${props.length}) out of sync with rows without quantity (${missing.length}) – regenerate them`);
 const drop=new Set();
@@ -20,7 +20,7 @@ const rows=ri.slice(1).filter(r=>!drop.has(r)).map(r=>{r[7]=r[7]||'';return r});
 for(const r of rows)if(r[0]=='18'&&r[6]=='1kl červená paprika'){r[2]='2';r[7]='yes'}
 // recipes with no ingredients in the XML: estimated ingredient lists (new ingredients get new ids)
 const idOf=Object.fromEntries(ing.slice(1).map(r=>[r[1],r[0]]));
-for(const p of rd(P('proposals_empty_recipes.csv')).slice(1)){
+for(const p of rd(D('proposals_empty_recipes.csv')).slice(1)){
   if(!idOf[p[2]]){const id=String(ing.length);ing.push([id,p[2],p[3],0]);idOf[p[2]]=id}
   rows.push([p[0],idOf[p[2]],p[4],p[3],'','','','yes']);
 }
@@ -32,7 +32,7 @@ for(const r of rows)r[1]=newId[r[1]];
 fs.writeFileSync(P('recipe_ingredients.csv'),csv([head,...rows]));
 // recipes.csv: servings + refresh ingredient ids
 const rec=rd(P('recipes.csv'));const ci=rec[0].indexOf('ingredient_ids'),cc=rec[0].indexOf('ingredient_count'),cs=rec[0].indexOf('servings');
-const sv=Object.fromEntries([...rd(P('proposals_servings.csv')).slice(1).map(r=>[r[0],r[3]]),...rd(P('proposals_empty_recipes_servings.csv')).slice(1).map(r=>[r[0],r[2]])]);
+const sv=Object.fromEntries([...rd(D('proposals_servings.csv')).slice(1).map(r=>[r[0],r[3]]),...rd(D('proposals_empty_recipes_servings.csv')).slice(1).map(r=>[r[0],r[2]])]);
 rec[0].push('servings_estimated','servings_text');
 const SERV_OVERRIDE={39:[8,'tart looks like ~8 slices'],53:[20,'1 tin 20×26 cm cut into squares']};
 const toNum=t=>{const m=t.match(/\((\d+)\s*servings\)/i)||t.match(/\d+/);return m?+(m[1]||m[0]):''};
