@@ -19,9 +19,9 @@ const buttonVariants = cva(
         danger: 'bg-[var(--red-pale)] text-[var(--red)]',
       },
       size: {
-        default: 'h-10 px-[18px] text-sm gap-2',
-        sm: 'h-8 px-[14px] text-xs gap-1.5',
-        xs: 'h-6 px-3 text-xs gap-1',
+        default: 'h-10 text-sm gap-2',
+        sm: 'h-8 text-xs gap-1.5',
+        xs: 'h-6 text-xs gap-1',
       },
     },
     defaultVariants: {
@@ -31,14 +31,21 @@ const buttonVariants = cva(
   }
 )
 
+const PADDING_INLINE: Record<string, string> = {
+  default: '18px',
+  sm: '14px',
+  xs: '12px',
+}
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
-export function Button({ className, intent, size, ...props }: ButtonProps) {
+export function Button({ className, intent, size, style, ...props }: ButtonProps) {
   return (
     <button
       className={clsx(buttonVariants({ intent, size }), className)}
+      style={{ paddingInline: PADDING_INLINE[size ?? 'default'], ...style }}
       {...props}
     />
   )

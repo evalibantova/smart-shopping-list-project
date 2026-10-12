@@ -34,7 +34,6 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setShowDropdown(false)
         setShowUnitPicker(false)
-        onChange('')
       }
     }
     function handleEscape(e: KeyboardEvent) {

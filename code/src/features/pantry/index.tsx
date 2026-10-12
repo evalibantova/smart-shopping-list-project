@@ -171,7 +171,12 @@ export default function PantryPage() {
   async function handleAdd(ingredientId: string, quantity: number) {
     setSaving(true)
     try {
-      addPantryItem({ ingredientId, quantity })
+      const existing = pantryItems.find((p) => p.ingredientId === ingredientId)
+      if (existing) {
+        updatePantryItem(existing.id, { quantity: existing.quantity + quantity })
+      } else {
+        addPantryItem({ ingredientId, quantity })
+      }
     } finally {
       setSaving(false)
     }
