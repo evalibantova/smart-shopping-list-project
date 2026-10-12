@@ -1,0 +1,4676 @@
+{
+  "ingredients": [
+    {
+      "name": "zemiak",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "cibuľa",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "klobása",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "vajce",
+      "default_unit": "pcs",
+      "category": "Dairy"
+    },
+    {
+      "name": "smotana",
+      "default_unit": "ml",
+      "category": "Dairy"
+    },
+    {
+      "name": "bujón slepačí",
+      "default_unit": "pcs",
+      "category": "Other"
+    },
+    {
+      "name": "list bobkový",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "korenie čierne celé",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "oriešok muškátový",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "bylinky provensálske",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "ocot",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "múka hladká",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "cukor",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "soľ",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "olej",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "maslo",
+      "default_unit": "g",
+      "category": "Dairy"
+    },
+    {
+      "name": "prášok do pečiva",
+      "default_unit": "g",
+      "category": "Other"
+    },
+    {
+      "name": "cukor práškový",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "mlieko",
+      "default_unit": "ml",
+      "category": "Dairy"
+    },
+    {
+      "name": "jablko",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "cukor vanilkový",
+      "default_unit": "g",
+      "category": "Other"
+    },
+    {
+      "name": "múka bezlepková",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "med",
+      "default_unit": "tbsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "sóda bikarbóna",
+      "default_unit": "tsp",
+      "category": "Other"
+    },
+    {
+      "name": "škorica mletá",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "klinčeky mleté",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "vaječný bielok",
+      "default_unit": "pcs",
+      "category": "Dairy"
+    },
+    {
+      "name": "mäso mleté",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "zeler stopkatý",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "mrkva",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "cesnak",
+      "default_unit": "cloves",
+      "category": "Produce"
+    },
+    {
+      "name": "paradajkové pyré koncentrované",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "víno červené",
+      "default_unit": "ml",
+      "category": "Other"
+    },
+    {
+      "name": "slanina",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "paradajka",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "bazalka",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "korenie čierne mleté",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "olej olivový",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "krkovička bravčová",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "horčica",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "stehno bravčové",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "rasca",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "vegeta",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "paprika mletá",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "múka polohrubá",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "ovocie",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "petržlen",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "pretlak paradajkový",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "oregano",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "voda",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "múka",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "syr",
+      "default_unit": "g",
+      "category": "Dairy"
+    },
+    {
+      "name": "lasagne",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "kapusta",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "uhorka",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "paprika",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "paradajka zelená",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "korenie farebné",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "horčičné semienko",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "koriander",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "mušle",
+      "default_unit": "g",
+      "category": "Fish & Seafood"
+    },
+    {
+      "name": "vňať petržlenová",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "víno biele",
+      "default_unit": "ml",
+      "category": "Other"
+    },
+    {
+      "name": "strúhanka",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "žemľa",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "majorán",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "fazuľa",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "korenie nové",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "mäso údené",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "solamyl",
+      "default_unit": "tsp",
+      "category": "Other"
+    },
+    {
+      "name": "pliecko bravčové",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "korenie na guláš",
+      "default_unit": "tbsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "chilli",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "mäso kuracie",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "masť bravčová",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "korenie",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "rum",
+      "default_unit": "tbsp",
+      "category": "Other"
+    },
+    {
+      "name": "korenie na perník",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "fliačky",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "paprika červená",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "citrónová kôra",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "kardamóm",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "badián",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "škorica celá",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "klinčeky celé",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "cukor hnedý",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "omáčka rybia",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "nudle ryžové",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "mäso hovädzie",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "kosti hovädzie",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "zázvor",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "cibuľa jarná",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "perilla",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "bylinka horká",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "eryngium foetidum",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "zeler",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "koleno bravčové",
+      "default_unit": "pcs",
+      "category": "Meat"
+    },
+    {
+      "name": "vývar",
+      "default_unit": "ml",
+      "category": "Other"
+    },
+    {
+      "name": "huby sušené",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "mäso bravčové",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "kapusta kyslá",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "zázvor mletý",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "paprika žltá",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "paprika zelená",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "ryža guľatozrnná",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "hrozienka",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "cesnak granulovaný",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "čokoláda",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "cesto lístkové",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "zlatý klas",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "smotana na šľahanie",
+      "default_unit": "ml",
+      "category": "Dairy"
+    },
+    {
+      "name": "stužovač šľahačky",
+      "default_unit": "pcs",
+      "category": "Other"
+    },
+    {
+      "name": "čokoláda na varenie",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "krupica detská",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "krídielko kuracie",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "ryža dlhozrná",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "zelenina mrazená",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "bujón zeleninový",
+      "default_unit": "pcs",
+      "category": "Other"
+    },
+    {
+      "name": "saturejka",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "šampiňón",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "smotana kyslá",
+      "default_unit": "g",
+      "category": "Dairy"
+    },
+    {
+      "name": "stehno kuracie",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "omáčka sójová",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "lesné ovocie",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "želatína",
+      "default_unit": "pcs",
+      "category": "Other"
+    },
+    {
+      "name": "tvaroh",
+      "default_unit": "g",
+      "category": "Dairy"
+    },
+    {
+      "name": "jogurt biely",
+      "default_unit": "ml",
+      "category": "Dairy"
+    },
+    {
+      "name": "sušienky",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "škrob kukuričný",
+      "default_unit": "tbsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "cestovina",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "slivka",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "rebrá",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "sirup javorový",
+      "default_unit": "tbsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "kečup",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "omáčka čili",
+      "default_unit": "tbsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "paprika mletá pálivá",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "kmín",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "sliepka",
+      "default_unit": "g",
+      "category": "Meat"
+    },
+    {
+      "name": "kaleráb",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "pór",
+      "default_unit": "g",
+      "category": "Produce"
+    },
+    {
+      "name": "borievka",
+      "default_unit": "pcs",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "vňať zelerová",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "múka semolinová",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "olej slnečnicový",
+      "default_unit": "tbsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "kel",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "šošovica",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "bryndza",
+      "default_unit": "g",
+      "category": "Dairy"
+    },
+    {
+      "name": "kôpor sušený",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "ocot jablčný",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "omáčka sriracha",
+      "default_unit": "tbsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "syr eidam",
+      "default_unit": "g",
+      "category": "Dairy"
+    },
+    {
+      "name": "droždie",
+      "default_unit": "g",
+      "category": "Other"
+    },
+    {
+      "name": "piškóty",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "mascarpone",
+      "default_unit": "g",
+      "category": "Dairy"
+    },
+    {
+      "name": "káva",
+      "default_unit": "ml",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "amaretto",
+      "default_unit": "tbsp",
+      "category": "Other"
+    },
+    {
+      "name": "koňak vaječný",
+      "default_unit": "tbsp",
+      "category": "Other"
+    },
+    {
+      "name": "kakao",
+      "default_unit": "tsp",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "vaječný žĺtok",
+      "default_unit": "pcs",
+      "category": "Dairy"
+    },
+    {
+      "name": "orech mletý",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "džem marhuľový",
+      "default_unit": "g",
+      "category": "Pantry & Dry Goods"
+    },
+    {
+      "name": "baklažán",
+      "default_unit": "pcs",
+      "category": "Produce"
+    },
+    {
+      "name": "mozzarella",
+      "default_unit": "g",
+      "category": "Dairy"
+    }
+  ],
+  "recipes": [
+    {
+      "name": "Kyslá zemiaková polievka s klobásou a vajcom",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.mimibazar.sk/recept.php?id=13448",
+      "ingredients": [
+        {
+          "ingredient": "zemiak",
+          "quantity": 750,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "bujón slepačí",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne celé",
+          "quantity": 0.1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "oriešok muškátový",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "bylinky provensálske",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "ocot",
+          "quantity": 15,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 10,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 2,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Babkin jablkový koláč - Recept",
+      "category": "Dezert",
+      "servings": 12,
+      "servingsEstimated": true,
+      "url": "http://nanicmama.sme.sk/kolace/babkin-jablkovy-kolac",
+      "ingredients": [
+        {
+          "ingredient": "múka hladká",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "prášok do pečiva",
+          "quantity": 6,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "jablko",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 4,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Bezlepkové medovníčky fotorecept",
+      "category": "",
+      "servings": 72,
+      "servingsEstimated": false,
+      "url": "https://varecha.pravda.sk/recepty/bezlepkove-medovnicky-fotorecept/9168-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "múka bezlepková",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 150,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "med",
+          "quantity": 2,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "sóda bikarbóna",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "škorica mletá",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "klinčeky mleté",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "vaječný bielok",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Boloňská omáčka k cestovinám",
+      "category": "Hlavné jedlo",
+      "servings": 8,
+      "servingsEstimated": false,
+      "url": "http://varecha.pravda.sk/recepty/bolonska-omacka-k-cestovinam/8525-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "mäso mleté",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zeler stopkatý",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mrkva",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 5,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "paradajkové pyré koncentrované",
+          "quantity": 70,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "víno červené",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "slanina",
+          "quantity": 120,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paradajka",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "bazalka",
+          "quantity": 6,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "olej olivový",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "oriešok muškátový",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Bravčová krkovička na horčici",
+      "category": "Hlavné jedlo",
+      "servings": 5,
+      "servingsEstimated": false,
+      "url": "",
+      "ingredients": [
+        {
+          "ingredient": "krkovička bravčová",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "horčica",
+          "quantity": 8,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Bravčové na rasci-stará výborná klasika",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.mimibazar.sk/recept.php?id=52361",
+      "ingredients": [
+        {
+          "ingredient": "stehno bravčové",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "rasca",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "vegeta",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Bublanina",
+      "category": "Dezert",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "http://dobruchut.azet.sk/recept/11995/bublanina/",
+      "ingredients": [
+        {
+          "ingredient": "múka polohrubá",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "prášok do pečiva",
+          "quantity": 12,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 100,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "ovocie",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Čarovné lasagne",
+      "category": "Hlavné jedlo",
+      "servings": 6,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/carovne-lasagne/45525-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 2,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "mrkva",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "petržlen",
+          "quantity": 160,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mäso mleté",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "pretlak paradajkový",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "pretlak paradajkový",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "oregano",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "bazalka",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 300,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "víno červené",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 1000,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "oriešok muškátový",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "syr",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "lasagne",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Čokoládové brownies, které zvládne úplně každý - iDNES.cz",
+      "category": "Dezert",
+      "servings": 16,
+      "servingsEstimated": true,
+      "url": "http://ona.idnes.cz/cokoladove-brownies-ktere-zvladne-uplne-kazdy-fqu-/recepty.aspx?c=A081010_093532_recepty_ves",
+      "ingredients": [
+        {
+          "ingredient": "čokoláda",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 150,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "kakao",
+          "quantity": 6,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Csalamádé tartósító nélkül télire",
+      "category": "Iné",
+      "servings": 5,
+      "servingsEstimated": false,
+      "url": "http://www.nosalty.hu/recept/csalamade-tartosito-nelkul-telire",
+      "ingredients": [
+        {
+          "ingredient": "kapusta",
+          "quantity": 2000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "uhorka",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika",
+          "quantity": 6,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mrkva",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "paradajka zelená",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "rasca",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie farebné",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "horčičné semienko",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "koriander",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "ocot",
+          "quantity": 600,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 48,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 12,
+          "unit": "tsp",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Easy Croatian Mussels (Dagnje na Buzaru)",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "https://www.thespruce.com/easy-croatian-mussels-recipe-1135889",
+      "ingredients": [
+        {
+          "ingredient": "mušle",
+          "quantity": 1814.4,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej olivový",
+          "quantity": 187.5,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "vňať petržlenová",
+          "quantity": 1.04,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 8,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "víno biele",
+          "quantity": 312.5,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "strúhanka",
+          "quantity": 57.5,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Fašírky fotorecept",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "http://varecha.pravda.sk/recepty/fasirky-fotorecept/40416-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "mäso mleté",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "žemľa",
+          "quantity": 160,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "majorán",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 3,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "strúhanka",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Fazuľová polievka na kyslo",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "http://varecha.pravda.sk/recepty/fazulova-polievka-na-kyslo/2537-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "fazuľa",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie nové",
+          "quantity": 5,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mäso údené",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 450,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "ocot",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "solamyl",
+          "quantity": 3,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "FOTORECEPT: Guláš",
+      "category": "",
+      "servings": 8,
+      "servingsEstimated": false,
+      "url": "https://dobruchut.aktuality.sk/recept/27571/fotorecept-gulas/",
+      "ingredients": [
+        {
+          "ingredient": "pliecko bravčové",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 4.17,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 100,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie na guláš",
+          "quantity": 5,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 3,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "chilli",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Fotorecept: Kuracia živánska",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://dobruchut.azet.sk/recept/13654/fotorecept-kuracia-zivanska/",
+      "ingredients": [
+        {
+          "ingredient": "mäso kuracie",
+          "quantity": 600,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "slanina",
+          "quantity": 150,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "paprika",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "paradajka",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 800,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "masť bravčová",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Fotorecept: Mäkké medovníčky",
+      "category": "Dezert",
+      "servings": 10,
+      "servingsEstimated": true,
+      "url": "http://dobruchut.azet.sk/recept/40195/fotorecept-makke-medovnicky/",
+      "ingredients": [
+        {
+          "ingredient": "múka hladká",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 170,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "rum",
+          "quantity": 1,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "med",
+          "quantity": 3,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "sóda bikarbóna",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie na perník",
+          "quantity": 2.5,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Geniálne palacinky 3:2:1",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "https://www.mimibazar.sk/recept.php?id=5654",
+      "ingredients": [
+        {
+          "ingredient": "mlieko",
+          "quantity": 300,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 100,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Granatiersky pochod",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.dobre-recepty.sk/detail/12196-granatiersky-pochod/",
+      "ingredients": [
+        {
+          "ingredient": "fliačky",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 2,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 60,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Grilovaný baklažán - recept na grilovaný baklažán s mozzarelou a rajčinami",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.akosatorobi.sk/video/1297/grilovany-baklazan-recept-na-grilovany-baklazan-s-mozzarelou-a-rajcinami",
+      "ingredients": [
+        {
+          "ingredient": "baklažán",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "mozzarella",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "paradajka",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "olej olivový",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "bazalka",
+          "quantity": 8,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Hranolky",
+      "category": "Príloha",
+      "servings": 2,
+      "servingsEstimated": true,
+      "url": "http://recepty.vareni.cz/hranolky",
+      "ingredients": [
+        {
+          "ingredient": "zemiak",
+          "quantity": 600,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 815.22,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Jablkové pité",
+      "category": "Dezert",
+      "servings": 12,
+      "servingsEstimated": true,
+      "url": "http://dobruchut.azet.sk/recept/9736/jablkove-pite",
+      "ingredients": [
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka polohrubá",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 15,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "prášok do pečiva",
+          "quantity": 12,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "citrónová kôra",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "škorica mletá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "jablko",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Jak uvařit vietnamskou hovězí polévku pho?",
+      "category": "Polievka",
+      "servings": 8,
+      "servingsEstimated": true,
+      "url": "http://www.hedvabnastezka.cz/klub-cestovatelu-praha/11072-jak-uvarit-vietnamskou-hovezi-polevku-pho/",
+      "ingredients": [
+        {
+          "ingredient": "kardamóm",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "badián",
+          "quantity": 7,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "škorica celá",
+          "quantity": 12,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "klinčeky celé",
+          "quantity": 15,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor hnedý",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 3,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "omáčka rybia",
+          "quantity": 60,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "nudle ryžové",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "mäso hovädzie",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "kosti hovädzie",
+          "quantity": 4000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "zázvor",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa jarná",
+          "quantity": 6,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "perilla",
+          "quantity": 10,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "bazalka",
+          "quantity": 10,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "bylinka horká",
+          "quantity": 10,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "eryngium foetidum",
+          "quantity": 6,
+          "unit": "pcs",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Jókaiho fazuľová polievka",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "http://varecha.pravda.sk/recepty/jokaiho-fazulova-polievka/26141-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "fazuľa",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mrkva",
+          "quantity": 0.5,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "petržlen",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zeler",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "masť bravčová",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "koleno bravčové",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 2,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "vňať petržlenová",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana",
+          "quantity": 300,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "vývar",
+          "quantity": 1500,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "ocot",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Kapustnica s klobásou a hubami",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "http://dobruchut.azet.sk/recept/13862/kapustnica-s-klobasou-a-hubami/",
+      "ingredients": [
+        {
+          "ingredient": "voda",
+          "quantity": 2500,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "huby sušené",
+          "quantity": 10,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mäso bravčové",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "kapusta kyslá",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 350,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "rasca",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "majorán",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "zázvor mletý",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 3,
+          "unit": "cloves",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Kapustový šalát podľa mojej maminy - u nás najobľúbenejší",
+      "category": "Iné",
+      "servings": 10,
+      "servingsEstimated": true,
+      "url": "http://www.mimibazar.sk/recept.php?id=17384&order=1",
+      "ingredients": [
+        {
+          "ingredient": "kapusta",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika červená",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika žltá",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika zelená",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mrkva",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 1000,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "ocot",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 36,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 3,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "rasca",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej olivový",
+          "quantity": 15,
+          "unit": "ml",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Klasický ryžový nákyp - Receptár | Žena.sk",
+      "category": "Hlavné jedlo",
+      "servings": 6,
+      "servingsEstimated": true,
+      "url": "https://zena.pluska.sk/stavnate-recepty/klasicky-ryzovy-nakyp",
+      "ingredients": [
+        {
+          "ingredient": "ryža guľatozrnná",
+          "quantity": 350,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 1000,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 80,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "hrozienka",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Koložvárska kapusta",
+      "category": "Hlavné jedlo",
+      "servings": 6,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/kolozvarska-kapusta/55339-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "kapusta kyslá",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mäso mleté",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "ryža guľatozrnná",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak granulovaný",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Konečne vláčne muffiny",
+      "category": "Dezert",
+      "servings": 8,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/konecne-vlacne-muffiny/21378-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "múka hladká",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "prášok do pečiva",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 4,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 120,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 130.43,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "čokoláda",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Krémeše fotorecept",
+      "category": "Dezert",
+      "servings": 12,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/kremese-fotorecept/27787-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "cesto lístkové",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 1000,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "zlatý klas",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 150,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 16,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana na šľahanie",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "stužovač šľahačky",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "čokoláda na varenie",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Krupicové halušky do polievky fotorecept",
+      "category": "Iné",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/krupicove-halusky-do-polievky-fotorecept/18264-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 75,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "masť bravčová",
+          "quantity": 14,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "krupica detská",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "vývar",
+          "quantity": 1000,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 1000,
+          "unit": "ml",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Kuracie krídelká ako z KFC",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/kuracie-kridelka-ako-z-kfc/48526-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "krídielko kuracie",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak granulovaný",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 100,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka polohrubá",
+          "quantity": 30,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "prášok do pečiva",
+          "quantity": 4,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "prášok do pečiva",
+          "quantity": 4,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Kuracie rizoto po slovensky",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "https://varecha.pravda.sk/recepty/kuracie-rizoto-po-slovensky-/11671-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "olej",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "ryža dlhozrná",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zelenina mrazená",
+          "quantity": 350,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mäso kuracie",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "vegeta",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "syr",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "uhorka",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Kyslá hubová polievka",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "https://www.toprecepty.sk/recept/2698-kysla-hubova-polievka/",
+      "ingredients": [
+        {
+          "ingredient": "huby sušené",
+          "quantity": 30,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 28,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 4,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "bujón zeleninový",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "saturejka",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 750,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "ocot",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "vegeta",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Kyslá šampiňónová polievka",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "http://dobruchut.azet.sk/recept/5165/kysla-sampinonova-polievka/",
+      "ingredients": [
+        {
+          "ingredient": "šampiňón",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana kyslá",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Maďarský guláš",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.thymos.sk/recepty/madarsky-gulas",
+      "ingredients": [
+        {
+          "ingredient": "pliecko bravčové",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "paradajka",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie na guláš",
+          "quantity": 2,
+          "unit": "tbsp",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Medové kurča - Recept",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://nanicmama.sme.sk/hlavne-jedla/medove-kurca",
+      "ingredients": [
+        {
+          "ingredient": "stehno kuracie",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej olivový",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "omáčka sójová",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "med",
+          "quantity": 3,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 4,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne celé",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "zázvor mletý",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Môj kurací perkelt s haluškami fotorecept",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/moj-kuraci-perkelt-s-haluskami-fotorecept/47608-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "stehno kuracie",
+          "quantity": 1080,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 3,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "smotana na šľahanie",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka polohrubá",
+          "quantity": 125,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Najlepšie mäkké medovníčky",
+      "category": "Dezert",
+      "servings": 20,
+      "servingsEstimated": false,
+      "url": "http://dobruchut.azet.sk/recept/9397/najlepsie-makke-medovnicky/",
+      "ingredients": [
+        {
+          "ingredient": "múka hladká",
+          "quantity": 750,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 350,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 125,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "med",
+          "quantity": 5,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "sóda bikarbóna",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie na perník",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Nepečená tvarohová torta s ovocím",
+      "category": "Dezert",
+      "servings": 8,
+      "servingsEstimated": true,
+      "url": "https://dobruchut.azet.sk/recept/17118/nepecena-tvarohova-torta-s-ovocim/",
+      "ingredients": [
+        {
+          "ingredient": "lesné ovocie",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "želatína",
+          "quantity": 6,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "tvaroh",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "jogurt biely",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 125,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "smotana na šľahanie",
+          "quantity": 250,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "sušienky",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "lesné ovocie",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 250,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 75,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "škrob kukuričný",
+          "quantity": 2,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Paradajková polievka fotorecept",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/paradajkova-polievka-fotorecept/33816-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "paradajka",
+          "quantity": 5,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "pretlak paradajkový",
+          "quantity": 500,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 3,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej olivový",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie nové",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "škorica celá",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "bazalka",
+          "quantity": 6,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cestovina",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "syr",
+          "quantity": 80,
+          "unit": "g",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Pravé slivkové gule zo zemiakového cesta *****",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.mimibazar.sk/recept.php?id=290",
+      "ingredients": [
+        {
+          "ingredient": "zemiak",
+          "quantity": 800,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka polohrubá",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "slivka",
+          "quantity": 12,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "tvaroh",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Rebierka",
+      "category": "",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "https://dobruchut.aktuality.sk/recept/76860/pomaly-pecene-hovadzie-rebra/",
+      "ingredients": [
+        {
+          "ingredient": "rebrá",
+          "quantity": 1200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 24,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak granulovaný",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "oregano",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "chilli",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "med",
+          "quantity": 1,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "sirup javorový",
+          "quantity": 1,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 15,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "horčica",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "kečup",
+          "quantity": 100,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "omáčka čili",
+          "quantity": 1,
+          "unit": "tbsp",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Rýchla kapustnica fotorecept",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/rychla-kapustnica-fotorecept/39146-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "masť bravčová",
+          "quantity": 28,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mäso údené",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "kapusta kyslá",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne celé",
+          "quantity": 0.07,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie nové",
+          "quantity": 5,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana kyslá",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Segedínský guláš po maďarsku",
+      "category": "Hlavné jedlo",
+      "servings": 6,
+      "servingsEstimated": true,
+      "url": "http://recepty.vareni.cz/segedinsky-gulas-po-madarsku/",
+      "ingredients": [
+        {
+          "ingredient": "smotana na šľahanie",
+          "quantity": 250,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 3,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "paprika mletá pálivá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "víno biele",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 100,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "kmín",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie nové",
+          "quantity": 4,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 30,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "mäso bravčové",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne celé",
+          "quantity": 0.1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "kapusta kyslá",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vegeta",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Slepačia polievka z domácej sliepky s domácim strúhaním zo semoliny fotorecept",
+      "category": "Polievka",
+      "servings": 6,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/slepacia-polievka-z-domacej-sliepky-s-domacim-/46174-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "sliepka",
+          "quantity": 1200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mrkva",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "petržlen",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zeler",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "kaleráb",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "pór",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika zelená",
+          "quantity": 0.67,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "paradajka",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 2,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne celé",
+          "quantity": 0.21,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie nové",
+          "quantity": 5,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "borievka",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "klinčeky celé",
+          "quantity": 3,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "vňať petržlenová",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "vňať zelerová",
+          "quantity": 5,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "voda",
+          "quantity": 3000,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka semolinová",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej slnečnicový",
+          "quantity": 1,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "kel",
+          "quantity": 0.25,
+          "unit": "pcs",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Šošovicová polievka",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "https://varecha.pravda.sk/recepty/sosovicova-polievka/38094-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "šošovica",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cibuľa",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mrkva",
+          "quantity": 2,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 450,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "slanina",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka hladká",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "bujón zeleninový",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "list bobkový",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak",
+          "quantity": 2,
+          "unit": "cloves",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 30,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vňať petržlenová",
+          "quantity": 0.5,
+          "unit": "pcs",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "SUPER BRYNDZOVE PIROHY OD MOJEJ MAMICKY",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.mimibazar.sk/recept.php?id=24658",
+      "ingredients": [
+        {
+          "ingredient": "bryndza",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "zemiak",
+          "quantity": 1350,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "múka polohrubá",
+          "quantity": 300,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 50,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "kôpor sušený",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Sweet and Spicy Baked Chicken Wings",
+      "category": "Hlavné jedlo",
+      "servings": 4,
+      "servingsEstimated": false,
+      "url": "https://anitacooks.com/recipe/sweet-and-spicy-baked-chicken-wings/",
+      "ingredients": [
+        {
+          "ingredient": "krídielko kuracie",
+          "quantity": 680.4,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "korenie čierne mleté",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "cesnak granulovaný",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 5,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "zázvor mletý",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "omáčka sójová",
+          "quantity": 5,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "ocot jablčný",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "omáčka sriracha",
+          "quantity": 4,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "med",
+          "quantity": 2,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 28,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Syrové pagáčiky so slaninou",
+      "category": "Snack",
+      "servings": 10,
+      "servingsEstimated": true,
+      "url": "http://varecha.pravda.sk/recepty/syrove-pagaciky-so-slaninou/37336-recept.html",
+      "ingredients": [
+        {
+          "ingredient": "múka hladká",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 200,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 100,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "slanina",
+          "quantity": 250,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "syr eidam",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "droždie",
+          "quantity": 14,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "syr eidam",
+          "quantity": 50,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Taštičky z lístkového cesta plnené kyslou kapustou+salámovo-syrové+ovocné taštičky",
+      "category": "Snack",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "http://www.mimibazar.sk/recept.php?id=3922",
+      "ingredients": [
+        {
+          "ingredient": "cesto lístkové",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "kapusta kyslá",
+          "quantity": 400,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "slanina",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "klobása",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "masť bravčová",
+          "quantity": 15,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "vajce",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "TIRAMISU z Italie (bez vajec)",
+      "category": "Dezert",
+      "servings": 8,
+      "servingsEstimated": true,
+      "url": "http://www.mimibazar.sk/recept.php?id=43297",
+      "ingredients": [
+        {
+          "ingredient": "piškóty",
+          "quantity": 440,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "mascarpone",
+          "quantity": 500,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "káva",
+          "quantity": 150,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 32,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "amaretto",
+          "quantity": 5,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "koňak vaječný",
+          "quantity": 9,
+          "unit": "tbsp",
+          "estimated": false
+        },
+        {
+          "ingredient": "smotana na šľahanie",
+          "quantity": 250,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "kakao",
+          "quantity": 3,
+          "unit": "tsp",
+          "estimated": true
+        }
+      ]
+    },
+    {
+      "name": "Zemiaková štipľavá polievka",
+      "category": "Polievka",
+      "servings": 4,
+      "servingsEstimated": true,
+      "url": "",
+      "ingredients": [
+        {
+          "ingredient": "zemiak",
+          "quantity": 1000,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vegeta",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "vňať petržlenová",
+          "quantity": 0.5,
+          "unit": "pcs",
+          "estimated": true
+        },
+        {
+          "ingredient": "chilli",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "olej",
+          "quantity": 45,
+          "unit": "ml",
+          "estimated": true
+        },
+        {
+          "ingredient": "múka",
+          "quantity": 5,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "paprika mletá",
+          "quantity": 2,
+          "unit": "tsp",
+          "estimated": false
+        }
+      ]
+    },
+    {
+      "name": "Zserbó",
+      "category": "Dezert",
+      "servings": 20,
+      "servingsEstimated": true,
+      "url": "http://aprosef.hu/gerbeaud",
+      "ingredients": [
+        {
+          "ingredient": "múka hladká",
+          "quantity": 200,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "maslo",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor práškový",
+          "quantity": 20,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "vaječný žĺtok",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "mlieko",
+          "quantity": 40,
+          "unit": "ml",
+          "estimated": false
+        },
+        {
+          "ingredient": "soľ",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "droždie",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "prášok do pečiva",
+          "quantity": 1,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor",
+          "quantity": 140,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "orech mletý",
+          "quantity": 240,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "škorica mletá",
+          "quantity": 1,
+          "unit": "tsp",
+          "estimated": true
+        },
+        {
+          "ingredient": "citrónová kôra",
+          "quantity": 1,
+          "unit": "pcs",
+          "estimated": false
+        },
+        {
+          "ingredient": "cukor vanilkový",
+          "quantity": 8,
+          "unit": "g",
+          "estimated": true
+        },
+        {
+          "ingredient": "džem marhuľový",
+          "quantity": 600,
+          "unit": "g",
+          "estimated": false
+        },
+        {
+          "ingredient": "čokoláda",
+          "quantity": 100,
+          "unit": "g",
+          "estimated": false
+        }
+      ]
+    }
+  ]
+}
