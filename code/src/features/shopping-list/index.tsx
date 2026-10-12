@@ -1,16 +1,9 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useStore } from '../../store'
 import { Button } from '../../components/ui/Button'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { getWeekStart } from '../meal-planner/utils/calendarUtils'
 import { computeShoppingList, CATEGORY_ORDER, type ShoppingItem } from './shoppingListSelector'
-
-function loadSet(key: string): Set<string> {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
-  } catch { return new Set() }
-}
 
 export default function ShoppingListPage() {
   const entries = useStore((s) => s.entries)
@@ -23,11 +16,6 @@ export default function ShoppingListPage() {
   // Kept separate from allItems so that adding to pantry (which drops the item from allItems)
   // doesn't make the item disappear before "Clear checked" is tapped.
   const [checkedSnapshots, setCheckedSnapshots] = useState<Map<string, ShoppingItem>>(new Map())
-  const [clearedIds, setClearedIds] = useState<Set<string>>(() => loadSet('slist_cleared'))
-
-  useEffect(() => {
-    localStorage.setItem('slist_cleared', JSON.stringify([...clearedIds]))
-  }, [clearedIds])
 
   const weekStart = useMemo(() => getWeekStart(new Date()), [])
   const ingredientsDb = useMemo(() => ingredientsDbService.getAll(), [])
@@ -37,34 +25,21 @@ export default function ShoppingListPage() {
     [entries, recipes, ingredientsDb, weekStart, pantryItems]
   )
 
-  const allItemIds = useMemo(
-    () => new Set(allItems.map((i) => i.ingredientId)),
-    [allItems]
-  )
-
-  // Stale clearedIds (from prior sessions) are filtered out so they don't hide new items
-  const effectiveClearedIds = useMemo(
-    () => new Set([...clearedIds].filter((id) => allItemIds.has(id))),
-    [clearedIds, allItemIds]
-  )
-
   const checkedIds = useMemo(() => new Set(checkedSnapshots.keys()), [checkedSnapshots])
 
-  // Visible = live unchecked items + checked snapshots (both minus cleared)
+  // Visible = live unchecked items + checked snapshots
   const visibleItems = useMemo(() => {
     const result: ShoppingItem[] = []
     for (const item of allItems) {
-      if (!effectiveClearedIds.has(item.ingredientId) && !checkedIds.has(item.ingredientId)) {
+      if (!checkedIds.has(item.ingredientId)) {
         result.push(item)
       }
     }
-    for (const [id, item] of checkedSnapshots) {
-      if (!effectiveClearedIds.has(id)) {
-        result.push(item)
-      }
+    for (const item of checkedSnapshots.values()) {
+      result.push(item)
     }
     return result
-  }, [allItems, checkedSnapshots, checkedIds, effectiveClearedIds])
+  }, [allItems, checkedSnapshots, checkedIds])
 
   const totalCount = visibleItems.length
   const doneCount = checkedSnapshots.size
@@ -94,7 +69,6 @@ export default function ShoppingListPage() {
   }
 
   function clearChecked() {
-    setClearedIds((prev) => new Set([...prev, ...checkedSnapshots.keys()]))
     setCheckedSnapshots(new Map())
   }
 
@@ -149,10 +123,10 @@ export default function ShoppingListPage() {
           >
             <span style={{ fontSize: 48 }}>🛒</span>
             <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-mid)', textAlign: 'center' }}>
-              Nothing planned this week
+              No upcoming meals planned
             </span>
             <span style={{ fontSize: 13, textAlign: 'center' }}>
-              Add some recipes to the Meal Planner and your shopping list will appear here.
+              Add recipes to the Meal Planner and your shopping list will appear here.
             </span>
           </div>
         ) : (

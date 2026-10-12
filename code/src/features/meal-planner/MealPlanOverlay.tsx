@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useStore } from '../../store'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
+import { computeAvailability } from '../cook-now/utils/cookNowUtils'
 import { remove, update } from './services/mealPlanService'
 import { AddToWeekModal } from '../../components/shared/AddToWeekModal'
 import { AddEditRecipeModal } from '../recipes/AddEditRecipeModal'
@@ -31,6 +32,7 @@ interface Props {
 export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
   const entry = useStore((s) => s.entries.find((e) => e.id === entryId))
   const recipes = useStore((s) => s.recipes)
+  const pantryItems = useStore((s) => s.pantryItems)
   const removeEntry = useStore((s) => s.removeEntry)
   const updateEntry = useStore((s) => s.updateEntry)
   const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
@@ -53,6 +55,9 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
   }, [entry, onClose])
 
   const recipe = recipes.find((r) => r.id === entry?.recipeId)
+  const avail = recipe && entry
+    ? computeAvailability(recipe, { servings: entry.servings }, pantryItems)
+    : null
 
   function handleRemove() {
     if (!entry) return
@@ -131,6 +136,7 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
             onCooked={handleToggleCooked}
             isCooked={!!entry?.cooked}
             isCooking={isCooking}
+            ingredientAvailability={avail?.ingredientAvailability}
           />
         </div>
       </div>

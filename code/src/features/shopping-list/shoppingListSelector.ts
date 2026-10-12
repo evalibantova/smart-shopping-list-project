@@ -2,7 +2,7 @@ import type { MealPlanEntry } from '../../types/mealPlan'
 import type { Recipe } from '../../types/recipes'
 import type { IngredientDbEntry } from '../../types/ingredients'
 import type { PantryItem } from '../../types/pantry'
-import { getDayDates, toDateStr } from '../meal-planner/utils/calendarUtils'
+import { toDateStr } from '../meal-planner/utils/calendarUtils'
 
 export interface ShoppingItem {
   ingredientId: string
@@ -28,13 +28,13 @@ export function computeShoppingList(
   weekStart: Date,
   pantryItems: PantryItem[]
 ): ShoppingItem[] {
-  const weekDateSet = new Set(getDayDates(weekStart).map(toDateStr))
+  const weekStartStr = toDateStr(weekStart)
   const recipeMap = new Map(recipes.map((r) => [r.id, r]))
   const ingMap = new Map(ingredientsDb.map((i) => [i.id, i]))
   const totals = new Map<string, number>()
 
   for (const entry of entries) {
-    if (!weekDateSet.has(entry.date)) continue
+    if (entry.date < weekStartStr) continue
     if (entry.cooked) continue
     const recipe = recipeMap.get(entry.recipeId)
     if (!recipe) continue
