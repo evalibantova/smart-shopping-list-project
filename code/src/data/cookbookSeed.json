@@ -232,7 +232,7 @@
     },
     {
       "name": "petržlen",
-      "default_unit": "g",
+      "default_unit": "pcs",
       "category": "Produce"
     },
     {
@@ -1361,8 +1361,8 @@
         },
         {
           "ingredient": "petržlen",
-          "quantity": 160,
-          "unit": "g",
+          "quantity": 3,
+          "unit": "pcs",
           "estimated": false
         },
         {
@@ -2384,14 +2384,14 @@
         },
         {
           "ingredient": "mrkva",
-          "quantity": 0.5,
+          "quantity": 2,
           "unit": "pcs",
           "estimated": false
         },
         {
           "ingredient": "petržlen",
-          "quantity": 50,
-          "unit": "g",
+          "quantity": 2,
+          "unit": "pcs",
           "estimated": false
         },
         {
@@ -2425,12 +2425,6 @@
           "estimated": false
         },
         {
-          "ingredient": "koleno bravčové",
-          "quantity": 1,
-          "unit": "pcs",
-          "estimated": false
-        },
-        {
           "ingredient": "cesnak",
           "quantity": 2,
           "unit": "cloves",
@@ -2450,7 +2444,7 @@
         },
         {
           "ingredient": "smotana",
-          "quantity": 300,
+          "quantity": 250,
           "unit": "ml",
           "estimated": false
         },
@@ -2470,12 +2464,6 @@
           "ingredient": "paprika mletá",
           "quantity": 1,
           "unit": "tsp",
-          "estimated": true
-        },
-        {
-          "ingredient": "ocot",
-          "quantity": 30,
-          "unit": "ml",
           "estimated": true
         }
       ]
@@ -4084,8 +4072,8 @@
         },
         {
           "ingredient": "petržlen",
-          "quantity": 100,
-          "unit": "g",
+          "quantity": 2,
+          "unit": "pcs",
           "estimated": false
         },
         {
