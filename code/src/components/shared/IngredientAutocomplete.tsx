@@ -15,19 +15,21 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
   const [matches, setMatches] = useState<IngredientDbEntry[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [showUnitPicker, setShowUnitPicker] = useState(false)
+  // Dropdown opens only once the user has typed — not for a pre-filled value on mount
+  const [typed, setTyped] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (value.length >= 2) {
       setMatches(ingredientsDbService.search(value))
-      setShowDropdown(true)
+      setShowDropdown(typed)
       setShowUnitPicker(false)
     } else {
       setMatches([])
       setShowDropdown(false)
       setShowUnitPicker(false)
     }
-  }, [value])
+  }, [value, typed])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -76,8 +78,12 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
     <div ref={containerRef} style={{ position: 'relative' }}>
       <input
         type="text"
+        className="field"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          setTyped(true)
+          onChange(e.target.value)
+        }}
         placeholder={placeholder}
       />
 

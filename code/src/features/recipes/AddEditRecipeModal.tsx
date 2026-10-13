@@ -7,6 +7,7 @@ import { useStore } from '../../store'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { IconButton } from '../../components/ui/IconButton'
+import { NumberInput } from '../../components/ui/NumberInput'
 import { TagChip } from '../../components/ui/TagChip'
 import { IngredientAutocomplete } from '../../components/shared/IngredientAutocomplete'
 import { IngredientDbEntry } from '../../types/ingredients'
@@ -169,36 +170,23 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
             <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>EMOJI</label>
             <input
               type="text"
+              className="field"
               value={emoji}
               onChange={(e) => setEmoji(e.target.value)}
               maxLength={2}
               placeholder="🍽️"
-              style={{
-                width: 52,
-                padding: '6px 8px',
-                fontSize: 20,
-                textAlign: 'center',
-                border: '1px solid var(--border-mid)',
-                borderRadius: 'var(--radius)',
-                background: 'var(--surface2)',
-              }}
+              style={{ width: 56, fontSize: 22, textAlign: 'center', padding: '6px 4px' }}
             />
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
             <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>NAME</label>
             <input
               type="text"
+              className="field"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Recipe name"
-              style={{
-                padding: '6px 10px',
-                border: '1px solid var(--border-mid)',
-                borderRadius: 'var(--radius)',
-                background: 'var(--surface2)',
-                fontSize: 14,
-                width: '100%',
-              }}
+              style={{ height: 43 }}
             />
           </div>
         </div>
@@ -206,20 +194,15 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
         {/* Servings */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>SERVINGS</label>
-          <input
-            type="number"
-            min={1}
-            value={servings}
-            onChange={(e) => setServings(parseInt(e.target.value) || 1)}
-            style={{
-              width: 80,
-              padding: '6px 10px',
-              border: '1px solid var(--border-mid)',
-              borderRadius: 'var(--radius)',
-              background: 'var(--surface2)',
-              fontSize: 14,
-            }}
-          />
+          <div>
+            <NumberInput
+              value={servings}
+              onChange={(v) => setServings(parseInt(v) || 1)}
+              min={1}
+              width={48}
+              aria-label="Servings"
+            />
+          </div>
         </div>
 
         {/* Tags */}
@@ -272,16 +255,10 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
             >
               <input
                 type="text"
+                className="field"
                 value={newTagName}
                 onChange={(e) => setNewTagName(e.target.value)}
                 placeholder="Tag name"
-                style={{
-                  padding: '5px 8px',
-                  border: '1px solid var(--border-mid)',
-                  borderRadius: 'var(--radius)',
-                  background: 'var(--surface)',
-                  fontSize: 13,
-                }}
               />
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {TAG_COLORS.map((c) => (
@@ -329,7 +306,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
           </label>
           {rows.map((row, idx) => (
             <div key={row.rowId} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <IngredientAutocomplete
                   value={row.ingredientName}
                   onChange={(v) => handleIngredientChange(idx, v)}
@@ -337,26 +314,18 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
                   placeholder="Ingredient…"
                 />
               </div>
-              <input
-                type="number"
-                min={0}
-                step={0.1}
+              <NumberInput
                 value={row.quantity}
-                onChange={(e) => handleQuantityChange(idx, parseFloat(e.target.value) || 0)}
-                style={{
-                  width: 60,
-                  padding: '6px 8px',
-                  border: '1px solid var(--border-mid)',
-                  borderRadius: 'var(--radius)',
-                  background: 'var(--surface2)',
-                  fontSize: 13,
-                }}
+                onChange={(v) => handleQuantityChange(idx, parseFloat(v) || 0)}
+                min={0}
+                width={40}
+                aria-label="Quantity"
               />
               <span
                 style={{
                   fontSize: 12,
                   color: 'var(--text-dim)',
-                  width: 36,
+                  width: 32,
                   textAlign: 'center',
                   flexShrink: 0,
                 }}
@@ -402,16 +371,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Cooking notes, steps or tips… (Markdown and links supported)"
             rows={6}
-            style={{
-              padding: '8px 10px',
-              border: '1px solid var(--border-mid)',
-              borderRadius: 'var(--radius)',
-              background: 'var(--surface2)',
-              fontSize: 13,
-              resize: 'vertical',
-              fontFamily: 'inherit',
-              lineHeight: 1.5,
-            }}
+            className="field"
           />
         </div>
       </div>

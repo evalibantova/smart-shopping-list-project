@@ -184,3 +184,102 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg) }
 }
+
+/* Form fields (DESIGN.md "Form inputs"): flat surface2 fill, coral underline on focus */
+.field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface2);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.field::placeholder {
+  color: var(--text-dim);
+}
+
+.field:hover {
+  background: var(--surface3);
+}
+
+.field:focus {
+  background: var(--surface);
+  border-bottom-color: var(--coral);
+  box-shadow: 0 1px 0 0 var(--coral-pale);
+}
+
+textarea.field {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Stepper: − [value] + */
+.field-group {
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  background: var(--surface2);
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.field-group:hover {
+  background: var(--surface3);
+}
+
+.field-group:focus-within {
+  background: var(--surface);
+  border-bottom-color: var(--coral);
+}
+
+.field-group .field,
+.field-group .field:hover,
+.field-group .field:focus {
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+  text-align: center;
+  padding: 9px 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.field-group .field::-webkit-outer-spin-button,
+.field-group .field::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-mid);
+  cursor: pointer;
+}
+
+.field-step:hover:not(:disabled) {
+  color: var(--coral-dark);
+}
+
+.field-step:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: -2px;
+}
+
+.field-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

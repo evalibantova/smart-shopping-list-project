@@ -31,6 +31,7 @@ describe('IngredientAutocomplete', () => {
     value: string,
     onChange = vi.fn(),
     onSelect = vi.fn(),
+    typed = true,
   ) {
     await act(async () => {
       root.render(
@@ -41,6 +42,15 @@ describe('IngredientAutocomplete', () => {
         />,
       )
     })
+    if (typed) {
+      // The dropdown opens only after the user types, so simulate a keystroke
+      const input = container.querySelector('input') as HTMLInputElement
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
+      await act(async () => {
+        setter.call(input, value + "x")
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+      })
+    }
     return { onChange, onSelect }
   }
 
@@ -48,6 +58,11 @@ describe('IngredientAutocomplete', () => {
     await renderComponent('ch')
     const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
     expect(dropdown).not.toBeNull()
+  })
+
+  it('pre-filled value does not open the dropdown until the user types', async () => {
+    await renderComponent('chicken', vi.fn(), vi.fn(), false)
+    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
   })
 
   it('(b) input with 1 char renders no dropdown', async () => {
@@ -131,7 +146,7 @@ describe('IngredientAutocomplete', () => {
     expect(onChange).toHaveBeenCalledWith('')
   })
 
-  it('(g) mousedown outside closes dropdown and clears input', async () => {
+  it('(g) mousedown outside closes dropdown without clearing input', async () => {
     const onSelect = vi.fn()
     const onChange = vi.fn()
     await renderComponent('chi', onChange, onSelect)
@@ -144,13 +159,13 @@ describe('IngredientAutocomplete', () => {
 
     expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
     expect(onSelect).not.toHaveBeenCalled()
-    expect(onChange).toHaveBeenCalledWith('')
+    expect(onChange).not.toHaveBeenCalledWith('')
   })
 
   it('(f2) Escape when both pickers are closed is a no-op — onChange not called', async () => {
     const onChange = vi.fn()
     const onSelect = vi.fn()
-    await renderComponent('', onChange, onSelect)
+    await renderComponent('', onChange, onSelect, false)
 
     expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
 
