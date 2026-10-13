@@ -32,6 +32,10 @@ export function formatWeekRange(monday: Date): string {
   const endDay = sunday.getDate()
   const endMonth = MONTHS[sunday.getMonth()]
   const year = sunday.getFullYear()
+  if (monday.getFullYear() !== year) {
+    const startMonth = MONTHS[monday.getMonth()]
+    return `${startDay} ${startMonth} ${monday.getFullYear()} – ${endDay} ${endMonth} ${year}`
+  }
   if (monday.getMonth() !== sunday.getMonth()) {
     const startMonth = MONTHS[monday.getMonth()]
     return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${year}`

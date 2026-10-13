@@ -11,6 +11,7 @@ import {
 } from './utils/calendarUtils'
 import { RecipePickerModal } from './RecipePickerModal'
 import { MealPlanOverlay } from './MealPlanOverlay'
+import { remove } from './services/mealPlanService'
 
 const SLOTS = [
   { key: 'breakfast' as const, label: 'Breakfast' },
@@ -21,6 +22,7 @@ const SLOTS = [
 export default function MealPlannerPage() {
   const entries = useStore((s) => s.entries)
   const initMealPlan = useStore((s) => s.initMealPlan)
+  const removeEntry = useStore((s) => s.removeEntry)
 
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()))
   const [pickerSlot, setPickerSlot] = useState<{ date: string; slot: 'breakfast' | 'lunch' | 'dinner' } | null>(null)
@@ -38,6 +40,11 @@ export default function MealPlannerPage() {
 
   const dayDates = getDayDates(weekStart)
   const isCurrentWeek = toDateStr(weekStart) === toDateStr(getWeekStart(new Date()))
+
+  function handleRemoveOrphan(id: string) {
+    removeEntry(id)
+    remove(id)
+  }
 
   function goToPrev() {
     setWeekStart((d) => {
@@ -224,7 +231,41 @@ export default function MealPlannerPage() {
                   >
                     {slotEntries.map((entry) => {
                       const recipe = recipeMap.get(entry.recipeId)
-                      if (!recipe) return null
+                      if (!recipe) {
+                        return (
+                          <div
+                            key={entry.id}
+                            data-testid="slot-item-orphan"
+                            style={{
+                              borderRadius: '4px',
+                              padding: '4px 6px',
+                              background: 'var(--surface2)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '6px',
+                              fontSize: '12px',
+                              color: 'var(--text-mid)',
+                            }}
+                          >
+                            <span>Recipe removed</span>
+                            <button
+                              aria-label="Remove from plan"
+                              onClick={() => handleRemoveOrphan(entry.id)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'var(--text-mid)',
+                                fontSize: '14px',
+                                lineHeight: 1,
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )
+                      }
                       return (
                         <div
                           key={entry.id}
