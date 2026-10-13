@@ -4,7 +4,7 @@ import { tagService } from '../features/recipes/services/tagService'
 import seed from './cookbookSeed.json'
 
 const IMPORT_FLAG = 'slist_cookbook_imported'
-const IMPORT_VERSION = '7'
+const IMPORT_VERSION = '8'
 // Storage keys of the removed demo seed (and anything built on it); cleared when the import runs.
 const RESET_KEYS = ['slist_ingredients_db', 'slist_recipes', 'slist_tags', 'slist_pantry', 'slist_meal_plan']
 
