@@ -4,12 +4,13 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize from 'rehype-sanitize'
 
-const listStyle = { margin: '0 0 8px', paddingLeft: 20 }
+// Tailwind's preflight resets list-style, so markers must be set explicitly.
+const listStyle = { margin: '0 0 8px', paddingLeft: 22 }
 
 const components = {
   p: (props: ComponentProps<'p'>) => <p style={{ margin: '0 0 8px' }} {...props} />,
-  ol: (props: ComponentProps<'ol'>) => <ol style={listStyle} {...props} />,
-  ul: (props: ComponentProps<'ul'>) => <ul style={listStyle} {...props} />,
+  ol: (props: ComponentProps<'ol'>) => <ol style={{ ...listStyle, listStyleType: 'decimal' }} {...props} />,
+  ul: (props: ComponentProps<'ul'>) => <ul style={{ ...listStyle, listStyleType: 'disc' }} {...props} />,
   li: (props: ComponentProps<'li'>) => <li style={{ marginBottom: 4 }} {...props} />,
   a: (props: ComponentProps<'a'>) => (
     <a
