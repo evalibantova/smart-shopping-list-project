@@ -1,3 +1,8 @@
+AuthType Basic
+AuthName "Chilli Muffin"
+AuthUserFile /var/www25/p66385/chillimuffin.com/sub/shopping/.htpasswd
+Require valid-user
+
 Options -MultiViews
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f

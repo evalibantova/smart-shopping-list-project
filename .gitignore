@@ -39,3 +39,6 @@ screenshots_*/
 shopping-list.sublime-project
 shopping-list-claude.bat
 shopping-list-pitch.html
+
+# Deploy secrets (htpasswd hash) — never commit
+deploy/
