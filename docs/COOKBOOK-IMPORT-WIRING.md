@@ -1,36 +1,38 @@
-# Cookbook import — how it is wired
+# Cookbook seed
 
-Status: **wired.** The cookbook is the app's only seed; the old English demo seed was removed.
-The generator is `code/scripts/cookbook-import/` (`sh run.sh`, see its README); it writes `code/src/data/cookbookSeed.json`.
+`code/src/data/cookbookSeed.json` is the **source of truth** for the app's seed data. It is edited by hand; the XML-based generator that produced it has been removed (it remains in git history, before the commit "chore: drop cookbook generator").
 
-## What the seed contains
+## Shape
 
-`cookbookSeed.json` = `{ ingredients, recipes }`
+`{ ingredients, recipes }`
 
 - `ingredients[]`: `{ name, default_unit, category }` — 163 entries, Slovak names, valid app units and categories.
-- `recipes[]`: `{ name, category, servings, servingsEstimated, url, notes, ingredients[] }` — 53 recipes with cleaned, shortened titles (title cleanup and overrides live in `seed.cjs`).
-  - `ingredients[]`: `{ ingredient (name), quantity, unit, estimated }`. `quantity` is already in the ingredient's `default_unit`.
+- `recipes[]`: `{ name, category, servings, servingsEstimated, url, notes, mainTag, ingredients[] }` — 53 recipes.
+  - `notes`: Markdown (numbered method steps, or the description when there are no steps, then a `Zdroj: [host](url)` link).
+  - `mainTag`: main-ingredient tag name or `null` (none for desserts).
+  - `ingredients[]`: `{ ingredient (name), quantity, unit, estimated }`. `quantity` is in the ingredient's `default_unit`; `ingredient` must match an entry in `ingredients[]` by name.
 
 ## How it loads
 
 `main.tsx` calls `importCookbookIfNeeded()` (`src/data/cookbookImport.ts`) before rendering.
 
-- Guarded by the `slist_cookbook_imported` flag. If it differs from `IMPORT_VERSION`, the import **wipes** ingredients, recipes, tags, pantry and meal plan from `localStorage`, then imports. Bump `IMPORT_VERSION` to force a reload of the seed in every browser (this also discards user-created data).
-- Recipes are linked to ingredients by name. An unknown ingredient name throws.
-- Each recipe gets a tag named after its category, a main-ingredient tag where one applies (`tags.cjs`; none for desserts; colors in `TAG_COLORS` in `cookbookImport.ts`), an emoji from the category (or from keywords in the name when the category has none, else 🍴), and `notes` (Markdown: numbered method steps, or the description when a recipe has no steps, then a `Zdroj: [host](url)` link; built by `notes.cjs`). Notes render through `components/shared/NotesMarkdown.tsx` (Markdown + GFM autolinks + sanitized inline HTML; links open in a new tab).
+- Guarded by the `slist_cookbook_imported` flag. If it differs from `IMPORT_VERSION`, the import **wipes** ingredients, recipes, tags, pantry and meal plan from `localStorage`, then loads the seed. After editing the JSON, bump `IMPORT_VERSION` to make browsers pick up the change (this also discards user-created data).
+- Recipes are linked to ingredients by name; an unknown name throws.
+- Each recipe gets a tag named after its category and one for `mainTag`; colors come from `TAG_COLORS` in `cookbookImport.ts` (unknown tag names fall back to grey, so add a color when adding a tag). The emoji comes from the category, or from keywords in the name when the category has none, else 🍴.
 - The pantry and meal plan start empty.
+- Notes render through `components/shared/NotesMarkdown.tsx` (Markdown + GFM autolinks + sanitized inline HTML; links open in a new tab).
 
-## Not imported
+## Tests
 
-- `estimated` per ingredient and `servingsEstimated` per recipe (no field in `Recipe`/`RecipeIngredient`).
-
-## Keeping it regenerable
-
-After any change to the rule tables or `data/proposals_*.csv`, run `sh code/scripts/cookbook-import/run.sh` and commit the regenerated `cookbookSeed.json`. Do not edit the JSON or CSVs by hand.
+`src/__tests__/cookbookImport.test.ts` checks that every recipe ingredient resolves, quantities use the ingredient's `default_unit`, the import is idempotent, and tags have distinct colors.
 
 ## Known data caveats
 
 - Ingredient names are Slovak base forms; a few Czech/Hungarian/English originals were translated, some exotic herbs stay as in the source.
 - Unit conversions (spoon weights, piece weights, pack sizes) are approximations, reviewed and accepted by the owner.
-- Recipes "Čokoládové brownies" and "Grilovaný baklažán s mozzarelou a rajčinami" have estimated ingredient lists because the source XML contained none.
-- `servings` is a plain number; the original text is only in `recipes.csv` (`servings_text`).
+- `estimated` per ingredient and `servingsEstimated` per recipe are kept in the JSON but not shown in the UI.
+- Not imported from the original cookbook XML: images, prep/cook times, authors, ratings, original servings text.
+
+## CSV copy
+
+`code/src/data/csv/` holds a clean, human-readable snapshot of the seed (`ingredients.csv`, `recipes.csv`, `recipe_ingredients.csv`, linked by ids) for browsing in a spreadsheet. It was exported once from `cookbookSeed.json`; the JSON stays the source of truth, so re-export the CSVs after editing it.
