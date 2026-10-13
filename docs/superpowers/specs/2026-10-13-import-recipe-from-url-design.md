@@ -29,7 +29,7 @@ Paste a recipe page URL, get the recipe prefilled in the existing recipe form, r
    - A "Gemini API key" field (masked, show/hide toggle), a Save button, and a Clear button. The key is stored in `localStorage` as `geminiKey`, via a small `settingsService` that follows the existing service pattern.
    - Help text: how to get a key in AI Studio, and a tip to restrict it by HTTP referrer and set a low quota.
    - Optional **Test key** button: one minimal Gemini call that reports "key works" or the error. Costs a few tokens.
-   - Navigation: a gear-icon **Settings** link pinned at the bottom of the desktop sidebar. On mobile it is a sixth item in the bottom bar. Settings is deliberately not one of the five main workflow pages. `docs/FUNCTIONALITY.md` and `docs/DESIGN.md` get a short Settings section.
+   - Navigation: a gear-icon **Settings** link pinned at the bottom of the desktop sidebar. On mobile it is a gear icon in the page header, at the right end, on each of the five main pages, so the bottom bar stays at five items. The Settings page itself shows a back chevron instead. Settings is deliberately not one of the five main workflow pages. The plan should check whether the pages share a header component and put the gear there, rather than repeating it in five places. `docs/FUNCTIONALITY.md` and `docs/DESIGN.md` get a short Settings section.
 4. **UI:** an **Import from URL** button beside Add recipe in `features/recipes/index.tsx`. It opens a small dialog (URL field, status line, abort). It reads the key from `settingsService` and has no key field of its own. If no key is saved, the dialog shows "Add your Gemini key in Settings" with a link to `/settings`. On success it opens `AddEditRecipeModal` prefilled.
 
 ## Flow
