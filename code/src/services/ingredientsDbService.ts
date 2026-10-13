@@ -1,4 +1,5 @@
 import { IngredientDbEntry } from '../types/ingredients'
+import { searchMatches } from '../utils/search'
 
 const STORAGE_KEY = 'slist_ingredients_db'
 const VALID_UNITS = new Set(['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp'])
@@ -24,9 +25,8 @@ export const ingredientsDbService = {
   },
 
   search(query: string): IngredientDbEntry[] {
-    if (query.length < 2) return []
-    const lower = query.toLowerCase()
-    return readAll().filter((e) => e.name.toLowerCase().includes(lower))
+    if (query.trim().length < 2) return []
+    return readAll().filter((e) => searchMatches(e.name, query))
   },
 
   create(name: string, unit: string, category: string): IngredientDbEntry {

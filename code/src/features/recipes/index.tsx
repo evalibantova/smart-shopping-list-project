@@ -11,14 +11,14 @@ import { Button } from '../../components/ui/Button'
 import { IconButton } from '../../components/ui/IconButton'
 import { TagChip } from '../../components/ui/TagChip'
 import { computeAvailability } from '../cook-now/utils/cookNowUtils'
+import { searchMatches } from '../../utils/search'
 
 export function filterRecipes(recipes: Recipe[], tags: Tag[], query: string): Recipe[] {
   return query.trim()
     ? recipes.filter((r) => {
-        const q = query.toLowerCase()
-        if (r.name.toLowerCase().includes(q)) return true
+        if (searchMatches(r.name, query)) return true
         const recipeTags = tags.filter((t) => r.tagIds.includes(t.id))
-        return recipeTags.some((t) => t.name.toLowerCase().includes(q))
+        return recipeTags.some((t) => searchMatches(t.name, query))
       })
     : recipes
 }

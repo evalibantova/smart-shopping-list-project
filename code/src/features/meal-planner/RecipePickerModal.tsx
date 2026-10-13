@@ -4,6 +4,7 @@ import { useStore } from '../../store'
 import { Modal } from '../../components/ui/Modal'
 import { create } from './services/mealPlanService'
 import type { MealPlanEntry } from '../../types/mealPlan'
+import { searchMatches } from '../../utils/search'
 
 interface Props {
   date: string
@@ -17,9 +18,12 @@ export function RecipePickerModal({ date, slot, onClose }: Props) {
   const addEntry = useStore((s) => s.addEntry)
   const [query, setQuery] = useState('')
 
-  const trimmedQuery = query.trim().toLowerCase()
-  const filtered = trimmedQuery
-    ? recipes.filter((r) => r.name.toLowerCase().includes(trimmedQuery))
+  const filtered = query.trim()
+    ? recipes.filter((r) => {
+        if (searchMatches(r.name, query)) return true
+        const recipeTags = tags.filter((t) => r.tagIds.includes(t.id))
+        return recipeTags.some((t) => searchMatches(t.name, query))
+      })
     : recipes
 
   function handleSelect(recipe: (typeof recipes)[0]) {

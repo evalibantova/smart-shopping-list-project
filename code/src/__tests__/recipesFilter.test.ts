@@ -63,6 +63,32 @@ describe('Recipe filter logic', () => {
     expect(result).toHaveLength(3)
     expect(result).toEqual(recipes)
   })
+
+  it('(e) accent-insensitive search — "jókaiho" matches both "jó" and "jo"', () => {
+    const jokaiBeanSoup = makeRecipe({ name: 'Jókaiho fazuľová polievka' })
+    const chickenCurry = makeRecipe({ name: 'Chicken Curry' })
+    const recipes = [jokaiBeanSoup, chickenCurry]
+
+    // Searching with unaccented "jo" matches accented "Jókaiho"
+    const matchUnaccented = filterRecipes(recipes, [], 'jo')
+    expect(matchUnaccented).toHaveLength(1)
+    expect(matchUnaccented[0].name).toBe('Jókaiho fazuľová polievka')
+
+    // Searching with accented "jó" matches accented "Jókaiho"
+    const matchAccented = filterRecipes(recipes, [], 'jó')
+    expect(matchAccented).toHaveLength(1)
+    expect(matchAccented[0].name).toBe('Jókaiho fazuľová polievka')
+  })
+
+  it('(f) bidirectional match — unaccented recipe "jokaiho" matches accented query "jó"', () => {
+    const unaccentedRecipe = makeRecipe({ name: 'Jokaiho bean soup' })
+    const chickenCurry = makeRecipe({ name: 'Chicken Curry' })
+    const recipes = [unaccentedRecipe, chickenCurry]
+
+    const result = filterRecipes(recipes, [], 'jó')
+    expect(result).toHaveLength(1)
+    expect(result[0].name).toBe('Jokaiho bean soup')
+  })
 })
 
 describe('Servings scaler logic', () => {
