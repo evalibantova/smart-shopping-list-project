@@ -202,7 +202,7 @@ One look for every text, number, select and textarea field in the app. Like the 
 - **Emoji badge** (`.rf-emoji`): a 52 px circle filled with `--coral-pale`, matching the circular meal-slot icons.
 - **Unlinked ingredient** (typed text not yet bound to an ingredient): `--amber-pale` fill and a solid `--amber` underline; focus still shows coral.
 
-### Modals (`.picker-modal`)
+### Modals (`Modal` component)
 
 Every dialog uses the shared `Modal` component (`components/ui/Modal.tsx`) — don't hand-roll backdrop or card markup.
 

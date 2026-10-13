@@ -207,7 +207,7 @@ Tapping a row switches it to **inline editing mode**:
 
 ### Add Item Modal
 
-Form fields: ingredient name, quantity (number), unit (dropdown), max stock (optional — defaults to 3× the initial quantity).
+Form fields: **ingredient** (autocomplete against `ingredients_db`, with the same "Create" option as the recipe form) and **quantity** (number; the unit is the ingredient's `default_unit`, shown next to the label once an ingredient is picked). Max stock is not asked — a new item gets `max(1, 3 × quantity)`, and can be changed later by editing the item. Adding an ingredient that is already in the pantry increases its quantity instead of creating a second item.
 
 ---
 

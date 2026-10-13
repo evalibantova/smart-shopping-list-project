@@ -25,11 +25,11 @@ src/
     └── ui/                 # design system layer
         ├── Button/         # variant="primary|coral|secondary|ghost|danger", size="sm|xs"
         ├── IconButton/     # 44×44 px, variant="default|accent|coral|danger"
-        ├── Input/          # text, search (with icon), number
-        ├── Modal/          # backdrop + slideUp animation, bottom-sheet on mobile
+        ├── NumberInput     # stepper (− value +) for small counts; text/select/textarea/search use the global `.field` classes in tokens.css (ledger style, see DESIGN.md)
+        ├── Modal/          # backdrop + slideUp animation, bottom-sheet on mobile; shared by every dialog (`flush` prop for full-bleed lists)
         ├── Toast/          # charcoal + amber variants, auto-dismiss
         ├── FilterTabs/     # pill row, active=coral
-        ├── TagChip/        # flat colored label, dot prefix
+        ├── TagChip/        # flat colored label, dot prefix; selectable variant = tinted background + check
         ├── SavingIndicator/# fixed top-right spinner, shown while any mutation is in flight
         └── StockBar/       # 52 px pantry quantity bar, coral/amber/red thresholds
 ```
