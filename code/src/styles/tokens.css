@@ -554,7 +554,7 @@ select.field {
   .settings-gear {
     position: absolute;
     top: 14px;
-    inset-inline-end: max(12px, env(safe-area-inset-right, 0px));
+    inset-inline-start: max(12px, env(safe-area-inset-left, 0px));
     z-index: 5;
     width: 32px;
     height: 32px;
@@ -569,8 +569,15 @@ select.field {
     display: inline-flex !important;
   }
 
-  /* Keep header actions clear of the gear */
+  /* Tighter header on mobile; wrap so crowded headers (Meal Planner) drop the controls under the title */
   .page-header {
-    padding-inline-end: max(52px, calc(env(safe-area-inset-right, 0px) + 52px));
+    gap: 4px;
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  /* Only pages that render the gear (its sibling) reserve room for it at the start */
+  .settings-gear ~ .page .page-header {
+    padding-inline-start: max(52px, calc(env(safe-area-inset-left, 0px) + 52px));
   }
 }
