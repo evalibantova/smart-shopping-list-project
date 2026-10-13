@@ -26,10 +26,11 @@ const cleanTitle=t=>{
   .replace(/\s*-\s*recept\s*$/i,'').replace(/\s*\*+\s*$/,'').trim();
  return SHORT[t]||t;
 };
+const NOTES=require('./notes.cjs')();
 const h=rec[0],ix=n=>h.indexOf(n);
 const name=Object.fromEntries(ing.slice(1).map(r=>[r[0],r[1]]));
 const out={ingredients:ing.slice(1).map(r=>({name:r[1],default_unit:r[2],category:r[4]})),
- recipes:rec.slice(1).map(r=>({name:cleanTitle(r[ix('title')]),category:r[ix('category')],servings:+r[ix('servings')],servingsEstimated:r[ix('servings_estimated')]=='yes',url:r[ix('url')],
+ recipes:rec.slice(1).map((r,n)=>({name:cleanTitle(r[ix('title')]),category:r[ix('category')],servings:+r[ix('servings')],servingsEstimated:r[ix('servings_estimated')]=='yes',url:r[ix('url')],notes:NOTES[+r[0]-1],
   ingredients:ri.slice(1).filter(x=>x[0]==r[0]).map(x=>({ingredient:name[x[1]],quantity:x[2]===''?null:+x[2],unit:x[3]||null,estimated:x[7]=='yes'}))}))};
 const dir=path.join(ROOT,'code/src/data');fs.mkdirSync(dir,{recursive:true});
 fs.writeFileSync(path.join(dir,'cookbookSeed.json'),JSON.stringify(out,null,2)+'\n');

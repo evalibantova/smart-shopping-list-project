@@ -8,7 +8,7 @@ The generator is `code/scripts/cookbook-import/` (`sh run.sh`, see its README); 
 `cookbookSeed.json` = `{ ingredients, recipes }`
 
 - `ingredients[]`: `{ name, default_unit, category }` — 163 entries, Slovak names, valid app units and categories.
-- `recipes[]`: `{ name, category, servings, servingsEstimated, url, ingredients[] }` — 53 recipes with cleaned, shortened titles (title cleanup and overrides live in `seed.cjs`).
+- `recipes[]`: `{ name, category, servings, servingsEstimated, url, notes, ingredients[] }` — 53 recipes with cleaned, shortened titles (title cleanup and overrides live in `seed.cjs`).
   - `ingredients[]`: `{ ingredient (name), quantity, unit, estimated }`. `quantity` is already in the ingredient's `default_unit`.
 
 ## How it loads
@@ -17,12 +17,11 @@ The generator is `code/scripts/cookbook-import/` (`sh run.sh`, see its README); 
 
 - Guarded by the `slist_cookbook_imported` flag. If it differs from `IMPORT_VERSION`, the import **wipes** ingredients, recipes, tags, pantry and meal plan from `localStorage`, then imports. Bump `IMPORT_VERSION` to force a reload of the seed in every browser (this also discards user-created data).
 - Recipes are linked to ingredients by name. An unknown ingredient name throws.
-- Each recipe gets a tag named after its category, an emoji from the category (or from keywords in the name when the category has none, else 🍴), and its source `url` as `notes`.
+- Each recipe gets a tag named after its category, an emoji from the category (or from keywords in the name when the category has none, else 🍴), and `notes` (Markdown: numbered method steps, or the description when a recipe has no steps, then a `Zdroj: [host](url)` link; built by `notes.cjs`). Notes render through `components/shared/NotesMarkdown.tsx` (Markdown + GFM autolinks + sanitized inline HTML; links open in a new tab).
 - The pantry and meal plan start empty.
 
 ## Not imported
 
-- Method text (`<recipetext>` in `code/scripts/cookbook-import/data/mycookbookrecipes.xml`); `notes` holds only the URL.
 - `estimated` per ingredient and `servingsEstimated` per recipe (no field in `Recipe`/`RecipeIngredient`).
 
 ## Keeping it regenerable

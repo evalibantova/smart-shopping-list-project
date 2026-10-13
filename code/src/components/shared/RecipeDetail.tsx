@@ -4,6 +4,7 @@ import { useStore } from '../../store'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { IconButton } from '../ui/IconButton'
 import { TagChip } from '../ui/TagChip'
+import { NotesMarkdown } from './NotesMarkdown'
 
 export function scaleQty(qty: number, displayed: number, base: number): number {
   return Math.round(qty * (base > 0 ? displayed / base : 1) * 100) / 100
@@ -261,9 +262,7 @@ export function RecipeDetail({ recipeId, context: _context, onEdit, onDelete, on
             >
               NOTES
             </div>
-            <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-              {recipe.notes}
-            </p>
+            <NotesMarkdown source={recipe.notes} />
           </div>
         )}
       </div>

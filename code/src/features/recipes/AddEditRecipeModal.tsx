@@ -400,8 +400,8 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Any cooking notes or tips…"
-            rows={3}
+            placeholder="Cooking notes, steps or tips… (Markdown and links supported)"
+            rows={6}
             style={{
               padding: '8px 10px',
               border: '1px solid var(--border-mid)',

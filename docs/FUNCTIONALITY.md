@@ -58,7 +58,7 @@ Opened for both creating and editing recipes. Fields:
 - **Servings** — number
 - **Tags** — tag picker: select from existing color-coded tags or create a new one (with name + color swatch). Tags are flat colored labels (no pill background).
 - **Ingredients** — add/remove rows of (name, quantity, unit). The ingredient name field autocompletes against `ingredients_db`. Selecting an autocomplete result binds the row to that entry's canonical ID and pre-fills the unit with its `default_unit`. If the user types a name with no match, confirming it creates a new `ingredients_db` record (they must supply a unit, which becomes that entry's `default_unit`). Freeform ingredient strings that bypass the canonical ID are not permitted — the unit shown is read-only and determined by the ingredient's `default_unit`, not freely editable per recipe.
-- **Notes** — textarea for free-form cooking instructions.
+- **Notes** — textarea for free-form cooking instructions; supports Markdown and inline HTML, URLs are clickable in the recipe detail.
 
 Save creates/updates the recipe via the API.
 

@@ -4,7 +4,7 @@ import { tagService } from '../features/recipes/services/tagService'
 import seed from './cookbookSeed.json'
 
 const IMPORT_FLAG = 'slist_cookbook_imported'
-const IMPORT_VERSION = '2'
+const IMPORT_VERSION = '3'
 // Storage keys of the removed demo seed (and anything built on it); cleared when the import runs.
 const RESET_KEYS = ['slist_ingredients_db', 'slist_recipes', 'slist_tags', 'slist_pantry', 'slist_meal_plan']
 
@@ -39,7 +39,7 @@ export interface CookbookSeed {
     name: string
     category: string
     servings: number
-    url: string
+    notes: string
     ingredients: { ingredient: string; quantity: number }[]
   }[]
 }
@@ -73,7 +73,7 @@ export function importCookbook(data: CookbookSeed): void {
         if (!ingredientId) throw new Error(`Unknown ingredient in cookbook seed: ${i.ingredient}`)
         return { ingredientId, quantity: i.quantity }
       }),
-      notes: r.url,
+      notes: r.notes,
     })
   }
 }
