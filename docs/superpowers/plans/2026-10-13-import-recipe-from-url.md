@@ -6,7 +6,7 @@
 
 **Architecture:** A standalone PHP endpoint (`code/public/api/fetch-recipe.php`, shipped inside `dist/`) fetches the page safely and returns a trimmed payload: the schema.org Recipe JSON-LD, or capped page text. The browser calls Gemini directly with the user's own key (header only), maps the structured result onto `ingredients_db` locally, and opens the existing recipe modal in a new `import` review mode.
 
-**Tech Stack:** React 19, TypeScript, Vite, Vitest (jsdom), Zustand, react-router-dom 7, lucide-react; PHP 8.1+ with curl, dom and mbstring, plus PHPUnit as a dev-only tool.
+**Tech Stack:** React 19, TypeScript, Vite, Vitest (jsdom), Zustand, react-router-dom 7, lucide-react; PHP 8.1+ with curl, dom and mbstring, plus PHPUnit as a dev-only tool (a single downloaded `phpunit.phar`, no Composer).
 
 **Spec:** `docs/superpowers/specs/2026-10-13-import-recipe-from-url-design.md`
 
@@ -19,7 +19,7 @@
 - Recipe quantities are always in the ingredient's `default_unit`. Valid units: `g`, `ml`, `kg`, `l`, `pcs`, `cloves`, `tbsp`, `tsp`.
 - Endpoint rules: `http` and `https` only, ports 80 and 443 only, reject private, loopback and link-local IPs (re-checked after every redirect, at most 3), 10 s timeout, 2 MB cap, HTML content types only. Error codes: `bad_url`, `blocked_host`, `fetch_failed`, `too_large`, `no_content`.
 - Text fallback is capped at 6000 characters. JSON-LD is sent compacted (name, yield, ingredients, flattened steps only).
-- PHP must run on 8.1 in production. No composer on the server: the endpoint uses plain `require_once`. PHPUnit and `composer.json` are dev-only and never uploaded.
+- PHP must run on 8.1 in production. No Composer anywhere: the endpoint uses plain `require_once`, and PHPUnit runs from a single `phpunit.phar` (gitignored). `phpunit.phar`, `phpunit.xml` and `api-tests/` sit outside `public/`, so the manual FTP upload of `dist/` never includes them.
 - Settings entry: gear link pinned at the bottom of the desktop sidebar; on mobile a gear in the page header (not a sixth bottom-bar item).
 - Do not edit `design-v1/` or `design-v2/`.
 - Commands run from `/data/code` unless stated. Tests: `npx vitest run <file>`. Lint: `npm run lint`. Types: `npx tsc -b`.
@@ -44,7 +44,7 @@
 | `code/src/features/recipes/AddEditRecipeModal.tsx` (modify) | New `import` review mode |
 | `code/src/features/recipes/index.tsx` (modify) | Import button and modal wiring |
 | `code/public/api/fetch-recipe.php` + `code/public/api/src/*.php` (new) | The endpoint |
-| `code/api-tests/*Test.php`, `code/composer.json`, `code/phpunit.xml` (new) | PHP tests, dev-only |
+| `code/api-tests/*Test.php`, `code/api-tests/bootstrap.php`, `code/phpunit.xml` (new) | PHP tests, dev-only, run with a downloaded `phpunit.phar` |
 
 ---
 
@@ -108,12 +108,34 @@ Expected: status `200`, JSON text at `candidates[0].content.parts[0].text`, and 
 - `generateContent` rejected as removed: use the Interactions API shape from https://ai.google.dev/api/interactions-api instead. Only `buildGeminiRequest`, `extractGeminiText` and the endpoint constant change in Task 3.
 - `400` about `responseSchema` or `nullable`: adjust `RESPONSE_SCHEMA` in Task 3 to what the API accepts.
 
-- [ ] **Step 4: Record the result in the spec and commit**
+- [ ] **Step 4: Check the host's PHP (manual, via your normal FTP)**
+
+The endpoint is useless if the shared host cannot run it, so find out now. Create `host-check.php` locally with this content and upload it to the site root (the same place as `index.html`) with your FTP client:
+
+```php
+<?php
+echo 'PHP ' . PHP_VERSION . "\n";
+foreach (['curl', 'dom', 'mbstring', 'iconv'] as $ext) {
+    echo $ext . ': ' . (extension_loaded($ext) ? 'yes' : 'NO') . "\n";
+}
+$c = curl_init('https://example.com/');
+curl_setopt_array($c, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10]);
+curl_exec($c);
+echo 'outbound https: ' . curl_getinfo($c, CURLINFO_RESPONSE_CODE) . "\n";
+```
+
+Open `https://shopping.chillimuffin.com/host-check.php` (log in with the basic auth) and read the output. **Delete `host-check.php` from the host immediately afterwards.**
+
+Expected: PHP 8.1 or newer, all four extensions `yes`, `outbound https: 200`.
+
+- PHP older than 8.1, a missing extension, or `outbound https: 0`: stop and tell Eva. The endpoint cannot run on this host as designed (options: a different host, or raising the PHP version in the host's control panel).
+
+- [ ] **Step 5: Record the result in the spec and commit**
 
 Append this to the "Testing" section of `docs/superpowers/specs/2026-10-13-import-recipe-from-url-design.md`, filled in with the real values:
 
 ```markdown
-**Spike result (2026-10-13):** model `<model>`, endpoint `<generateContent or interactions>`, browser CORS `<works / blocked>`, sample call `<N>` prompt tokens and `<N>` output tokens.
+**Spike result (2026-10-13):** host PHP `<version>` with `<extensions ok / missing>` and outbound `<ok / blocked>`, model `<model>`, endpoint `<generateContent or interactions>`, browser CORS `<works / blocked>`, sample call `<N>` prompt tokens and `<N>` output tokens.
 ```
 
 ```bash
@@ -1516,7 +1538,8 @@ git commit -m "feat(import): map parsed recipes onto ingredients_db with unit co
 - Create: `code/public/api/fetch-recipe.php`
 - Create: `code/public/api/src/FetchError.php`, `UrlGuard.php`, `PageFetcher.php`, `RecipeExtractor.php`
 - Create: `code/public/api/src/.htaccess`
-- Create: `code/composer.json`, `code/phpunit.xml`
+- Create: `code/phpunit.xml`, `code/api-tests/bootstrap.php`
+- Modify: `.gitignore` (add `code/phpunit.phar`)
 - Create: `code/api-tests/UrlGuardTest.php`, `PageFetcherTest.php`, `RecipeExtractorTest.php`
 - Create: `code/src/services/recipeImport/fetchPage.ts`
 - Modify: `code/vite.config.ts`, `code/package.json`
@@ -1531,27 +1554,14 @@ git commit -m "feat(import): map parsed recipes onto ingredients_db with unit co
   - `RecipeExtractor::extract(string $html): array{source:string,text:string}`, `RecipeExtractor::TEXT_LIMIT = 6000`.
 - Produces (TS): `fetchPage(url, opts?: { signal?: AbortSignal; fetchImpl?: typeof fetch }): Promise<FetchedPage>`, `assertHttpUrl(url: string): void`.
 
-**Prerequisite (manual, once).** This environment has no PHP. Install PHP 8.1+ with the curl, dom, mbstring and iconv extensions, and Composer, for example on Debian/Ubuntu/WSL: `sudo apt-get install -y php-cli php-curl php-xml php-mbstring unzip composer`. Verify with `php -v` and `composer -V`. Without PHP the PHP steps below cannot run. The TypeScript half of this task (Steps 12–14) can still be done.
+**Prerequisite (manual, once).** This environment has no PHP. Install PHP 8.1+ with the curl, dom, mbstring and iconv extensions, for example on Debian/Ubuntu/WSL: `sudo apt-get install -y php-cli php-curl php-xml php-mbstring`. Verify with `php -v`. No Composer is needed. Without PHP the PHP steps below cannot run. The TypeScript half of this task (Steps 12–14) can still be done.
 
-- [ ] **Step 1: Dev tooling**
-
-```json
-// code/composer.json
-{
-  "name": "meal-planner/api-dev",
-  "description": "Dev-only tooling for the PHP import endpoint (PHPUnit). Nothing in this file is deployed.",
-  "type": "project",
-  "require": { "php": ">=8.1" },
-  "require-dev": { "phpunit/phpunit": "^10.5 || ^11.0" },
-  "autoload-dev": { "classmap": ["public/api/src"] },
-  "config": { "sort-packages": true }
-}
-```
+- [ ] **Step 1: Dev tooling (no Composer)**
 
 ```xml
 <!-- code/phpunit.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php" colors="true" cacheDirectory=".phpunit.cache">
+<phpunit bootstrap="api-tests/bootstrap.php" colors="true" cacheDirectory=".phpunit.cache">
   <testsuites>
     <testsuite name="api">
       <directory>api-tests</directory>
@@ -1560,8 +1570,28 @@ git commit -m "feat(import): map parsed recipes onto ingredients_db with unit co
 </phpunit>
 ```
 
-Run: `cd /data/code && composer install`
-Expected: installs PHPUnit into `vendor/` (already gitignored).
+```php
+<?php
+// code/api-tests/bootstrap.php
+// The endpoint has no autoloader (no Composer on the server), so tests load the files the same way it does.
+declare(strict_types=1);
+
+foreach (['FetchError', 'UrlGuard', 'PageFetcher', 'RecipeExtractor'] as $class) {
+    require_once __DIR__ . '/../public/api/src/' . $class . '.php';
+}
+```
+
+Add this line to `/data/.gitignore` under "PHP cache": `code/phpunit.phar`
+
+Download PHPUnit 10 (it supports PHP 8.1; PHPUnit 11 needs 8.2), once:
+
+```bash
+cd /data/code
+curl -Lo phpunit.phar https://phar.phpunit.de/phpunit-10.phar
+php phpunit.phar --version
+```
+
+Expected: `PHPUnit 10.x.x by Sebastian Bergmann and contributors.`
 
 - [ ] **Step 2: `FetchError`**
 
@@ -1698,7 +1728,7 @@ final class UrlGuardTest extends TestCase
 
 - [ ] **Step 4: Run it to verify it fails**
 
-Run: `cd /data/code && composer dump-autoload && vendor/bin/phpunit api-tests/UrlGuardTest.php`
+Run: `cd /data/code && php phpunit.phar api-tests/UrlGuardTest.php`
 Expected: FAIL, class `MealPlanner\Api\UrlGuard` not found.
 
 - [ ] **Step 5: Implement `UrlGuard`**
@@ -1789,7 +1819,7 @@ final class UrlGuard
 
 - [ ] **Step 6: Run it to verify it passes**
 
-Run: `cd /data/code && composer dump-autoload && vendor/bin/phpunit api-tests/UrlGuardTest.php`
+Run: `cd /data/code && php phpunit.phar api-tests/UrlGuardTest.php`
 Expected: OK (all data-provider cases pass).
 
 - [ ] **Step 7: Write the failing `PageFetcher` test**
@@ -1914,7 +1944,7 @@ final class PageFetcherTest extends TestCase
 
 - [ ] **Step 8: Run it to verify it fails**
 
-Run: `cd /data/code && composer dump-autoload && vendor/bin/phpunit api-tests/PageFetcherTest.php`
+Run: `cd /data/code && php phpunit.phar api-tests/PageFetcherTest.php`
 Expected: FAIL, class `MealPlanner\Api\PageFetcher` not found.
 
 - [ ] **Step 9: Implement `PageFetcher`**
@@ -2075,7 +2105,7 @@ final class PageFetcher
 
 - [ ] **Step 10: Run it to verify it passes**
 
-Run: `cd /data/code && composer dump-autoload && vendor/bin/phpunit api-tests/PageFetcherTest.php`
+Run: `cd /data/code && php phpunit.phar api-tests/PageFetcherTest.php`
 Expected: OK.
 
 - [ ] **Step 11: `RecipeExtractor` test, then implementation**
@@ -2189,7 +2219,7 @@ final class RecipeExtractorTest extends TestCase
 }
 ```
 
-Run (expect FAIL, class not found): `cd /data/code && composer dump-autoload && vendor/bin/phpunit api-tests/RecipeExtractorTest.php`
+Run (expect FAIL, class not found): `cd /data/code && php phpunit.phar api-tests/RecipeExtractorTest.php`
 
 ```php
 <?php
@@ -2345,7 +2375,7 @@ final class RecipeExtractor
 }
 ```
 
-Run: `cd /data/code && composer dump-autoload && vendor/bin/phpunit`
+Run: `cd /data/code && php phpunit.phar`
 Expected: OK, the whole PHP suite passes.
 
 - [ ] **Step 12: The front controller and server hardening**
@@ -2400,7 +2430,7 @@ In `code/package.json` add to `scripts`:
 
 ```json
     "api": "php -S localhost:8080 -t public",
-    "test:php": "vendor/bin/phpunit",
+    "test:php": "php phpunit.phar",
 ```
 
 In `code/vite.config.ts` add a `server` block next to `build`:
@@ -2573,7 +2603,7 @@ Expected: PASS and no errors.
 
 ```bash
 cd /data
-git add code/public/api code/api-tests code/composer.json code/composer.lock code/phpunit.xml code/package.json code/vite.config.ts code/src/services/recipeImport/fetchPage.ts code/src/__tests__/fetchPage.test.ts
+git add .gitignore code/public/api code/api-tests code/phpunit.xml code/package.json code/vite.config.ts code/src/services/recipeImport/fetchPage.ts code/src/__tests__/fetchPage.test.ts
 git commit -m "feat(import): add PHP fetch endpoint with SSRF guard and the fetchPage client"
 ```
 
@@ -3454,12 +3484,19 @@ Add a section:
 ```markdown
 ## Recipe import endpoint (first server code)
 
-`code/public/api/fetch-recipe.php` is a standalone PHP file, not part of the Slim app. It ships inside `dist/` because it lives in `public/`. It needs PHP 8.1+ with curl, dom and mbstring, and uses plain `require_once` (no composer on the server). It holds no state and no secrets: the Gemini key stays in the user's browser. Safety rules: http(s) on ports 80 and 443 only, private and loopback IPs refused and re-checked on every redirect (the connection is pinned to the validated IP), 10 s timeout, 2 MB cap. `composer.json`, `phpunit.xml` and `api-tests/` are dev-only; run `npm run test:php` in `code/`, and `npm run api` plus `npm run dev` for local use.
+`code/public/api/fetch-recipe.php` is a standalone PHP file, not part of the Slim app. It ships inside `dist/` because it lives in `public/`. It needs PHP 8.1+ with curl, dom and mbstring, and uses plain `require_once` (no Composer anywhere in the project). It holds no state and no secrets: the Gemini key stays in the user's browser. Safety rules: http(s) on ports 80 and 443 only, private and loopback IPs refused and re-checked on every redirect (the connection is pinned to the validated IP), 10 s timeout, 2 MB cap. `phpunit.xml`, `api-tests/` and the downloaded `phpunit.phar` are dev-only and live outside `public/`, so they are never uploaded; fetch the phar as described in the implementation plan, then run `npm run test:php` in `code/`. Use `npm run api` plus `npm run dev` for local work.
 ```
 
 - [ ] **Step 4: `docs/ALPHA-DEPLOY.md`**
 
-Read it first, then add a checklist row and note: "`dist/api/` (from `code/public/api/`) must be uploaded with the rest of `dist/`. The host needs PHP 8.1+ with curl, dom and mbstring. Without PHP the app works as before, only Import from URL fails with 'Couldn't reach that page'. `dist/api/src/.htaccess` denies direct access to the class files; upload it too (hidden file)."
+Read it first, then add these to the tracker:
+
+- A note: "`dist/api/` (from `code/public/api/`) is uploaded with the rest of `dist/` by the same manual FTP upload. The host needs PHP 8.1+ with curl, dom, mbstring and iconv, and outbound HTTPS from PHP (checked in the plan's Task 1). Without PHP the app works as before; only Import from URL fails with 'Couldn't reach that page'."
+- A reminder that FTP clients often skip dotfiles: `dist/api/src/.htaccess` must be uploaded, and `dist/.htaccess` as before.
+- A post-upload checklist row, to repeat after every rebuild and upload (the `.htpasswd` re-creation row already there belongs with it):
+  1. Open `https://shopping.chillimuffin.com/api/fetch-recipe.php?url=ftp://x` (log in with the basic auth). Expected: `{"error":"bad_url"}`. This proves PHP runs and the endpoint arrived.
+  2. Open `https://shopping.chillimuffin.com/api/src/UrlGuard.php`. Expected: 403. This proves the `src/.htaccess` arrived.
+  3. Open `https://shopping.chillimuffin.com/api/fetch-recipe.php?url=https://example.com/`. Expected: `{"error":"no_content"}` or a `source` JSON. This proves outbound fetching works from the host.
 
 - [ ] **Step 5: `docs/FUTURE-FEATURES.md`**
 
