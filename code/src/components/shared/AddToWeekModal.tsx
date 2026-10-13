@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Modal } from '../ui/Modal'
+import { Button } from '../ui/Button'
 import { useStore } from '../../store'
 import { create } from '../../features/meal-planner/services/mealPlanService'
 import { getDayDates, toDateStr, DAYS } from '../../features/meal-planner/utils/calendarUtils'
@@ -51,19 +52,15 @@ export function AddToWeekModal({ recipeId, defaultServings, weekStart, onClose, 
       onClose={onClose}
       title="Add to Week"
       footer={
-        <button
-          data-testid="add-to-week-confirm"
-          onClick={handleConfirm}
-          style={{ padding: '8px 20px', background: 'var(--charcoal)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-        >
+        <Button intent="coral" data-testid="add-to-week-confirm" onClick={handleConfirm}>
           Add to Meal Plan
-        </button>
+        </Button>
       }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} data-testid="add-to-week-modal">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }} data-testid="add-to-week-modal">
         {/* Day selection */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Day</div>
+          <div className="form-label" style={{ marginBottom: 8 }}>Day</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {dayDates.map((d, i) => {
               const dateStr = toDateStr(d)
@@ -87,14 +84,15 @@ export function AddToWeekModal({ recipeId, defaultServings, weekStart, onClose, 
 
         {/* Slot selection */}
         <div>
-          <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
+          <label className="form-label" htmlFor="add-to-week-slot" style={{ marginBottom: 4 }}>
             Meal
           </label>
           <select
+            id="add-to-week-slot"
+            className="field"
             data-testid="add-to-week-slot-select"
             value={selectedSlot}
             onChange={(e) => setSelectedSlot(e.target.value as MealPlanEntry['slot'])}
-            style={{ width: '100%', padding: '8px 10px', fontSize: 14, border: '1px solid var(--border-mid)', borderRadius: 4, background: 'var(--surface)', color: 'var(--text)' }}
           >
             {SLOT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -104,16 +102,17 @@ export function AddToWeekModal({ recipeId, defaultServings, weekStart, onClose, 
 
         {/* Servings */}
         <div>
-          <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
+          <label className="form-label" htmlFor="add-to-week-servings" style={{ marginBottom: 4 }}>
             Servings
           </label>
           <input
+            id="add-to-week-servings"
+            className="field"
             type="number"
             data-testid="add-to-week-servings"
             min={1}
             value={servings}
             onChange={(e) => setServings(Math.max(1, Number(e.target.value)))}
-            style={{ width: '100%', padding: '8px 10px', fontSize: 14, border: '1px solid var(--border-mid)', borderRadius: 4, background: 'var(--surface)', color: 'var(--text)' }}
           />
         </div>
       </div>

@@ -147,21 +147,17 @@ export default function RecipesPage() {
               gap: 8,
             }}
           >
-            <Search size={14} style={{ color: 'var(--text-dim)', flexShrink: 0 }} />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search recipes or tags…"
-              style={{
-                flex: 1,
-                border: 'none',
-                background: 'transparent',
-                fontSize: 13,
-                color: 'var(--text)',
-                outline: 'none',
-              }}
-            />
+            <div className="field-search">
+              <Search size={14} />
+              <input
+                type="text"
+                className="field"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search recipes or tags…"
+                aria-label="Search recipes or tags"
+              />
+            </div>
           </div>
 
           {/* Recipe list */}

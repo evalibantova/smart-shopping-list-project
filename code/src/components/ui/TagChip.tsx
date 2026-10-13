@@ -1,3 +1,5 @@
+import { Check } from 'lucide-react'
+
 interface TagChipProps {
   name: string
   color: string
@@ -10,21 +12,22 @@ export function TagChip({ name, color, size = 'default', selected, onClick }: Ta
   const dotSize = size === 'sm' ? 6 : 8
   const fontSize = size === 'sm' ? 10 : 11
 
-  return (
-    <span
-      onClick={onClick}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        cursor: onClick ? 'pointer' : 'default',
-        padding: '2px 4px',
-        borderRadius: 'var(--radius)',
-        outline: selected ? `2px solid var(--coral)` : 'none',
-        outlineOffset: 1,
-        transition: 'outline 0.1s',
-      }}
-    >
+  const style: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 5,
+    padding: '3px 8px',
+    font: 'inherit',
+    cursor: onClick ? 'pointer' : 'default',
+    border: 'none',
+    borderRadius: 4,
+    // selected = tinted background in the tag's own colour + check mark
+    background: selected ? `color-mix(in srgb, ${color} 14%, transparent)` : 'transparent',
+    transition: 'background-color 0.15s ease',
+  }
+
+  const content = (
+    <>
       <span
         style={{
           width: dotSize,
@@ -38,12 +41,29 @@ export function TagChip({ name, color, size = 'default', selected, onClick }: Ta
         style={{
           fontSize,
           fontWeight: 700,
-          color: 'var(--text-mid)',
+          color: selected ? color : 'var(--text-mid)',
           lineHeight: 1,
         }}
       >
         {name}
       </span>
-    </span>
+      {selected && <Check size={fontSize + 1} strokeWidth={3} color={color} />}
+    </>
+  )
+
+  if (!onClick) {
+    return <span style={style}>{content}</span>
+  }
+
+  return (
+    <button
+      type="button"
+      className="tag-chip"
+      onClick={onClick}
+      aria-pressed={selected ?? false}
+      style={style}
+    >
+      {content}
+    </button>
   )
 }

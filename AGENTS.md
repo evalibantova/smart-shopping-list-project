@@ -7,6 +7,7 @@ Meal Planner & Shopping List web app — a React prototype for planning weekly m
 ## Off-limits
 
 - Do not edit files under `design-v1/` — reference screenshots only
+- `design-v2/` holds the interactive HTML mockup of the Edit Recipe modal (the ledger input style and modal design now implemented in `code/`). Treat it as reference; the live implementation and `docs/DESIGN.md` are the source of truth
 ---
 
 # Project File Tree
@@ -21,6 +22,8 @@ data/
 ├── shopping-list.sublime-project    # Sublime Text project config
 ├── shopping-list.sublime-workspace  # Sublime Text workspace state
 ├── code/                            # Production source code (not yet started — placeholder)
+├── design-v2/                       # Interactive HTML mockup of the Edit Recipe modal (ledger input style)
+│   └── edit-recipe-modal.html
 ├── design-v1/                       # Reference screenshots from the initial design pass
 │   ├── cook-now-list.png
 │   ├── cook-now-recipe-detail.png

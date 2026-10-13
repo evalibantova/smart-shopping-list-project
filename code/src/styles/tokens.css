@@ -185,7 +185,8 @@ body {
   to { transform: rotate(360deg) }
 }
 
-/* Form fields (DESIGN.md "Form inputs"): flat surface2 fill, coral underline on focus */
+/* Form fields (DESIGN.md "Form inputs"): ledger style — no fill, dotted underline,
+   solid coral underline + faint coral tint on focus. One look for every input in the app. */
 .field {
   display: block;
   width: 100%;
@@ -194,9 +195,9 @@ body {
   font: inherit;
   font-size: 14px;
   color: var(--text);
-  background: var(--surface2);
+  background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2px dotted var(--text-dim);
   border-radius: var(--radius);
   outline: none;
   transition: border-color 0.15s ease, background-color 0.15s ease;
@@ -207,13 +208,12 @@ body {
 }
 
 .field:hover {
-  background: var(--surface3);
+  background: var(--surface2);
 }
 
 .field:focus {
-  background: var(--surface);
-  border-bottom-color: var(--coral);
-  box-shadow: 0 1px 0 0 var(--coral-pale);
+  background: var(--coral-pale);
+  border-bottom: 2px solid var(--coral);
 }
 
 textarea.field {
@@ -221,23 +221,62 @@ textarea.field {
   line-height: 1.5;
 }
 
+select.field {
+  cursor: pointer;
+}
+
+/* Field label (DESIGN.md "Form labels") */
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+}
+
+.form-label .form-label-count {
+  margin-left: 4px;
+  color: var(--text-dim);
+}
+
+/* Search field: .field with a leading magnifier */
+.field-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.field-search > svg {
+  position: absolute;
+  left: 10px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.field-search .field {
+  padding-left: 32px;
+}
+
 /* Stepper: − [value] + */
 .field-group {
   display: inline-flex;
   align-items: stretch;
   flex-shrink: 0;
-  background: var(--surface2);
-  border-bottom: 2px solid transparent;
+  background: transparent;
+  border-bottom: 2px dotted var(--text-dim);
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .field-group:hover {
-  background: var(--surface3);
+  background: var(--surface2);
 }
 
 .field-group:focus-within {
-  background: var(--surface);
-  border-bottom-color: var(--coral);
+  background: var(--coral-pale);
+  border-bottom: 2px solid var(--coral);
 }
 
 .field-group .field,
@@ -245,7 +284,6 @@ textarea.field {
 .field-group .field:focus {
   background: transparent;
   border-bottom: none;
-  box-shadow: none;
   text-align: center;
   padding: 9px 0;
   -moz-appearance: textfield;
@@ -262,7 +300,7 @@ textarea.field {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
+  width: 28px;
   flex-shrink: 0;
   background: transparent;
   border: none;
@@ -282,4 +320,223 @@ textarea.field {
 .field-step:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+/* Quantity + unit: a number field with the unit attached as a suffix */
+.qty-unit {
+  display: inline-flex;
+  align-items: stretch;
+  background: transparent;
+  border-bottom: 2px dotted var(--text-dim);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.qty-unit:hover {
+  background: var(--surface2);
+}
+
+.qty-unit:focus-within {
+  background: var(--coral-pale);
+  border-bottom: 2px solid var(--coral);
+}
+
+.qty-unit input {
+  width: 54px;
+  padding: 8px 4px 8px 8px;
+  font: inherit;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.qty-unit input::-webkit-outer-spin-button,
+.qty-unit input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.qty-unit .unit {
+  display: inline-flex;
+  align-items: center;
+  min-width: 34px;
+  padding: 0 10px 0 2px;
+  font-size: 12px;
+  color: var(--text-mid);
+}
+
+/* Recipe form (Add / Edit Recipe modal) */
+.rf-id-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Emoji badge: full circle, same shape as the meal-slot icons */
+.field.rf-emoji {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  padding: 0;
+  font-size: 26px;
+  text-align: center;
+  background: var(--coral-pale);
+  border-bottom: none;
+  border-radius: 50%;
+}
+
+.field.rf-emoji:hover {
+  background: rgba(240, 112, 69, 0.2);
+}
+
+.field.rf-emoji:focus {
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--coral);
+}
+
+/* Recipe name reads as a title; grows with its content so one line sits on the rule */
+.field.rf-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.25;
+  padding: 8px 10px;
+  resize: none;
+  overflow: hidden;
+}
+
+.rf-inline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rf-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.rf-empty {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.rf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.rf-link:hover {
+  color: var(--coral-dark);
+}
+
+.rf-link:focus-visible,
+.field-step:focus-visible,
+.tag-chip:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+}
+
+.rf-tag-panel {
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--surface2);
+  animation: rf-reveal 0.18s ease;
+}
+
+.rf-tag-panel .rf-tags {
+  margin-top: 0;
+}
+
+.rf-new-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--text-mid);
+  background: transparent;
+  border: 1px dashed var(--border-mid);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.rf-new-tag-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.rf-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rf-swatch {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.rf-swatch[aria-pressed="true"] {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+}
+
+.rf-ing-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+}
+
+.rf-ing-row {
+  display: grid;
+  grid-template-columns: 1fr auto 28px;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.rf-ing-row .field {
+  padding: 8px 10px;
+}
+
+/* Typed name that is not yet bound to an ingredient */
+.rf-ing-row.rf-unlinked .field {
+  background: var(--amber-pale);
+  border-bottom: 2px solid var(--amber);
+}
+
+.rf-ing-row.rf-unlinked .field:focus {
+  background: var(--coral-pale);
+  border-bottom-color: var(--coral);
+}
+
+@keyframes rf-reveal {
+  from { opacity: 0; transform: translateY(-4px) }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rf-tag-panel { animation: none; }
 }

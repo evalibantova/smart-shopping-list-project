@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { X, Search } from 'lucide-react'
+import { useState } from 'react'
+import { Search } from 'lucide-react'
 import { useStore } from '../../store'
+import { Modal } from '../../components/ui/Modal'
 import { create } from './services/mealPlanService'
 import type { MealPlanEntry } from '../../types/mealPlan'
 
@@ -16,14 +16,6 @@ export function RecipePickerModal({ date, slot, onClose }: Props) {
   const tags = useStore((s) => s.tags)
   const addEntry = useStore((s) => s.addEntry)
   const [query, setQuery] = useState('')
-
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [onClose])
 
   const trimmedQuery = query.trim().toLowerCase()
   const filtered = trimmedQuery
@@ -43,61 +35,27 @@ export function RecipePickerModal({ date, slot, onClose }: Props) {
     onClose()
   }
 
-  return createPortal(
-    <div
-      className="modal-backdrop"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'rgba(0,0,0,0.4)',
-        backdropFilter: 'blur(6px)',
-        WebkitBackdropFilter: 'blur(6px)',
-        padding: '16px',
-      }}
-    >
-      <div
-        className="modal-card"
-        style={{
-          background: 'var(--surface)',
-          boxShadow: 'var(--shadow-md)',
-          width: '100%',
-          maxWidth: 480,
-          maxHeight: '90vh',
-          borderRadius: 'var(--radius)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>Add recipe to slot</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32 }}>
-            <X size={18} />
-          </button>
-        </div>
-
+  return (
+    <Modal isOpen onClose={onClose} title="Add recipe to slot" flush>
         {/* Search */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-          <Search size={14} style={{ color: 'var(--text-dim)', flexShrink: 0 }} />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search recipes..."
-            autoFocus
-            data-testid="recipe-picker-search"
-            style={{ flex: 1, border: 'none', background: 'transparent', fontSize: 14, outline: 'none', color: 'var(--text)' }}
-          />
+        <div style={{ padding: '0 16px 10px', position: 'sticky', top: 0, background: 'var(--surface)', zIndex: 1 }}>
+          <div className="field-search">
+            <Search size={14} />
+            <input
+              type="text"
+              className="field"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search recipes..."
+              aria-label="Search recipes"
+              autoFocus
+              data-testid="recipe-picker-search"
+            />
+          </div>
         </div>
 
         {/* List */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div>
           {filtered.length === 0 ? (
             <div
               data-testid="recipe-picker-empty-state"
@@ -145,8 +103,6 @@ export function RecipePickerModal({ date, slot, onClose }: Props) {
             })
           )}
         </div>
-      </div>
-    </div>,
-    document.body
+    </Modal>
   )
 }

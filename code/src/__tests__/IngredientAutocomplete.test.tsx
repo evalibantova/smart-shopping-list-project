@@ -98,6 +98,20 @@ describe('IngredientAutocomplete', () => {
     expect(dropdown!.textContent).toContain('Create')
   })
 
+  it('(d2) Create is offered next to partial matches', async () => {
+    await renderComponent('Chick')
+    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')!
+    expect(dropdown.textContent).toContain('Chicken breast')
+    expect(dropdown.querySelector('[data-testid="ingredient-create"]')).not.toBeNull()
+  })
+
+  it('(d3) Create is not offered when the typed name matches an ingredient exactly', async () => {
+    await renderComponent('chickpeas')
+    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')!
+    expect(dropdown.textContent).toContain('Chickpeas')
+    expect(dropdown.querySelector('[data-testid="ingredient-create"]')).toBeNull()
+  })
+
   it('(e) clicking Create then selecting a unit calls onSelect with a new entry written to localStorage', async () => {
     const onSelect = vi.fn()
     await renderComponent('Tahini', vi.fn(), onSelect)

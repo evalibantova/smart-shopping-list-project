@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { X, Plus } from 'lucide-react'
+import { useState, useRef, useLayoutEffect } from 'react'
+import { X, Plus, ChevronRight } from 'lucide-react'
 import { Recipe } from '../../types/recipes'
 import { recipeService } from './services/recipeService'
 import { tagService } from './services/tagService'
@@ -65,6 +65,23 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
       unit: dbMap.get(ing.ingredientId)?.default_unit ?? '',
     }))
   })
+
+  // The recipe name is a title: it grows with its content so one line sits on the rule
+  const nameRef = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => {
+    const el = nameRef.current
+    if (!el) return
+    const fit = () => {
+      el.style.height = 'auto'
+      el.style.height = `${el.scrollHeight}px`
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [name])
+
+  const [showAllTags, setShowAllTags] = useState(false)
+  const selectedTags = tags.filter((t) => selectedTagIds.includes(t.id))
 
   // New tag form state
   const [showNewTag, setShowNewTag] = useState(false)
@@ -163,214 +180,212 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
 
   return (
     <Modal isOpen onClose={onClose} title={title} footer={footer}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {/* Emoji + Name row */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>EMOJI</label>
-            <input
-              type="text"
-              className="field"
-              value={emoji}
-              onChange={(e) => setEmoji(e.target.value)}
-              maxLength={2}
-              placeholder="🍽️"
-              style={{ width: 56, fontSize: 22, textAlign: 'center', padding: '6px 4px' }}
-            />
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>NAME</label>
-            <input
-              type="text"
-              className="field"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Recipe name"
-              style={{ height: 43 }}
-            />
-          </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {/* Emoji + name */}
+        <div className="rf-id-row">
+          <input
+            type="text"
+            className="field rf-emoji"
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value)}
+            maxLength={2}
+            placeholder="🍽️"
+            aria-label="Emoji"
+          />
+          <textarea
+            ref={nameRef}
+            className="field rf-title"
+            rows={1}
+            value={name}
+            onChange={(e) => setName(e.target.value.replace(/\n/g, ' '))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.preventDefault()
+            }}
+            placeholder="Recipe name"
+            aria-label="Name"
+          />
         </div>
 
         {/* Servings */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>SERVINGS</label>
-          <div>
-            <NumberInput
-              value={servings}
-              onChange={(v) => setServings(parseInt(v) || 1)}
-              min={1}
-              width={48}
-              aria-label="Servings"
-            />
-          </div>
+        <div className="rf-inline-row">
+          <span className="form-label">Servings</span>
+          <NumberInput
+            value={servings}
+            onChange={(v) => setServings(parseInt(v) || 1)}
+            min={1}
+            width={44}
+            aria-label="Servings"
+          />
         </div>
 
-        {/* Tags */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>TAGS</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            {tags.map((tag) => (
-              <TagChip
-                key={tag.id}
-                name={tag.name}
-                color={tag.color}
-                selected={selectedTagIds.includes(tag.id)}
-                onClick={() => toggleTag(tag.id)}
-              />
-            ))}
-            {!showNewTag && (
-              <button
-                type="button"
-                onClick={() => setShowNewTag(true)}
-                style={{
-                  fontSize: 11,
-                  color: 'var(--text-mid)',
-                  background: 'transparent',
-                  border: '1px dashed var(--border-mid)',
-                  borderRadius: 'var(--radius)',
-                  padding: '2px 8px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 4,
-                }}
-              >
-                <Plus size={11} />
-                New tag
-              </button>
+        {/* Tags: selected ones up front, the full list on demand */}
+        <div>
+          <span className="form-label">
+            Tags
+            {selectedTags.length > 0 && (
+              <span className="form-label-count">({selectedTags.length})</span>
+            )}
+          </span>
+          <div className="rf-tags">
+            {selectedTags.length === 0 ? (
+              <span className="rf-empty">No tags selected</span>
+            ) : (
+              selectedTags.map((tag) => (
+                <TagChip
+                  key={tag.id}
+                  name={tag.name}
+                  color={tag.color}
+                  selected
+                  onClick={() => toggleTag(tag.id)}
+                />
+              ))
             )}
           </div>
-
-          {showNewTag && (
-            <div
+          <button
+            type="button"
+            className="rf-link"
+            style={{ marginTop: 4 }}
+            aria-expanded={showAllTags}
+            onClick={() => setShowAllTags((v) => !v)}
+          >
+            <ChevronRight
+              size={12}
               style={{
-                border: '1px solid var(--border-mid)',
-                borderRadius: 'var(--radius)',
-                padding: 12,
-                background: 'var(--surface2)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 8,
+                transform: showAllTags ? 'rotate(90deg)' : 'none',
+                transition: 'transform 0.15s ease',
               }}
-            >
-              <input
-                type="text"
-                className="field"
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                placeholder="Tag name"
-              />
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {TAG_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setNewTagColor(c)}
-                    style={{
-                      width: 24,
-                      height: 24,
-                      background: c,
-                      border: 'none',
-                      borderRadius: 'var(--radius)',
-                      cursor: 'pointer',
-                      outline: newTagColor === c ? '2px solid var(--coral)' : 'none',
-                      outlineOffset: 2,
-                    }}
+            />
+            {showAllTags ? 'Hide tags' : `Choose tags (${tags.length})`}
+          </button>
+
+          {showAllTags && (
+            <div className="rf-tag-panel">
+              <div className="rf-tags">
+                {tags.map((tag) => (
+                  <TagChip
+                    key={tag.id}
+                    name={tag.name}
+                    color={tag.color}
+                    selected={selectedTagIds.includes(tag.id)}
+                    onClick={() => toggleTag(tag.id)}
                   />
                 ))}
+                {!showNewTag && (
+                  <button type="button" className="rf-new-tag" onClick={() => setShowNewTag(true)}>
+                    <Plus size={11} />
+                    New tag
+                  </button>
+                )}
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <Button intent="coral" size="xs" type="button" onClick={handleCreateTag}>
-                  Add
-                </Button>
-                <Button
-                  intent="ghost"
-                  size="xs"
-                  type="button"
-                  onClick={() => {
-                    setShowNewTag(false)
-                    setNewTagName('')
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
+
+              {showNewTag && (
+                <div className="rf-new-tag-form">
+                  <input
+                    type="text"
+                    className="field"
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    placeholder="Tag name"
+                    aria-label="Tag name"
+                  />
+                  <div className="rf-swatches">
+                    {TAG_COLORS.map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        className="rf-swatch"
+                        style={{ background: c }}
+                        aria-label={`Colour ${c}`}
+                        aria-pressed={newTagColor === c}
+                        onClick={() => setNewTagColor(c)}
+                      />
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <Button intent="coral" size="xs" type="button" onClick={handleCreateTag}>
+                      Add
+                    </Button>
+                    <Button
+                      intent="ghost"
+                      size="xs"
+                      type="button"
+                      onClick={() => {
+                        setShowNewTag(false)
+                        setNewTagName('')
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Ingredients */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>
-            INGREDIENTS
-          </label>
-          {rows.map((row, idx) => (
-            <div key={row.rowId} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <IngredientAutocomplete
-                  value={row.ingredientName}
-                  onChange={(v) => handleIngredientChange(idx, v)}
-                  onSelect={(entry) => handleIngredientSelect(idx, entry)}
-                  placeholder="Ingredient…"
-                />
-              </div>
-              <NumberInput
-                value={row.quantity}
-                onChange={(v) => handleQuantityChange(idx, parseFloat(v) || 0)}
-                min={0}
-                width={40}
-                aria-label="Quantity"
-              />
-              <span
-                style={{
-                  fontSize: 12,
-                  color: 'var(--text-dim)',
-                  width: 32,
-                  textAlign: 'center',
-                  flexShrink: 0,
-                }}
-              >
-                {row.unit || '—'}
-              </span>
-              <IconButton
-                variant="danger"
-                onClick={() => handleRemoveRow(idx)}
-                style={{ width: 32, height: 32 }}
-                aria-label="Remove ingredient"
-              >
-                <X size={14} />
-              </IconButton>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddRow}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              fontSize: 12,
-              color: 'var(--text-mid)',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px 8px',
-              fontWeight: 600,
-            }}
-          >
+        <div>
+          <span className="form-label">
+            Ingredients
+            {rows.length > 0 && <span className="form-label-count">({rows.length})</span>}
+          </span>
+          <div className="rf-ing-list">
+            {rows.map((row, idx) => {
+              const unlinked = row.ingredientName.trim() !== '' && row.ingredientId === null
+              return (
+                <div
+                  key={row.rowId}
+                  className={`rf-ing-row${unlinked ? ' rf-unlinked' : ''}`}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <IngredientAutocomplete
+                      value={row.ingredientName}
+                      onChange={(v) => handleIngredientChange(idx, v)}
+                      onSelect={(entry) => handleIngredientSelect(idx, entry)}
+                      placeholder="Ingredient…"
+                    />
+                  </div>
+                  <div className="qty-unit">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      step="any"
+                      value={row.quantity}
+                      onChange={(e) => handleQuantityChange(idx, parseFloat(e.target.value) || 0)}
+                      aria-label="Quantity"
+                    />
+                    <span className="unit">{row.unit || '—'}</span>
+                  </div>
+                  <IconButton
+                    variant="danger"
+                    onClick={() => handleRemoveRow(idx)}
+                    style={{ width: 28, height: 28 }}
+                    aria-label="Remove ingredient"
+                  >
+                    <X size={14} />
+                  </IconButton>
+                </div>
+              )
+            })}
+          </div>
+          <button type="button" className="rf-link" style={{ marginTop: 4 }} onClick={handleAddRow}>
             <Plus size={13} />
             Add ingredient
           </button>
         </div>
 
         {/* Notes */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-mid)' }}>NOTES</label>
+        <div>
+          <label className="form-label" htmlFor="recipe-notes" style={{ marginBottom: 4 }}>
+            Notes
+          </label>
           <textarea
+            id="recipe-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Cooking notes, steps or tips… (Markdown and links supported)"
-            rows={6}
+            rows={4}
             className="field"
           />
         </div>

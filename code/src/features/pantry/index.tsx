@@ -71,9 +71,7 @@ function AddItemModal({ onClose, onSave }: AddItemModalProps) {
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-mid)' }}>
-            Ingredient
-          </label>
+          <span className="form-label">Ingredient</span>
           <IngredientAutocomplete
             value={ingredientSearch}
             onChange={(v) => {
@@ -86,15 +84,17 @@ function AddItemModal({ onClose, onSave }: AddItemModalProps) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-mid)' }}>
+          <label className="form-label" htmlFor="pantry-add-qty">
             Quantity
             {selectedIngredient && (
-              <span style={{ fontWeight: 400, marginLeft: 4 }}>
+              <span className="form-label-count" style={{ textTransform: 'none' }}>
                 ({selectedIngredient.default_unit})
               </span>
             )}
           </label>
           <input
+            id="pantry-add-qty"
+            className="field"
             type="number"
             min="0"
             step="any"
@@ -266,6 +266,7 @@ export default function PantryPage() {
                       step="any"
                       value={editQty}
                       onChange={(e) => setEditQty(e.target.value)}
+                      className="field"
                       style={{ width: 80 }}
                       data-testid="pantry-edit-qty"
                     />
@@ -280,6 +281,7 @@ export default function PantryPage() {
                       step="any"
                       value={editMaxStock}
                       onChange={(e) => setEditMaxStock(e.target.value)}
+                      className="field"
                       style={{ width: 80 }}
                       data-testid="pantry-edit-max"
                     />

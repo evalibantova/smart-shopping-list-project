@@ -181,17 +181,36 @@ Pill-row of tabs: `padding: 7px 16px; font-size: 13px`. Active: `background: --c
 
 Flat colored label — no background, no pill. `font-size: 11px; font-weight: 700`. Color set via inline `style` prop per tag. Dot prefix rendered alongside text.
 
-### Form inputs (`.form-input`)
+**Selectable tags** (recipe form): unselected tags stay flat, with `--text-mid` text. A selected tag gets a background tinted 14% in its own color, its text in the tag color, and a trailing ✓. Selectable tags are real `<button>`s with `aria-pressed` and a coral focus ring. A tinted background on *selected* tags is the only exception to "no background" on tags.
 
-`background: --surface2; border: none; border-bottom: 2px solid transparent; padding: 9px 12px; font-size: 13px`  
-Focus: `border-bottom-color: --coral; background: --surface`
+### Form inputs (`.field`) — the ledger style
 
-Search input has embedded SVG magnifier icon via `background-image`.
+One look for every text, number, select and textarea field in the app. Like the line on a handwritten recipe card:
+
+| State | Look |
+|---|---|
+| Rest | transparent, `border-bottom: 2px dotted --text-dim`, `padding: 9px 12px`, 14 px |
+| Hover | `background: --surface2` |
+| Focus | `background: --coral-pale; border-bottom: 2px solid --coral` |
+
+- **Square corners, no fill, no outline** — the underline is the only chrome. Don't add borders or boxed fills to individual fields.
+- **Labels** (`.form-label`): 11 px, 600, uppercase, 1 px tracking, `--text-mid`. An optional count sits after it in `--text-dim` (`.form-label-count`).
+- **Stepper** (`.field-group` + `NumberInput`): `− [value] +` sharing one dotted underline; the underline and tint react to focus-within. Used for small counts (servings), not for amounts.
+- **Quantity + unit** (`.qty-unit`): a right-aligned number field (tabular numerals) with the unit attached as a `--text-mid` 12 px suffix, one shared underline. Used for ingredient amounts — no stepper buttons.
+- **Search field** (`.field-search`): a `.field` with a leading magnifier icon (Lucide, 14 px) positioned inside the left padding.
+- **Title field** (`.rf-title`): the recipe name in the recipe form uses `.field` at 20 px / 800 / −0.04em and grows with its content, so one line sits on the underline.
+- **Emoji badge** (`.rf-emoji`): a 52 px circle filled with `--coral-pale`, matching the circular meal-slot icons.
+- **Unlinked ingredient** (typed text not yet bound to an ingredient): `--amber-pale` fill and a solid `--amber` underline; focus still shows coral.
 
 ### Modals (`.picker-modal`)
 
+Every dialog uses the shared `Modal` component (`components/ui/Modal.tsx`) — don't hand-roll backdrop or card markup.
+
 - Backdrop: `rgba(0,0,0,0.4)` + `backdrop-filter: blur(6px)`
 - Modal: white, `--shadow-md`, `width: 480px; max-width: 94vw`
+- Header: title at 18 px / 700 / −0.03em with a close icon button; `padding: 16px 16px 12px`, **no divider line**
+- Body: scrolls vertically, never horizontally; `padding: 4px 16px 16px`. The `flush` prop removes the padding for full-bleed lists (recipe picker), whose search field stays sticky at the top.
+- Footer (when present): right-aligned actions, `padding: 12px 16px`, separated from the body by a 1 px shadow line (`0 -1px 0 --border`) instead of a border. Confirm = `coral` button, cancel = `ghost`.
 - Animation: `slideUp` (fade + translateY 16 px → 0)
 - Mobile: full-width, bottom sheet (`border-radius: 16px 16px 0 0`), backdrop aligns to `flex-end`
 
@@ -343,6 +362,9 @@ This section documents known failure modes that cause the UI to drift away from 
 | Pill-shaped or bordered tags in the recipe list | Flat colored text-only tags (dot + name, no background) |
 | Blue used anywhere in the UI | Coral is the only accent. No blue. |
 | Shadows replaced with borders | Borders removed; elevation expressed with `--shadow-sm` / `--shadow` |
+| Filled grey, outlined or shadowed input boxes | The ledger `.field` (dotted underline, coral on focus) everywhere |
+| Inline-styled `<input>`/`<select>` with their own border | `className="field"` |
+| Hand-built modal backdrop/card markup | The shared `Modal` component |
 
 ---
 

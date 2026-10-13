@@ -44,11 +44,13 @@ interface ModalProps {
   title: string
   children: React.ReactNode
   footer?: React.ReactNode
+  /** Remove the body padding, for full-bleed content such as lists. */
+  flush?: boolean
 }
 
 let styleInjected = false
 
-export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, footer, flush }: ModalProps) {
   useEffect(() => {
     if (!styleInjected) {
       const style = document.createElement('style')
@@ -95,19 +97,18 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '14px 16px',
-            borderBottom: '1px solid var(--border)',
+            padding: '16px 16px 12px',
             flexShrink: 0,
           }}
         >
-          <h2 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>{title}</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.03em' }}>{title}</h2>
           <IconButton variant="default" onClick={onClose} aria-label="Close">
             <X size={18} />
           </IconButton>
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '16px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: flush ? 0 : '4px 16px 16px' }}>
           {children}
         </div>
 
@@ -116,7 +117,7 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
           <div
             style={{
               padding: '12px 16px',
-              borderTop: '1px solid var(--border)',
+              boxShadow: '0 -1px 0 var(--border)',
               display: 'flex',
               gap: 8,
               justifyContent: 'flex-end',

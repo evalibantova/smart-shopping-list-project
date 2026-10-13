@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit Recipe modal — design v2 (Ledger)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0ebe2; --surface: #fff; --surface2: #f7f3ee; --surface3: #ede8df;
+    --charcoal: #1a1a1a;
+    --coral: #f07045; --coral-dark: #d95f35; --coral-pale: rgba(240,112,69,0.12);
+    --amber: #f5a623; --amber-pale: rgba(245,166,35,0.12);
+    --red: #e05c5c; --red-pale: rgba(224,92,92,0.10);
+    --border: rgba(0,0,0,0.07); --border-mid: rgba(0,0,0,0.13);
+    --text: #1a1a1a; --text-mid: rgba(0,0,0,0.52); --text-dim: rgba(0,0,0,0.32);
+    --shadow-md: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 0;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--text);
+         background: var(--bg); -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+
+  /* Backdrop + modal (picker-modal spec) */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px);
+              display: flex; align-items: center; justify-content: center; animation: fadeIn .15s ease; }
+  .modal { background: var(--surface); box-shadow: var(--shadow-md); width: 480px; max-width: 94vw;
+           max-height: 92vh; display: flex; flex-direction: column; animation: slideUp .2s ease; }
+  @media (max-width: 767px) {
+    .backdrop { align-items: flex-end; }
+    .modal { width: 100%; max-width: 100%; border-radius: 16px 16px 0 0; }
+  }
+  @keyframes fadeIn { from { opacity: 0 } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px) } }
+
+  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 12px; }
+  .modal-head h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.03em; }
+  .icon-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+              background: transparent; border: none; color: var(--text-dim); }
+  .icon-btn:hover { color: var(--text); }
+  .icon-btn.danger:hover { color: var(--red); }
+  .modal-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 4px 16px 16px;
+                display: flex; flex-direction: column; gap: 18px; }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px;
+                box-shadow: 0 -1px 0 var(--border); }
+
+  .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+           color: var(--text-mid); display: block; }
+  .label .count { color: var(--text-dim); font-weight: 600; margin-left: 4px; }
+
+  /* Fields */
+  .field { display: block; width: 100%; min-width: 0; padding: 9px 12px; font: inherit; font-size: 14px;
+           color: var(--text); background: var(--surface2); border: none; border-bottom: 2px solid transparent;
+           border-radius: var(--radius); outline: none; transition: border-color .15s, background-color .15s; }
+  .field::placeholder { color: var(--text-dim); }
+  .field:hover { background: var(--surface3); }
+  .field:focus { background: var(--surface); border-bottom-color: var(--coral); box-shadow: 0 1px 0 0 var(--coral-pale); }
+  textarea.field { resize: vertical; line-height: 1.5; }
+
+  /* Buttons */
+  .btn { height: 40px; padding: 0 18px; border: none; font-size: 13px; font-weight: 600;
+         transition: opacity .15s, transform .1s; }
+  .btn:hover { opacity: .88; } .btn:active { transform: scale(.97); }
+  .btn.coral { background: var(--coral); color: #fff; }
+  .btn.ghost { background: transparent; color: var(--text-dim); }
+  .btn.xs { height: 24px; padding: 0 12px; font-size: 12px; }
+
+  /* Header row: emoji + name */
+  .id-row { display: flex; gap: 8px; align-items: stretch; }
+  .id-row { align-items: center; }
+  /* circular badge, same shape as the meal-slot icons (DESIGN.md §8) */
+  .field.emoji { width: 52px; height: 52px; flex-shrink: 0; font-size: 26px; text-align: center; padding: 0;
+                 border-radius: 50%; background: var(--coral-pale); border-bottom: none; }
+  .field.emoji:hover { background: rgba(240,112,69,0.2); }
+  .field.emoji:focus { background: var(--surface); box-shadow: 0 0 0 2px var(--coral); }
+  /* the recipe name reads as a title, with the field fill only appearing on hover/focus */
+  .field.name { font-size: 20px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.25;
+                background: transparent; padding: 8px 10px; resize: none; overflow: hidden; }
+  .field.name:hover { background: var(--surface2); }
+  .field.name:focus { background: var(--surface); }
+  .qty-unit input { font-variant-numeric: tabular-nums; }
+  .tag-panel.open { animation: reveal .18s ease; }
+  @keyframes reveal { from { opacity: 0; transform: translateY(-4px) } }
+  button:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* Servings row */
+  .inline-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .stepper { display: inline-flex; align-items: stretch; background: var(--surface2);
+             border-bottom: 2px solid transparent; transition: .15s; }
+  .stepper:hover { background: var(--surface3); }
+  .stepper:focus-within { background: var(--surface); border-bottom-color: var(--coral); }
+  .stepper input { width: 44px; text-align: center; background: transparent; border: none; outline: none;
+                   font: inherit; font-weight: 600; padding: 9px 0; -moz-appearance: textfield; }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .stepper button { width: 32px; background: transparent; border: none; color: var(--text-mid); font-size: 16px; }
+  .stepper button:hover { color: var(--coral-dark); }
+
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+  .tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: none;
+         background: transparent; font-size: 11px; font-weight: 700; color: var(--c); border-radius: 4px;
+         transition: background-color .15s; }
+  .tag::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+  .tag:hover { background: var(--surface2); }
+  /* unselected = muted flat text; selected = tinted background + check */
+  .tag:not(.on) { color: var(--text-mid); }
+  .tag.on { background: color-mix(in srgb, var(--c) 14%, transparent); }
+  .tag.on::after { content: '✓'; font-size: 11px; line-height: 1; }
+  .tag-empty { font-size: 12px; color: var(--text-dim); }
+  .link-btn { display: inline-flex; align-items: center; gap: 4px; background: transparent; border: none;
+              padding: 3px 0; font-size: 12px; font-weight: 600; color: var(--text-mid); }
+  .link-btn:hover { color: var(--coral-dark); }
+  .link-btn .chev { display: inline-block; transition: transform .15s; }
+  .link-btn[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .tag-panel { margin-top: 8px; padding: 10px; background: var(--surface2); display: none; }
+  .tag-panel.open { display: block; }
+  .tag-panel .tags { margin-top: 0; }
+  .new-tag { border: 1px dashed var(--border-mid); background: transparent; color: var(--text-mid);
+             font-size: 11px; padding: 2px 8px; border-radius: 0; }
+  .new-tag-form { margin-top: 10px; display: none; flex-direction: column; gap: 8px; }
+  .new-tag-form.open { display: flex; }
+  .swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+  .swatch { width: 24px; height: 24px; border: none; background: var(--c); }
+  .swatch.on { outline: 2px solid var(--coral); outline-offset: 2px; }
+
+  /* Ingredients */
+  .ing-list { display: flex; flex-direction: column; margin-top: 4px; }
+  .ing-row { display: grid; grid-template-columns: 1fr auto 28px; gap: 6px; align-items: center;
+             padding: 3px 0; position: relative; }
+  .ing-name { padding: 8px 10px; }
+  .ing-row.unlinked .ing-name { border-bottom-color: var(--amber); background: var(--amber-pale); }
+  .qty-unit { display: inline-flex; align-items: stretch; background: var(--surface2);
+              border-bottom: 2px solid transparent; transition: .15s; }
+  .qty-unit:hover { background: var(--surface3); }
+  .qty-unit:focus-within { background: var(--surface); border-bottom-color: var(--coral); }
+  .qty-unit input { width: 54px; text-align: right; background: transparent; border: none; outline: none;
+                    font: inherit; font-weight: 600; padding: 8px 4px 8px 8px; -moz-appearance: textfield; }
+  .qty-unit input::-webkit-outer-spin-button, .qty-unit input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .qty-unit .unit { min-width: 34px; padding: 0 10px 0 2px; display: inline-flex; align-items: center;
+                    font-size: 12px; color: var(--text-mid); }
+  .ing-ac { position: relative; }
+  .suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 5; background: var(--surface);
+             box-shadow: 0 2px 12px rgba(0,0,0,0.12); display: none; max-height: 168px; overflow-y: auto; }
+  .suggest.open { display: block; }
+  .suggest button { display: flex; justify-content: space-between; width: 100%; padding: 8px 12px;
+                    background: transparent; border: none; text-align: left; }
+  .suggest button:hover { background: var(--surface2); }
+  .suggest small { color: var(--text-dim); }
+  .suggest .create { justify-content: flex-start; font-style: italic; color: var(--text-mid); }
+  .suggest-title { padding: 8px 12px 4px; font-size: 11px; color: var(--text-dim); }
+  .suggest .units { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 8px 8px; }
+  .suggest .units button { width: auto; padding: 6px 12px; background: var(--surface2); font-weight: 600; font-size: 12px; }
+  .suggest .units button:hover { background: var(--coral-pale); }
+  .add-row { align-self: flex-start; margin-top: 4px; padding: 6px 0; }
+
+  /* ---- Ledger: every field gets its own dotted underline; focus turns it solid coral ---- */
+  .modal[data-look="ledger-1"] { --f-bg: transparent; --f-bg-h: var(--surface2); --f-bg-f: var(--coral-pale);
+      --f-ring: none; --f-ring-f: none; --f-bb: 2px dotted var(--text-dim); --f-bb-f: 2px solid var(--coral); }
+  .modal[data-look] .field:not(.emoji), .modal[data-look] .stepper, .modal[data-look] .qty-unit {
+      background-color: var(--f-bg); box-shadow: var(--f-ring); border-bottom: var(--f-bb); border-radius: 0; }
+  .modal[data-look] .field:not(.emoji):hover, .modal[data-look] .stepper:hover, .modal[data-look] .qty-unit:hover {
+      background-color: var(--f-bg-h); }
+  .modal[data-look] .field:not(.emoji):focus, .modal[data-look] .stepper:focus-within,
+  .modal[data-look] .qty-unit:focus-within {
+      background-color: var(--f-bg-f); box-shadow: var(--f-ring-f); border-bottom: var(--f-bb-f); }
+  .modal[data-look] .ing-row.unlinked .ing-name { background-color: var(--amber-pale); box-shadow: inset 0 -2px 0 var(--amber);
+      border-bottom: 2px solid transparent; }
+</style>
+</head>
+<body>
+
+<div class="backdrop">
+  <div class="modal" role="dialog" aria-label="Edit Recipe" data-look="ledger-1">
+    <div class="modal-head">
+      <h2>Edit Recipe</h2>
+      <button class="icon-btn" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Emoji + name -->
+      <div class="id-row">
+        <input class="field emoji" value="🍲" maxlength="2" aria-label="Emoji">
+        <textarea class="field name" id="recipe-name" rows="1" aria-label="Name" placeholder="Recipe name">Fazuľová polievka na kyslo</textarea>
+      </div>
+
+      <!-- Servings -->
+      <div class="inline-row">
+        <span class="label">Servings</span>
+        <div class="stepper">
+          <button type="button" data-step="-1" aria-label="Fewer servings">−</button>
+          <input id="servings" type="number" min="1" value="8" aria-label="Servings">
+          <button type="button" data-step="1" aria-label="More servings">+</button>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div>
+        <span class="label">Tags<span class="count" id="tag-count"></span></span>
+        <div class="tags" id="selected-tags"></div>
+        <button class="link-btn" id="tag-toggle" type="button" aria-expanded="false" style="margin-top:4px">
+          <span class="chev">▸</span><span id="tag-toggle-label">Choose tags</span>
+        </button>
+        <div class="tag-panel" id="tag-panel">
+          <div class="tags" id="all-tags"></div>
+          <div class="new-tag-form" id="new-tag-form">
+            <input class="field" id="new-tag-name" placeholder="Tag name">
+            <div class="swatches" id="swatches"></div>
+            <div style="display:flex;gap:6px">
+              <button class="btn coral xs" type="button" id="new-tag-add">Add</button>
+              <button class="btn ghost xs" type="button" id="new-tag-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ingredients -->
+      <div>
+        <span class="label">Ingredients<span class="count" id="ing-count"></span></span>
+        <div class="ing-list" id="ing-list"></div>
+        <button class="link-btn add-row" id="add-row" type="button">+ Add ingredient</button>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <span class="label" style="margin-bottom:4px">Notes</span>
+        <textarea class="field notes" rows="4" placeholder="Cooking notes, steps or tips… (Markdown and links supported)"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn ghost" type="button">Cancel</button>
+      <button class="btn coral" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const COLORS = ['#f07045','#f5a623','#6ab04c','#4a90d9','#9b59b6','#e05c5c','#2ecc71','#1a1a1a'];
+  const tags = [
+    ['Polievka','#2a9d8f'],['zemiaky','#c9a26b'],['Dezert','#e8648b'],['Hlavné jedlo','#5a67c9'],
+    ['hovädzie','#b3261e'],['bravčové','#e07a8a'],['Iné','#aaaaaa'],['kapusta','#4caf50'],
+    ['mušle','#29b6f6'],['fazuľa','#9c1c5b'],['kuracie','#f0b429'],['baklažán','#5e35b1'],
+    ['Príloha','#cddc39'],['ryža','#90a4ae'],['huby','#8d6e63'],['paradajky','#ff7043'],
+    ['šošovica','#8bc34a'],['Snack','#ffca28'],
+  ].map(([name, color], id) => ({ id, name, color }));
+  const selected = new Set([0, 9]);
+
+  const db = [['fazuľa','g'],['list bobkový','pcs'],['korenie nové','pcs'],['kapusta','g'],['smotana','ml'],['mrkva','pcs'],['petržlen','pcs']];
+  const rows = [
+    { name: 'fazuľa', qty: 250, unit: 'g', linked: true },
+    { name: 'list bobkový', qty: 4, unit: 'pcs', linked: true },
+    { name: 'korenie nové', qty: 5, unit: 'pcs', linked: true },
+    { name: 'kyslá uhorka', qty: 1, unit: '', linked: false },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs = {}, ...kids) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'style') n.style.cssText = v; else if (k.startsWith('on')) n[k] = v; else n.setAttribute(k, v);
+    }
+    kids.forEach((c) => n.append(c));
+    return n;
+  };
+
+  /* ---- Servings ---- */
+  document.querySelectorAll('[data-step]').forEach((b) => b.onclick = () => {
+    const i = $('servings'); i.value = Math.max(1, (parseInt(i.value) || 1) + +b.dataset.step);
+  });
+
+  /* ---- Tags ---- */
+  function tagBtn(t) {
+    return el('button', { class: 'tag' + (selected.has(t.id) ? ' on' : ''), type: 'button',
+      style: `--c:${t.color}`, 'aria-pressed': selected.has(t.id),
+      onclick: () => { selected.has(t.id) ? selected.delete(t.id) : selected.add(t.id); renderTags(); } }, t.name);
+  }
+  function renderTags() {
+    const sel = $('selected-tags'); sel.replaceChildren();
+    const chosen = tags.filter((t) => selected.has(t.id));
+    if (!chosen.length) sel.append(el('span', { class: 'tag-empty' }, 'No tags selected'));
+    chosen.forEach((t) => sel.append(tagBtn(t)));
+    $('tag-count').textContent = chosen.length ? `(${chosen.length})` : '';
+    const all = $('all-tags'); all.replaceChildren();
+    tags.forEach((t) => all.append(tagBtn(t)));
+    all.append(el('button', { class: 'new-tag', type: 'button',
+      onclick: () => $('new-tag-form').classList.add('open') }, '+ New tag'));
+    syncToggle();
+  }
+  function syncToggle() {
+    const open = $('tag-panel').classList.contains('open');
+    $('tag-toggle').setAttribute('aria-expanded', open);
+    $('tag-toggle-label').textContent = open ? 'Hide tags' : `Choose tags (${tags.length})`;
+  }
+  $('tag-toggle').onclick = () => { $('tag-panel').classList.toggle('open'); syncToggle(); };
+
+  let newColor = COLORS[0];
+  function renderSwatches() {
+    const s = $('swatches'); s.replaceChildren();
+    COLORS.forEach((c) => s.append(el('button', { class: 'swatch' + (c === newColor ? ' on' : ''), type: 'button',
+      style: `--c:${c}`, 'aria-label': c, onclick: () => { newColor = c; renderSwatches(); } })));
+  }
+  $('new-tag-add').onclick = () => {
+    const name = $('new-tag-name').value.trim(); if (!name) return;
+    const t = { id: tags.length, name, color: newColor }; tags.push(t); selected.add(t.id);
+    $('new-tag-name').value = ''; $('new-tag-form').classList.remove('open'); renderTags();
+  };
+  $('new-tag-cancel').onclick = () => { $('new-tag-name').value = ''; $('new-tag-form').classList.remove('open'); };
+
+  /* ---- Ingredients ---- */
+  function renderRows() {
+    const list = $('ing-list'); list.replaceChildren();
+    rows.forEach((r, i) => {
+      const suggest = el('div', { class: 'suggest' });
+      const name = el('input', { class: 'field ing-name', value: r.name, placeholder: 'Ingredient…', 'aria-label': 'Ingredient' });
+      name.oninput = () => {
+        r.name = name.value; r.linked = false; r.unit = '';
+        const q = r.name.trim().toLowerCase();
+        const hits = q ? db.filter(([n]) => n.includes(q)) : [];
+        const exact = db.some(([n]) => n === q);
+        const items = hits.map(([n, u]) => el('button', { type: 'button',
+          onmousedown: (e) => { e.preventDefault(); Object.assign(r, { name: n, unit: u, linked: true }); renderRows(); } },
+          n, el('small', {}, u)));
+        if (q && !exact) items.push(el('button', { type: 'button', class: 'create',
+          onmousedown: (e) => { e.preventDefault(); showUnits(); } }, `+ Create “${r.name.trim()}”`));
+        suggest.replaceChildren(...items);
+        suggest.classList.toggle('open', items.length > 0);
+        row.classList.add('unlinked'); unit.textContent = '—';
+      };
+      /* second step of "Create": pick the unit, then the new ingredient is added to the list */
+      function showUnits() {
+        suggest.replaceChildren(el('div', { class: 'suggest-title' }, 'Unit for “' + r.name.trim() + '”'),
+          el('div', { class: 'units' }, ...['g', 'kg', 'ml', 'l', 'pcs', 'tbsp', 'tsp'].map((u) => el('button', { type: 'button',
+            onmousedown: (e) => { e.preventDefault(); const n = r.name.trim(); db.push([n, u]);
+              Object.assign(r, { name: n, unit: u, linked: true }); renderRows(); } }, u))));
+        suggest.classList.add('open');
+      }
+      name.onblur = () => suggest.classList.remove('open');
+      const qty = el('input', { type: 'number', min: '0', step: 'any', value: r.qty, 'aria-label': 'Quantity' });
+      qty.oninput = () => { r.qty = parseFloat(qty.value) || 0; };
+      const unit = el('span', { class: 'unit' }, r.unit || '—');
+      const del = el('button', { class: 'icon-btn danger', type: 'button', 'aria-label': 'Remove ingredient',
+        style: 'width:28px;height:28px', onclick: () => { rows.splice(i, 1); renderRows(); } }, '✕');
+      const row = el('div', { class: 'ing-row' + (r.linked ? '' : ' unlinked') },
+        el('div', { class: 'ing-ac' }, name, suggest), el('div', { class: 'qty-unit' }, qty, unit), del);
+      list.append(row);
+    });
+    $('ing-count').textContent = rows.length ? `(${rows.length})` : '';
+  }
+  $('add-row').onclick = () => { rows.push({ name: '', qty: 1, unit: '', linked: false }); renderRows(); };
+
+  /* ---- Title grows with its content: one line sits on the rule, long names wrap ---- */
+  const nameEl = $('recipe-name');
+  const fitName = () => { nameEl.style.height = 'auto'; nameEl.style.height = nameEl.scrollHeight + 'px'; };
+  nameEl.addEventListener('input', fitName);
+  nameEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+  window.addEventListener('resize', fitName);
+  document.fonts && document.fonts.ready.then(fitName);
+  fitName();
+
+  renderTags(); renderSwatches(); renderRows();
+</script>
+</body>
+</html>

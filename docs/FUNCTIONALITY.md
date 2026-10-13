@@ -53,12 +53,14 @@ On mobile, the detail panel slides in from the right as a full-screen overlay wh
 ### Recipe Form (modal)
 
 Opened for both creating and editing recipes. Fields:
-- **Emoji** — free text (single emoji)
-- **Name** — text
-- **Servings** — number
-- **Tags** — tag picker: select from existing color-coded tags or create a new one (with name + color swatch). Tags are flat colored labels (no pill background).
-- **Ingredients** — add/remove rows of (name, quantity, unit). The ingredient name field autocompletes against `ingredients_db`. Selecting an autocomplete result binds the row to that entry's canonical ID and pre-fills the unit with its `default_unit`. If the user types a name with no match, confirming it creates a new `ingredients_db` record (they must supply a unit, which becomes that entry's `default_unit`). Freeform ingredient strings that bypass the canonical ID are not permitted — the unit shown is read-only and determined by the ingredient's `default_unit`, not freely editable per recipe.
+- **Emoji** — free text (single emoji), shown in a circular badge
+- **Name** — text, styled as the recipe title. Single line (Enter does nothing); long names wrap onto more lines.
+- **Servings** — stepper (− value +) on the same row as its label
+- **Tags** — only the selected tags are shown up front (with a count). "Choose tags" expands the full list; tapping a tag toggles it, and a selected tag shows a tinted background and a check mark. The expanded list ends with "New tag" (name + color swatch); a new tag is selected automatically. Tags are flat colored labels everywhere else in the app.
+- **Ingredients** — add/remove rows of (name, quantity + unit). The ingredient name field autocompletes against `ingredients_db`. Selecting an autocomplete result binds the row to that entry's canonical ID and pre-fills the unit with its `default_unit`. When the typed name is not an exact match for an existing ingredient, the dropdown also offers **Create "name"** — after any partial matches. Choosing it asks for a unit, which becomes the new `ingredients_db` record's `default_unit`. Freeform ingredient strings that bypass the canonical ID are not permitted — the unit shown is read-only and determined by the ingredient's `default_unit`, not freely editable per recipe. A row with typed text that is not yet bound to an ingredient is highlighted amber; such rows are dropped on save.
 - **Notes** — textarea for free-form cooking instructions; supports Markdown and inline HTML, URLs are clickable in the recipe detail.
+
+Validation on save: the name is required, the emoji is capped at 2 characters (default 🍽️), servings is at least 1.
 
 Save creates/updates the recipe via the API.
 
@@ -109,7 +111,7 @@ Opens as a centered modal overlay. Uses the shared `RecipeDetail` component with
 
 ### Recipe Picker
 
-A searchable modal listing all recipes. The user types to filter by name or tag, then taps a recipe to add it to the selected slot.
+A searchable modal listing all recipes. The user types to filter by name, then taps a recipe to add it to the selected slot. The search field stays pinned at the top while the list scrolls.
 
 ---
 

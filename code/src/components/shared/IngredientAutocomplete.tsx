@@ -56,6 +56,11 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
     }
   }, [onChange, showDropdown, showUnitPicker])
 
+  // Offer "Create" next to partial matches too, unless the typed name already exists exactly
+  const typedName = value.trim().toLowerCase()
+  const canCreate =
+    typedName.length > 0 && !matches.some((m) => m.name.toLowerCase() === typedName)
+
   function handleSelect(entry: IngredientDbEntry) {
     onSelect(entry)
     setShowDropdown(false)
@@ -115,8 +120,9 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
               {entry.name}
             </div>
           ))}
-          {matches.length === 0 && (
+          {canCreate && (
             <div
+              data-testid="ingredient-create"
               onClick={handleCreate}
               style={{
                 padding: '8px 12px',
@@ -149,18 +155,23 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
             width: '100%',
           }}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 8 }}>
+            Unit for &ldquo;{value.trim()}&rdquo;
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {CANONICAL_UNITS.map((unit) => (
               <button
                 key={unit}
                 type="button"
                 onClick={() => handleUnitSelect(unit)}
                 style={{
-                  padding: '4px 10px',
+                  padding: '6px 12px',
                   cursor: 'pointer',
-                  border: '1px solid var(--border-mid)',
+                  border: 'none',
                   background: 'var(--surface2)',
                   color: 'var(--text)',
+                  fontSize: 12,
+                  fontWeight: 600,
                 }}
               >
                 {unit}
