@@ -9,8 +9,10 @@ import {
   type ParsedRecipe,
 } from './types'
 
-// Cheapest current Flash-Lite tier. Confirmed in the Task 1 spike.
-export const GEMINI_MODEL = 'gemini-2.5-flash-lite'
+// Cheapest current Flash-Lite tier that accepts new users. gemini-2.5-flash-lite now returns 404
+// ("no longer available to new users"). gemini-3.1-flash-lite is listed as cheaper on Google's pricing page.
+// The request shape (generateContent) is still to be confirmed with this model by a live call.
+export const GEMINI_MODEL = 'gemini-3.5-flash-lite'
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models'
 const TIMEOUT_MS = 30_000
 
