@@ -24,7 +24,7 @@ Defined as CSS custom properties on `:root`:
 |---|---|---|
 | `--bg` | `#f0ebe2` | Page background (warm off-white) |
 | `--surface` | `#ffffff` | Cards, panels, inputs |
-| `--surface2` | `#f7f3ee` | Input fill on focus-out, hover states |
+| `--surface2` | `#f7f3ee` | Hover tint (inputs, steppers), tag panel background |
 | `--surface3` | `#ede8df` | Deeper hover / pressed states |
 | `--charcoal` | `#1a1a1a` | Primary text, primary button background, sidebar |
 | `--charcoal2` | `#2e2e2e` | Charcoal hover |
