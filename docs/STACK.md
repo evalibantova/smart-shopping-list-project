@@ -6,35 +6,42 @@
 |---|---|---|
 | Framework | React 19.x | Upgraded from the originally planned 18.3 during development. |
 | Build | Vite | Set `base: '/'`, `build.outDir: 'dist'`. Lock in `.htaccess` SPA fallback before first deploy. |
-| Styling | Tailwind CSS v4 + `cva` | Design tokens defined once in `@theme` (maps directly from DESIGN.md color/shadow/type tables). Component variants (Button intents, sizes, etc.) via `class-variance-authority`. Future theme switching by overriding `@theme` tokens under `[data-theme]` — zero component-level changes needed. |
+| Styling | CSS custom properties + inline styles; Tailwind v4 + `cva` for `Button` | Design tokens (colors, shadows, radii) are plain CSS custom properties on `:root` in `tokens.css`, mapped from the DESIGN.md tables. Tailwind v4 is installed (Vite plugin, `@import "tailwindcss"`), but only `Button` uses it, with `class-variance-authority` for its intent/size variants. Everything else is inline `style` props plus a few shared global classes in `tokens.css` (`.field`, `.field-group`, `.qty-unit`, `.form-label`, `.field-search`, page-layout classes). Future theme switching: override the custom properties under `[data-theme]` — no component changes needed. |
 | App state | Zustand | One flat store. Shopping list, Cook Now badges, and pantry stock are pure selector functions derived from `mealPlan + recipes + pantry` — matches the "data drives UI" constraint. Replaces the useState / useContext approach. |
 | Server state | TanStack Query v5 | Introduce when the PHP REST API is wired. Not used in the localStorage MVP phase — Zustand covers that period entirely. |
 | Routing | React Router v7 — `BrowserRouter` | History mode (clean URLs). `.htaccess` already handles the SPA fallback, so hash mode is unnecessary. |
 | Icons | Lucide React | Canonised in DESIGN.md. Tree-shaken per import. Revisit only if Lighthouse flags bundle size. |
-| Forms | React Hook Form + controlled ingredient rows | RHF handles simple fields (name, servings, notes, tags). The ingredient `useFieldArray` is replaced by a plain `useState<IngredientRow[]>` — keeps autocomplete → canonical ID resolution and unit-lock logic imperative and readable. Rows merge into RHF on submit. |
+| Forms | Plain controlled components (`useState`) | No form library. Fields are controlled inputs; the recipe form keeps its ingredient rows in a `useState<IngredientRow[]>`, which keeps autocomplete → canonical ID resolution and unit-lock logic imperative and readable. All inputs share the ledger `.field` style (see DESIGN.md "Form inputs"). |
 
-## Component design system
+## Component structure
 
-All visual primitives live in `src/components/ui/`. Page components only import from there — they never write a style rule directly.
+Shared building blocks are single files (no per-component folders). Pages compose them; they also use inline styles and the global classes from `tokens.css` for their own layout.
 
 ```
 src/
 ├── styles/
-│   └── tokens.css          # @theme block: all DESIGN.md tokens (colors, shadows, type scale)
-└── components/
-    └── ui/                 # design system layer
-        ├── Button/         # variant="primary|coral|secondary|ghost|danger", size="sm|xs"
-        ├── IconButton/     # 44×44 px, variant="default|accent|coral|danger"
-        ├── NumberInput     # stepper (− value +) for small counts; text/select/textarea/search use the global `.field` classes in tokens.css (ledger style, see DESIGN.md)
-        ├── Modal/          # backdrop + slideUp animation, bottom-sheet on mobile; shared by every dialog (`flush` prop for full-bleed lists)
-        ├── Toast/          # charcoal + amber variants, auto-dismiss
-        ├── FilterTabs/     # pill row, active=coral
-        ├── TagChip/        # flat colored label, dot prefix; selectable variant = tinted background + check
-        ├── SavingIndicator/# fixed top-right spinner, shown while any mutation is in flight
-        └── StockBar/       # 52 px pantry quantity bar, coral/amber/red thresholds
+│   └── tokens.css            # :root tokens + global classes (page layout, .field family, .form-label, recipe-form .rf-*)
+├── components/
+│   ├── ui/                   # generic primitives
+│   │   ├── Button.tsx        # cva + Tailwind; intent="primary|coral|secondary|ghost|amber|danger", size="default|sm|xs"
+│   │   ├── IconButton.tsx    # 44×44 px; variant="default|accent|coral|danger"
+│   │   ├── NumberInput.tsx   # stepper (− value +) for small counts
+│   │   ├── Modal.tsx         # backdrop + slideUp, bottom sheet on mobile; shared by every dialog (`flush` for full-bleed lists)
+│   │   ├── Toast.tsx         # auto-dismisses after 3 s
+│   │   ├── FilterTabs.tsx    # pill row, active = coral
+│   │   ├── TagChip.tsx       # flat colored label, dot prefix; selectable variant = tinted background + check
+│   │   └── SavingIndicator.tsx # fixed top-right spinner, shown while any mutation is in flight
+│   └── shared/               # domain components used by several features
+│       ├── IngredientAutocomplete.tsx
+│       ├── RecipeDetail.tsx
+│       ├── NotesMarkdown.tsx
+│       └── AddToWeekModal.tsx
+├── features/                 # one folder per page: recipes, meal-planner, pantry, cook-now, shopping-list
+├── store/                    # Zustand slices (recipes, meal planner, pantry)
+├── services/, types/, data/, utils/
 ```
 
-Each component accepts typed props for variants. `cva` composes the Tailwind classes; consumers never touch class names.
+Text, select, textarea and search fields are not components: use `className="field"` (search: wrap in `.field-search`). The pantry stock bar is drawn inline in the pantry page, coloured by `stockBarColor`.
 
 ## Key constraints driving these decisions
 
