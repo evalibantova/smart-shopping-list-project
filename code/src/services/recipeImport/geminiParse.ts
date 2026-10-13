@@ -1,0 +1,174 @@
+// code/src/services/recipeImport/geminiParse.ts
+import { timedFetch } from './request'
+import {
+  IMPORT_UNITS,
+  ImportError,
+  type FetchedPage,
+  type ImportUnit,
+  type ParsedIngredient,
+  type ParsedRecipe,
+} from './types'
+
+// Cheapest current Flash-Lite tier. Confirmed in the Task 1 spike.
+export const GEMINI_MODEL = 'gemini-2.5-flash-lite'
+const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models'
+const TIMEOUT_MS = 30_000
+
+const RESPONSE_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    name: { type: 'STRING' },
+    servings: { type: 'NUMBER', nullable: true },
+    ingredients: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          name: { type: 'STRING' },
+          quantity: { type: 'NUMBER', nullable: true },
+          unit: { type: 'STRING', enum: [...IMPORT_UNITS], nullable: true },
+        },
+        required: ['name', 'quantity', 'unit'],
+      },
+    },
+    steps: { type: 'ARRAY', items: { type: 'STRING' } },
+  },
+  required: ['name', 'servings', 'ingredients', 'steps'],
+}
+
+interface CallOptions {
+  signal?: AbortSignal
+  fetchImpl?: typeof fetch
+}
+
+export function buildPrompt(page: FetchedPage): string {
+  const kind = page.source === 'jsonld' ? 'schema.org Recipe JSON-LD' : 'page text'
+  return [
+    `Extract the recipe from this ${kind}.`,
+    'Rules:',
+    "- Write the name, ingredient names and steps in the recipe's own language.",
+    '- ingredient name: singular base form only, no quantity, no preparation notes.',
+    '- unit: one of the allowed values, or null if the line has no unit.',
+    '- quantity: a number, or null if it is missing, a range (2-3) or vague (a pinch).',
+    '- steps: the method as short steps, in order.',
+    '- servings: a number, or null if not stated.',
+    '',
+    page.text,
+  ].join('\n')
+}
+
+export function buildGeminiRequest(prompt: string): object {
+  return {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0,
+      maxOutputTokens: 2048,
+      responseMimeType: 'application/json',
+      responseSchema: RESPONSE_SCHEMA,
+    },
+  }
+}
+
+export function extractGeminiText(json: unknown): string | null {
+  const text = (json as { candidates?: { content?: { parts?: { text?: unknown }[] } }[] })?.candidates?.[0]
+    ?.content?.parts?.[0]?.text
+  return typeof text === 'string' ? text : null
+}
+
+function isUnit(value: unknown): value is ImportUnit {
+  return typeof value === 'string' && (IMPORT_UNITS as readonly string[]).includes(value)
+}
+
+export function toParsedRecipe(raw: unknown): ParsedRecipe | null {
+  if (typeof raw !== 'object' || raw === null) return null
+  const r = raw as Record<string, unknown>
+  if (typeof r.name !== 'string' || !Array.isArray(r.ingredients) || !Array.isArray(r.steps)) return null
+
+  const ingredients: ParsedIngredient[] = []
+  for (const item of r.ingredients) {
+    if (typeof item !== 'object' || item === null) continue
+    const i = item as Record<string, unknown>
+    if (typeof i.name !== 'string' || i.name.trim() === '') continue
+    ingredients.push({
+      name: i.name.trim(),
+      quantity: typeof i.quantity === 'number' && Number.isFinite(i.quantity) ? i.quantity : null,
+      unit: isUnit(i.unit) ? i.unit : null,
+    })
+  }
+
+  const steps = r.steps.filter((s): s is string => typeof s === 'string' && s.trim() !== '').map((s) => s.trim())
+  const servings = typeof r.servings === 'number' && Number.isFinite(r.servings) && r.servings > 0 ? r.servings : null
+
+  return { name: r.name.trim(), servings, ingredients, steps }
+}
+
+async function errorMessage(res: Response): Promise<string> {
+  try {
+    const body = (await res.json()) as { error?: { message?: unknown } }
+    return String(body?.error?.message ?? '')
+  } catch {
+    return ''
+  }
+}
+
+async function callGemini(key: string, body: object, opts: CallOptions): Promise<unknown> {
+  const res = await timedFetch(
+    opts.fetchImpl ?? fetch,
+    `${ENDPOINT}/${GEMINI_MODEL}:generateContent`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify(body),
+    },
+    TIMEOUT_MS,
+    opts.signal,
+  )
+  if (res.status === 429) throw new ImportError('rate_limited')
+  if (res.status === 401 || res.status === 403) throw new ImportError('key_rejected')
+  if (!res.ok) {
+    if (res.status === 400 && /api key/i.test(await errorMessage(res))) throw new ImportError('key_rejected')
+    throw new ImportError('gemini_error')
+  }
+  try {
+    return await res.json()
+  } catch {
+    throw new ImportError('gemini_error')
+  }
+}
+
+export async function parseRecipeWithGemini(
+  page: FetchedPage,
+  key: string,
+  opts: CallOptions = {},
+): Promise<ParsedRecipe> {
+  const body = buildGeminiRequest(buildPrompt(page))
+
+  // One automatic retry when the reply is not valid JSON of the expected shape.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const json = await callGemini(key, body, opts)
+    const text = extractGeminiText(json)
+    let raw: unknown = null
+    if (text) {
+      try {
+        raw = JSON.parse(text)
+      } catch {
+        raw = null
+      }
+    }
+    const parsed = toParsedRecipe(raw)
+    if (parsed) {
+      if (parsed.ingredients.length === 0 && parsed.steps.length === 0) throw new ImportError('no_recipe')
+      return parsed
+    }
+  }
+  throw new ImportError('no_recipe')
+}
+
+/** One minimal call that costs a few tokens. Throws ImportError when the key does not work. */
+export async function testGeminiKey(key: string, opts: CallOptions = {}): Promise<void> {
+  await callGemini(
+    key,
+    { contents: [{ parts: [{ text: 'ok' }] }], generationConfig: { maxOutputTokens: 1 } },
+    opts,
+  )
+}
