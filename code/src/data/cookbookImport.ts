@@ -4,7 +4,7 @@ import { tagService } from '../features/recipes/services/tagService'
 import seed from './cookbookSeed.json'
 
 const IMPORT_FLAG = 'slist_cookbook_imported'
-const IMPORT_VERSION = '3'
+const IMPORT_VERSION = '4'
 // Storage keys of the removed demo seed (and anything built on it); cleared when the import runs.
 const RESET_KEYS = ['slist_ingredients_db', 'slist_recipes', 'slist_tags', 'slist_pantry', 'slist_meal_plan']
 
@@ -31,7 +31,29 @@ function emojiFor(name: string, category: string): string {
   const lower = name.toLowerCase()
   return NAME_EMOJI.find(([kw]) => lower.includes(kw))?.[1] ?? DEFAULT_EMOJI
 }
-const TAG_COLOR = '#8D6E63'
+const DEFAULT_TAG_COLOR = '#9E9E9E'
+const TAG_COLORS: Record<string, string> = {
+  // categories
+  Polievka: '#26A69A',
+  Dezert: '#F06292',
+  'Hlavné jedlo': '#5C6BC0',
+  Príloha: '#D4E157',
+  Snack: '#FFCA28',
+  Iné: '#BDBDBD',
+  // main ingredients
+  bravčové: '#E57373',
+  kuracie: '#FFB74D',
+  hovädzie: '#B71C1C',
+  zemiaky: '#C9A66B',
+  kapusta: '#66BB6A',
+  fazuľa: '#AD1457',
+  šošovica: '#9CCC65',
+  huby: '#8D6E63',
+  ryža: '#90A4AE',
+  paradajky: '#FF7043',
+  baklažán: '#5E35B1',
+  mušle: '#29B6F6',
+}
 
 export interface CookbookSeed {
   ingredients: { name: string; default_unit: string; category: string }[]
@@ -40,6 +62,7 @@ export interface CookbookSeed {
     category: string
     servings: number
     notes: string
+    mainTag: string | null
     ingredients: { ingredient: string; quantity: number }[]
   }[]
 }
@@ -58,11 +81,12 @@ export function importCookbook(data: CookbookSeed): void {
   const existingNames = new Set(recipeService.getAll().map((r) => r.name))
   for (const r of data.recipes) {
     if (existingNames.has(r.name)) continue
-    let tagIds: string[] = []
-    if (r.category) {
-      tagIdByName[r.category] ??= tagService.create(r.category, TAG_COLOR).id
-      tagIds = [tagIdByName[r.category]]
-    }
+    const tagIds = [r.category, r.mainTag]
+      .filter((name): name is string => !!name)
+      .map((name) => {
+        tagIdByName[name] ??= tagService.create(name, TAG_COLORS[name] ?? DEFAULT_TAG_COLOR).id
+        return tagIdByName[name]
+      })
     recipeService.create({
       emoji: emojiFor(r.name, r.category),
       name: r.name,

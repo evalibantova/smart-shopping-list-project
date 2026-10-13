@@ -17,7 +17,7 @@ The generator is `code/scripts/cookbook-import/` (`sh run.sh`, see its README); 
 
 - Guarded by the `slist_cookbook_imported` flag. If it differs from `IMPORT_VERSION`, the import **wipes** ingredients, recipes, tags, pantry and meal plan from `localStorage`, then imports. Bump `IMPORT_VERSION` to force a reload of the seed in every browser (this also discards user-created data).
 - Recipes are linked to ingredients by name. An unknown ingredient name throws.
-- Each recipe gets a tag named after its category, an emoji from the category (or from keywords in the name when the category has none, else 🍴), and `notes` (Markdown: numbered method steps, or the description when a recipe has no steps, then a `Zdroj: [host](url)` link; built by `notes.cjs`). Notes render through `components/shared/NotesMarkdown.tsx` (Markdown + GFM autolinks + sanitized inline HTML; links open in a new tab).
+- Each recipe gets a tag named after its category, a main-ingredient tag where one applies (`tags.cjs`; none for desserts; colors in `TAG_COLORS` in `cookbookImport.ts`), an emoji from the category (or from keywords in the name when the category has none, else 🍴), and `notes` (Markdown: numbered method steps, or the description when a recipe has no steps, then a `Zdroj: [host](url)` link; built by `notes.cjs`). Notes render through `components/shared/NotesMarkdown.tsx` (Markdown + GFM autolinks + sanitized inline HTML; links open in a new tab).
 - The pantry and meal plan start empty.
 
 ## Not imported
