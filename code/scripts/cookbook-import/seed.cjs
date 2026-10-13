@@ -19,6 +19,7 @@ const SHORT={
  'SUPER BRYNDZOVE PIROHY OD MOJEJ MAMICKY':'Bryndzové pirohy',
  'Taštičky z lístkového cesta plnené kyslou kapustou+salámovo-syrové+ovocné taštičky':'Taštičky z lístkového cesta s kapustou',
  'TIRAMISU z Italie (bez vajec)':'Tiramisu bez vajec',
+ 'Geniálne palacinky 3:2:1':'Palacinky',
  'Kyslá zemiaková polievka s klobásou a vajcom':'Kyslá zemiaková polievka s klobásou',
 };
 const cleanTitle=t=>{
