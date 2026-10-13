@@ -1,6 +1,6 @@
 # Import recipe from URL — design
 
-Status: approved in brainstorming, awaiting spec review. Date: 2026-10-13.
+Status: approved in brainstorming, awaiting spec review. Date: 2026-10-13. Amended to add a Settings page for the API key.
 
 ## Goal
 
@@ -25,8 +25,12 @@ Paste a recipe page URL, get the recipe prefilled in the existing recipe form, r
    - `fetchPage.ts` calls the endpoint.
    - `geminiParse.ts` calls Gemini directly. The key goes in the `x-goog-api-key` header, never in a URL. The model is a Flash-Lite-tier model set in one constant (confirm the current name when planning). It uses a JSON response schema and returns `{ name, servings, ingredients: [{ name, quantity, unit }], steps[] }`.
    - `mapToRecipe.ts` is pure. It matches names to `ingredients_db` and converts units into each ingredient's `default_unit` (g, ml, kg, l, pcs, cloves, tbsp, tsp). It leaves a row unbound, or its quantity blank and flagged, when the name does not match or the units cannot be converted.
-3. **Key storage:** a `geminiKey` entry in `localStorage`, set from a field in the import dialog (masked, with a clear button and a tip to restrict the key by HTTP referrer and set a low quota in AI Studio).
-4. **UI:** an **Import from URL** button beside Add recipe in `features/recipes/index.tsx`. It opens a small dialog (URL field, status line, abort). On success it opens `AddEditRecipeModal` prefilled.
+3. **Settings page** (new, `features/settings/`, route `/settings`). This is the one place the Gemini key is entered and managed.
+   - A "Gemini API key" field (masked, show/hide toggle), a Save button, and a Clear button. The key is stored in `localStorage` as `geminiKey`, via a small `settingsService` that follows the existing service pattern.
+   - Help text: how to get a key in AI Studio, and a tip to restrict it by HTTP referrer and set a low quota.
+   - Optional **Test key** button: one minimal Gemini call that reports "key works" or the error. Costs a few tokens.
+   - Navigation: a gear-icon **Settings** link pinned at the bottom of the desktop sidebar. On mobile it is a sixth item in the bottom bar. Settings is deliberately not one of the five main workflow pages. `docs/FUNCTIONALITY.md` and `docs/DESIGN.md` get a short Settings section.
+4. **UI:** an **Import from URL** button beside Add recipe in `features/recipes/index.tsx`. It opens a small dialog (URL field, status line, abort). It reads the key from `settingsService` and has no key field of its own. If no key is saved, the dialog shows "Add your Gemini key in Settings" with a link to `/settings`. On success it opens `AddEditRecipeModal` prefilled.
 
 ## Flow
 
@@ -50,14 +54,14 @@ The notes are the steps as numbered Markdown plus a `Zdroj: [host](url)` link, a
 - Covered by the alpha's basic auth. A per-IP rate limit can come later.
 
 **Front end**
-- No key set: the dialog shows the key field first and Import stays disabled.
+- No key set: the import dialog shows "Add your Gemini key in Settings" with a link, and Import stays disabled.
 - Page fetch failure: a plain reason, and the URL stays in the field.
 - Gemini 429: "Gemini rate limit reached, try again in a minute." Gemini 400 or 403: "key rejected, check it."
 - Empty or implausible Gemini result (no ingredients and no steps): "couldn't find a recipe on that page". No empty form is opened.
 - Malformed Gemini output: one automatic retry, then the same message.
 - Abort button, plus timeouts for both the page fetch and the Gemini call.
 
-**Key handling:** header only, never in logs or error messages.
+**Key handling:** header only, never in logs or error messages. The Settings field is masked by default.
 
 **Known risks:** the key in `localStorage` is readable by XSS, so the `NotesMarkdown` sanitizer matters (imported text flows into notes). The blast radius is the user's own restricted key. On Google's free tier, prompts may be used to improve their products. If a future CSP is added, `connect-src` must allow `generativelanguage.googleapis.com`.
 
@@ -74,6 +78,7 @@ The notes are the steps as numbered Markdown plus a `Zdroj: [host](url)` link, a
 - `mapToRecipe` (Vitest): case, diacritics and plural matching; kg→g, l→ml, tbsp and tsp; impossible conversions (cups of flour into g) flagged; unmatched names unbound; quantities like "1/2", "1½", "2-3" parsed or flagged, never guessed.
 - `geminiParse` (mocked `fetch`): key in header, not URL; response schema sent; 429, 400 and 403 handling; malformed JSON retries once.
 - Review mode (component test): nothing saved before Save; Discard and close save nothing; Save with unbound rows shows the confirmation.
+- Settings (component and service tests): saving, clearing and masking the key; `settingsService` round-trips through `localStorage`; Test key reports success and failure; the import dialog is disabled without a key.
 - Endpoint (PHPUnit; adds a small `composer.json`, the repo's first PHP tests): JSON-LD extraction shapes; text fallback strips scripts and nav and respects the cap; SSRF cases (`127.0.0.1`, `10.x`, `169.254.x`, `localhost`, redirect to a private IP, non-http schemes).
 
 **Manual, once, early**
