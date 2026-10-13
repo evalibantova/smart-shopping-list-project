@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './components/nav/Sidebar'
 import BottomNav from './components/nav/BottomNav'
+import SettingsGear from './components/nav/SettingsGear'
 import { useStore } from './store'
 
 export default function AppShell() {
@@ -28,8 +29,10 @@ export default function AppShell() {
           flexDirection: 'column',
           minHeight: 0,
           overflowY: 'auto',
+          position: 'relative',
         }}
       >
+        <SettingsGear />
         <Outlet />
       </main>
       <BottomNav />

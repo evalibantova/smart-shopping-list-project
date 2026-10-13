@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { Settings } from 'lucide-react'
 import { navItems } from './navItems'
 
 export default function Sidebar() {
@@ -57,6 +58,24 @@ export default function Sidebar() {
           </li>
         ))}
       </ul>
+
+      <NavLink
+        to="/settings"
+        style={({ isActive }) => ({
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '10px 16px',
+          fontSize: '14px',
+          fontWeight: 500,
+          textDecoration: 'none',
+          color: isActive ? 'var(--nav-text-active)' : 'var(--nav-text-inactive)',
+          background: isActive ? 'var(--coral)' : 'transparent',
+        })}
+      >
+        <Settings size={20} strokeWidth={2} />
+        Settings
+      </NavLink>
 
       <div
         style={{

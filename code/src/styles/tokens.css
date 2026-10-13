@@ -540,3 +540,37 @@ select.field {
 @media (prefers-reduced-motion: reduce) {
   .rf-tag-panel { animation: none; }
 }
+
+/* Settings entry: gear in the page header on mobile (desktop uses the sidebar link) */
+.settings-gear {
+  display: none;
+}
+
+.settings-back {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .settings-gear {
+    position: absolute;
+    top: 14px;
+    inset-inline-end: max(12px, env(safe-area-inset-right, 0px));
+    z-index: 5;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    border-radius: var(--radius);
+  }
+
+  .settings-back {
+    display: inline-flex !important;
+  }
+
+  /* Keep header actions clear of the gear */
+  .page-header {
+    padding-inline-end: max(52px, calc(env(safe-area-inset-right, 0px) + 52px));
+  }
+}

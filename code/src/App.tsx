@@ -5,6 +5,7 @@ import MealPlannerPage from './features/meal-planner'
 import ShoppingListPage from './features/shopping-list'
 import PantryPage from './features/pantry'
 import CookNowPage from './features/cook-now'
+import SettingsPage from './features/settings'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/shopping-list" element={<ShoppingListPage />} />
         <Route path="/pantry" element={<PantryPage />} />
         <Route path="/cook-now" element={<CookNowPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/recipes" replace />} />
       </Route>
     </Routes>
