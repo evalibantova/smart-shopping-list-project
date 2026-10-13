@@ -35,6 +35,7 @@ data/
 │   ├── shopping-list-checked.png
 │   └── shopping-list.png
 └── docs/
+    ├── ALPHA-DEPLOY.md              # Step-by-step tracker for shipping the first alpha to hosting
     ├── BACKEND-STACK.md             # Backend tech stack decision (Slim v4 + MySQL)
     ├── DESIGN.md                    # Design system: colors, typography, component styles
     ├── COOKBOOK-IMPORT-WIRING.md    # The cookbook seed (cookbookSeed.json, source of truth) and how it is loaded

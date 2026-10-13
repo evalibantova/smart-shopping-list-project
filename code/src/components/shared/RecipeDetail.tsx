@@ -23,7 +23,7 @@ interface RecipeDetailProps {
   ingredientAvailability?: Record<string, boolean>
 }
 
-export function RecipeDetail({ recipeId, context: _context, onEdit, onDelete, onAddToWeek, onRemoveFromPlan, onCooked, isCooked, isCooking, ingredientAvailability }: RecipeDetailProps) {
+export function RecipeDetail({ recipeId, onEdit, onDelete, onAddToWeek, onRemoveFromPlan, onCooked, isCooked, isCooking, ingredientAvailability }: RecipeDetailProps) {
   const recipe = useStore((s) => s.recipes.find((r) => r.id === recipeId) ?? null)
   const tags = useStore((s) => s.tags)
   const [displayServings, setDisplayServings] = useState<number | null>(null)

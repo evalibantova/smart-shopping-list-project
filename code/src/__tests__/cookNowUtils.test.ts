@@ -69,7 +69,7 @@ describe('computeAvailability', () => {
     expect(result.ingredientAvailability['ing-b']).toBe(true)
   })
 
-  it('all missing: pantry absent → tier=far, missingCount=n, all values false', () => {
+  it('all missing but within the 4-ingredient threshold → tier=almost, all values false', () => {
     const recipe = makeRecipe()
     const entry = makeEntry({ servings: 2 })
     // No pantry items at all
@@ -77,10 +77,22 @@ describe('computeAvailability', () => {
 
     const result = computeAvailability(recipe, entry, pantry)
 
-    expect(result.tier).toBe('far')
+    expect(result.tier).toBe('almost')
     expect(result.missingCount).toBe(2)
     expect(result.ingredientAvailability['ing-a']).toBe(false)
     expect(result.ingredientAvailability['ing-b']).toBe(false)
+  })
+
+  it('more than 4 missing → tier=far', () => {
+    const recipe = makeRecipe({
+      ingredients: ['a', 'b', 'c', 'd', 'e'].map((id) => ({ ingredientId: `ing-${id}`, quantity: 1 })),
+    })
+    const entry = makeEntry({ servings: 2 })
+
+    const result = computeAvailability(recipe, entry, [])
+
+    expect(result.tier).toBe('far')
+    expect(result.missingCount).toBe(5)
   })
 
   it('zero-servings guard: recipe.servings=0 → scale=1, comparisons still work', () => {
@@ -111,7 +123,7 @@ describe('computeAvailability', () => {
     const result = computeAvailability(recipe, entry, pantry)
 
     expect(result.ingredientAvailability['ing-z']).toBe(false)
-    expect(result.tier).toBe('far')
+    expect(result.tier).toBe('almost')
     expect(result.missingCount).toBe(1)
   })
 
