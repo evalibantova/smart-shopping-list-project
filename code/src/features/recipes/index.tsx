@@ -52,7 +52,11 @@ export default function RecipesPage() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filter recipes by search
-  const filtered = filterRecipes(recipes, tags, search)
+  const sorted = useMemo(
+    () => [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'sk', { sensitivity: 'base' })),
+    [recipes],
+  )
+  const filtered = filterRecipes(sorted, tags, search)
 
   const recipesWithAvail = useMemo(
     () => filtered.map((recipe) => ({ recipe, avail: computeAvailability(recipe, { servings: recipe.servings }, pantryItems) })),
