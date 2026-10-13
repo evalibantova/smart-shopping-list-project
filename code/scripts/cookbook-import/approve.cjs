@@ -34,7 +34,7 @@ fs.writeFileSync(P('recipe_ingredients.csv'),csv([head,...rows]));
 const rec=rd(P('recipes.csv'));const ci=rec[0].indexOf('ingredient_ids'),cc=rec[0].indexOf('ingredient_count'),cs=rec[0].indexOf('servings');
 const sv=Object.fromEntries([...rd(D('proposals_servings.csv')).slice(1).map(r=>[r[0],r[3]]),...rd(D('proposals_empty_recipes_servings.csv')).slice(1).map(r=>[r[0],r[2]])]);
 rec[0].push('servings_estimated','servings_text');
-const SERV_OVERRIDE={39:[8,'tart looks like ~8 slices'],53:[20,'1 tin 20×26 cm cut into squares']};
+const SERV_OVERRIDE={23:[6,'~2 L soup with sausage and smoked knee, ~350 ml per bowl'],39:[8,'tart looks like ~8 slices'],53:[20,'1 tin 20×26 cm cut into squares']};
 const toNum=t=>{const m=t.match(/\((\d+)\s*servings\)/i)||t.match(/\d+/);return m?+(m[1]||m[0]):''};
 for(const r of rec.slice(1)){
   const ids=[...new Set(rows.filter(x=>x[0]==r[0]).map(x=>+x[1]))].sort((a,b)=>a-b);r[ci]=ids.join(';');r[cc]=ids.length;
