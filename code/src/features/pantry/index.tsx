@@ -10,7 +10,7 @@ import { Toast } from '../../components/ui/Toast'
 import type { IngredientDbEntry } from '../../types/ingredients'
 
 export function stockBarColor(ratio: number): string {
-  if (ratio > 0.5) return 'var(--coral)'
+  if (ratio > 0.5) return 'var(--green)'
   if (ratio >= 0.2) return 'var(--amber)'
   return 'var(--red)'
 }

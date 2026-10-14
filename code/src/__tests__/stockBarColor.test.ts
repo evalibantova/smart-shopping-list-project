@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { stockBarColor } from '../features/pantry/index'
 
 describe('stockBarColor', () => {
-  it('ratio > 0.5 returns coral', () => {
-    expect(stockBarColor(0.75)).toBe('var(--coral)')
+  it('ratio > 0.5 returns green', () => {
+    expect(stockBarColor(0.75)).toBe('var(--green)')
   })
 
   it('ratio 0.2–0.5 returns amber', () => {

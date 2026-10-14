@@ -34,6 +34,7 @@ Defined as CSS custom properties on `:root`:
 | `--coral-border` | `rgba(240,112,69,0.3)` | Coral-tinted borders (editing state) |
 | `--amber` | `#f5a623` | Warning / partial state |
 | `--amber-pale` | `rgba(245,166,35,0.12)` | Amber tinted backgrounds |
+| `--green` | `#6ab04c` | Healthy / full stock |
 | `--red` | `#e05c5c` | Destructive / missing ingredient |
 | `--red-pale` | `rgba(224,92,92,0.10)` | Red tinted backgrounds |
 | `--border` | `rgba(0,0,0,0.07)` | Subtle dividers (use sparingly) |
@@ -238,7 +239,7 @@ Fixed `top: 14px; right: 18px`. 16 × 16 px spinning ring — `border: 2px solid
 `background: --surface; box-shadow: --shadow-sm`
 
 ### Pantry item (`.pantry-item`)
-White card with shadow-sm. Contains: name, quantity+unit, 52 px stock bar (coral/amber/red for hi/mid/lo). Click-to-edit inline — editing state uses `--surface2` background and `--coral-border` left accent.
+White card with shadow-sm. Contains: name, quantity+unit, 52 px stock bar (green/amber/red for hi/mid/lo). Click-to-edit inline — editing state uses `--surface2` background and `--coral-border` left accent.
 
 ### Meal slot item (`.slot-item`)
 Small card inside the calendar grid:
