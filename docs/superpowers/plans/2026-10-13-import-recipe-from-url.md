@@ -16,11 +16,11 @@
 - The Gemini model is one constant, `GEMINI_MODEL`, in `code/src/services/recipeImport/geminiParse.ts`.
 - `ingredients_db` is never sent to Gemini. Name matching and unit conversion happen locally.
 - Nothing is written to the store or `localStorage` until the user presses Save in review mode.
-- Recipe quantities are always in the ingredient's `default_unit`. Valid units: `g`, `ml`, `kg`, `l`, `pcs`, `cloves`, `tbsp`, `tsp`.
+- Recipe quantities are always in the ingredient's `default_unit`. Valid units: `g`, `ml`, `kg`, `l`, `pcs`, `cloves`, `tbsp`, `tsp`. The parse-side unit list (`IMPORT_UNITS` in Task 3) additionally contains `cup`, which `mapToRecipe` converts into the default units, so `cup` is intentionally not in the stored-unit list.
 - Endpoint rules: `http` and `https` only, ports 80 and 443 only, reject private, loopback and link-local IPs (re-checked after every redirect, at most 3), 10 s timeout, 2 MB cap, HTML content types only. Error codes: `bad_url`, `blocked_host`, `fetch_failed`, `too_large`, `no_content`.
 - Text fallback is capped at 6000 characters. JSON-LD is sent compacted (name, yield, ingredients, flattened steps only).
 - PHP must run on 8.1 in production. No Composer anywhere: the endpoint uses plain `require_once`, and PHPUnit runs from a single `phpunit.phar` (gitignored). `phpunit.phar`, `phpunit.xml` and `api-tests/` sit outside `public/`, so the manual FTP upload of `dist/` never includes them.
-- Settings entry: gear link pinned at the bottom of the desktop sidebar; on mobile a gear in the page header (not a sixth bottom-bar item).
+- Settings entry: gear link pinned at the bottom of the desktop sidebar; on mobile a gear at the LEFT of the page header, just before the title (not a sixth bottom-bar item; user decision during execution).
 - Do not edit `design-v1/` or `design-v2/`.
 - Commands run from `/data/code` unless stated. Tests: `npx vitest run <file>`. Lint: `npm run lint`. Types: `npx tsc -b`.
 - Commit style follows the repo: `feat(scope): …`, `test(scope): …`, `docs: …`. Never push, and never `git add -A` (the working tree has unrelated changes: `.claude/settings.local.json`, `_bmad/`).
@@ -351,6 +351,8 @@ async function codeOf(p: Promise<unknown>): Promise<string> {
 // A fetch that only settles when its signal aborts
 const hangingFetch = ((_url: string, init: RequestInit) =>
   new Promise((_resolve, reject) => {
+    // Like real fetch, reject at once when the signal is already aborted
+    if (init.signal!.aborted) reject(new DOMException('aborted', 'AbortError'))
     init.signal!.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
   })) as unknown as typeof fetch
 
@@ -634,8 +636,10 @@ import {
   type ParsedRecipe,
 } from './types'
 
-// Cheapest current Flash-Lite tier. Confirmed in the Task 1 spike.
-export const GEMINI_MODEL = 'gemini-2.5-flash-lite'
+// Cheapest current Flash-Lite tier that accepts new users. gemini-2.5-flash-lite now returns 404
+// ("no longer available to new users"). gemini-3.1-flash-lite is listed as cheaper on Google's pricing page.
+// The request shape (generateContent) is still to be confirmed with this model by a live call.
+export const GEMINI_MODEL = 'gemini-3.5-flash-lite'
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models'
 const TIMEOUT_MS = 30_000
 
