@@ -12,7 +12,7 @@
 | CORS | `tuupola/cors-middleware` | Dev only (Vite ↔ API on different ports); same-origin in production |
 | Migrations | Phinx (dev-only) | Run locally → generates numbered SQL → applied via phpMyAdmin on server |
 | Seed data | Phinx seeder | 76 canonical ingredients pre-loaded on first deploy |
-| Testing | PHPUnit v11 | Unit tests for aggregation logic; SQLite in-memory for DB tests |
+| Testing | PHPUnit v11 (the import endpoint's tests use PHPUnit 10 from a phar, see below) | Unit tests for aggregation logic; SQLite in-memory for DB tests |
 
 ## Key constraints driving these decisions
 
