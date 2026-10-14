@@ -103,10 +103,21 @@ export function hostOf(url: string): string {
   }
 }
 
+/** The link target: the parsed (already percent-encoded) href, with parentheses encoded so they cannot end the link. */
+function linkTarget(sourceUrl: string): string | null {
+  try {
+    return new URL(sourceUrl).href.replace(/\(/g, '%28').replace(/\)/g, '%29')
+  } catch {
+    return null
+  }
+}
+
 export function buildNotes(steps: string[], sourceUrl: string): string {
-  const method = steps.map((s, i) => `${i + 1}. ${s.trim()}`).join('\n')
+  // Gemini sometimes numbers the steps itself; strip that so notes never read "1. 1. Mix"
+  const method = steps.map((s, i) => `${i + 1}. ${s.replace(/^\s*\d+\s*[.)]\s*/, '').trim()}`).join('\n')
   const host = hostOf(sourceUrl)
-  const source = host ? `Zdroj: [${host}](${sourceUrl})` : ''
+  const target = linkTarget(sourceUrl)
+  const source = host && target ? `Zdroj: [${host}](${target})` : ''
   return [method, source].filter(Boolean).join('\n\n')
 }
 

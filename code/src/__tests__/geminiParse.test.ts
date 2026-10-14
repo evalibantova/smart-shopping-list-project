@@ -60,10 +60,24 @@ describe('parseRecipeWithGemini', () => {
     [429, 'rate_limited'],
     [403, 'key_rejected'],
     [401, 'key_rejected'],
+    [404, 'model_unavailable'],
     [500, 'gemini_error'],
   ])('maps HTTP %i to %s', async (status, code) => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: { message: 'x' } }, status))
     expect(await codeOf(parseRecipeWithGemini(PAGE, KEY, { fetchImpl }))).toBe(code)
+  })
+
+  it('uses a static model_unavailable message that never contains the key', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: { message: KEY } }, 404))
+    let caught: unknown
+    try {
+      await parseRecipeWithGemini(PAGE, KEY, { fetchImpl })
+    } catch (e) {
+      caught = e
+    }
+    expect((caught as ImportError).code).toBe('model_unavailable')
+    expect((caught as Error).message).toContain('GEMINI_MODEL')
+    expect((caught as Error).message).not.toContain(KEY)
   })
 
   it('maps a 400 about the API key to key_rejected', async () => {
@@ -151,6 +165,10 @@ describe('buildPrompt and buildGeminiRequest', () => {
     expect(prompt).toContain('page text')
     expect(prompt.endsWith('PAGE BODY')).toBe(true)
     expect(buildPrompt(PAGE)).toContain('JSON-LD')
+  })
+
+  it('tells the model to null out quantities whose unit is not allowed', () => {
+    expect(buildPrompt(PAGE)).toContain('not in the allowed list')
   })
 
   it('uses temperature 0 and a bounded output', () => {

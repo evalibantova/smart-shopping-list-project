@@ -161,4 +161,20 @@ describe('mapToRecipe — servings, notes and host', () => {
     expect(buildNotes([], URL)).toBe('Zdroj: [example.com](https://www.example.com/recipes/test)')
     expect(buildNotes(['Mix'], 'not a url')).toBe('1. Mix')
   })
+
+  it('builds a single well-formed link when the URL has parentheses and spaces', () => {
+    expect(buildNotes([], 'https://example.com/a_(b) c')).toBe(
+      'Zdroj: [example.com](https://example.com/a_%28b%29%20c)',
+    )
+    expect(buildNotes([], 'https://example.com/a_(b)')).toBe('Zdroj: [example.com](https://example.com/a_%28b%29)')
+  })
+
+  it('cannot inject a second line through an encoded or raw newline in the URL', () => {
+    expect(buildNotes([], 'https://example.com/a%0A%0Ainjected').split('\n')).toHaveLength(1)
+    expect(buildNotes([], 'https://example.com/a\n\ninjected').split('\n')).toHaveLength(1)
+  })
+
+  it('renumbers steps that Gemini already numbered', () => {
+    expect(buildNotes(['1. Mix', '2) Bake'], 'not a url')).toBe('1. Mix\n2. Bake')
+  })
 })

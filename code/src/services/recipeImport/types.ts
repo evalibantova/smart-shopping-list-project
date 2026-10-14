@@ -30,6 +30,7 @@ export type ImportErrorCode =
   | 'key_rejected'
   | 'rate_limited'
   | 'gemini_error'
+  | 'model_unavailable'
   | 'no_recipe'
   | 'network'
   | 'timeout'
@@ -46,6 +47,7 @@ export const IMPORT_ERROR_MESSAGES: Record<ImportErrorCode, string> = {
   key_rejected: 'Gemini rejected the key. Check it in Settings.',
   rate_limited: 'Gemini rate limit reached, try again in a minute.',
   gemini_error: 'Gemini returned an error. Try again later.',
+  model_unavailable: "This Gemini model is not available any more. The app's GEMINI_MODEL needs updating.",
   no_recipe: "Couldn't find a recipe on that page.",
   network: "Couldn't reach the server. Check your connection.",
   timeout: 'That took too long. Try again.',

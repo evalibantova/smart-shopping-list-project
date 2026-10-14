@@ -52,6 +52,7 @@ export function buildPrompt(page: FetchedPage): string {
     '- ingredient name: singular base form only, no quantity, no preparation notes.',
     '- unit: one of the allowed values, or null if the line has no unit.',
     '- quantity: a number, or null if it is missing, a range (2-3) or vague (a pinch).',
+    '- If a quantity\'s unit is not in the allowed list (for example oz or lb), set quantity to null and unit to null.',
     '- steps: the method as short steps, in order.',
     '- servings: a number, or null if not stated.',
     '',
@@ -127,6 +128,7 @@ async function callGemini(key: string, body: object, opts: CallOptions): Promise
   )
   if (res.status === 429) throw new ImportError('rate_limited')
   if (res.status === 401 || res.status === 403) throw new ImportError('key_rejected')
+  if (res.status === 404) throw new ImportError('model_unavailable')
   if (!res.ok) {
     if (res.status === 400 && /api key/i.test(await errorMessage(res))) throw new ImportError('key_rejected')
     throw new ImportError('gemini_error')
