@@ -180,7 +180,8 @@ describe('buildPrompt and buildGeminiRequest', () => {
   it('uses temperature 0 and a bounded output', () => {
     const req = buildGeminiRequest('hi') as { generationConfig: { temperature: number; maxOutputTokens: number } }
     expect(req.generationConfig.temperature).toBe(0)
-    expect(req.generationConfig.maxOutputTokens).toBeLessThanOrEqual(2048)
+    expect(req.generationConfig.maxOutputTokens).toBeLessThanOrEqual(4096)
+    expect(req.generationConfig.maxOutputTokens).toBeGreaterThanOrEqual(4096)
   })
 })
 

@@ -84,6 +84,11 @@ describe('buildResolveRequest', () => {
     expect(req.generationConfig.responseMimeType).toBe('application/json')
     expect(req.generationConfig.responseSchema.type).toBe('ARRAY')
   })
+
+  it('allows a reply big enough for a long recipe', () => {
+    const req = buildResolveRequest('p') as { generationConfig: { maxOutputTokens: number } }
+    expect(req.generationConfig.maxOutputTokens).toBeGreaterThanOrEqual(4096)
+  })
 })
 
 describe('toResolutions', () => {
