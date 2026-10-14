@@ -130,6 +130,8 @@ Below 768 px, the sidebar collapses to a **fixed bottom bar** (60 px tall, `back
 - Font: 10 px, weight 600. Inactive color: `rgba(255,255,255,0.38)`. Active color: `var(--coral)`.
 - Icon size: 20 × 20 px. Gap between icon and label: 3 px.
 
+The Settings entry is not in the bottom bar. On mobile a gear (`.settings-gear`, 32 × 32 px, absolutely positioned at the start of the page, `top: 14px`) sits at the left of the page header, just before the title. Pages that render the gear get extra start padding on their header through the sibling selector `.settings-gear ~ .page .page-header`. The Settings page has no gear; it shows a back chevron (`.settings-back`) instead. Below 768 px every `.page-header` wraps (`flex-wrap: wrap`, gap 4 px), so crowded headers (Meal Planner, Cook Now) drop their controls under the title. On desktop, Settings is a link pinned at the bottom of the sidebar.
+
 ---
 
 ## 6. Component Library
@@ -213,6 +215,8 @@ Every dialog uses the shared `Modal` component (`components/ui/Modal.tsx`) — d
 - Footer (when present): right-aligned actions, `padding: 12px 16px`, separated from the body by a 1 px shadow line (`0 -1px 0 --border`) instead of a border. Confirm = `coral` button, cancel = `ghost`.
 - Animation: `slideUp` (fade + translateY 16 px → 0)
 - Mobile: full-width, bottom sheet (`border-radius: 16px 16px 0 0`), backdrop aligns to `flex-end`
+
+**Import review banner** (`.rf-import-banner`): amber-pale block at the top of the recipe form in import mode. Flagged ingredient rows use `.rf-flagged` (amber quantity field); unmatched rows reuse `.rf-unlinked`; `.rf-ing-hint` shows the original line from the page.
 
 ### Toasts (`.toast`)
 

@@ -22,12 +22,42 @@ Legend: [x] done, [~] partly done, [ ] not started
 | 6 | Upload `dist/` contents (including hidden `.htaccess`) | [ ] | |
 | 7 | Smoke test on live site | [ ] | |
 | 8 | Record release: tag `alpha-0.1`, update CONTEXT.md, logbook.md | [ ] | |
+| 9 | Host PHP check for Import from URL: upload `host-check.php`, read it, delete it | [ ] | See "Import from URL (PHP endpoint)" below. Expect PHP >= 8.1, curl/dom/mbstring/iconv loaded, outbound https 200. |
+| 10 | First run of `npm run test:php` on a machine with PHP | [ ] | The PHP endpoint code has not yet been run in CI or on the host. Fetch `phpunit.phar` first (see `BACKEND-STACK.md`). |
+| 11 | Post-upload checklist (below), repeated after every rebuild/upload | [ ] | |
 
 ## Access protection (HTTP Basic Auth)
 - `code/public/.htaccess` carries the auth block (realm "Chilli Muffin", `AuthUserFile /var/www25/p66385/chillimuffin.com/sub/shopping/.htpasswd`). It is committed and ships in `dist/`.
 - `.htpasswd` is generated locally and never committed. It currently lives in `deploy/` (gitignored); the plan is to keep it in `code/dist/` (also gitignored) once the move is done. User `chilli`, simple password given to Eva in chat. Change it before sharing wider: `openssl passwd -apr1 'newpass'`.
 - `npm run build` wipes `dist/`, so the `.htpasswd` must be re-created after every rebuild: `printf 'chilli:%s\n' "$(openssl passwd -apr1 'PASSWORD')" > code/dist/.htpasswd`. It only needs re-uploading if it changed, but the FTP client should not delete it.
 - If `.htpasswd` is missing on the server, Apache returns 500 for every request.
+
+## Import from URL (PHP endpoint)
+- `dist/api/` (from `code/public/api/`) is uploaded with the rest of `dist/` by the same manual FTP upload. The host needs PHP 8.1+ with curl, dom, mbstring and iconv, and outbound HTTPS from PHP. Without PHP the app works as before; only Import from URL fails with "Couldn't reach that page".
+- Dotfiles: FTP clients often skip them. `dist/api/src/.htaccess` must be uploaded (it blocks direct access to the PHP classes), and `dist/.htaccess` as before.
+
+### Host PHP check (once, before the first upload of `dist/api/`)
+Create `host-check.php` locally with this content and upload it to the site root (next to `index.html`) with the FTP client:
+
+```php
+<?php
+echo 'PHP ' . PHP_VERSION . "\n";
+foreach (['curl', 'dom', 'mbstring', 'iconv'] as $ext) {
+    echo $ext . ': ' . (extension_loaded($ext) ? 'yes' : 'NO') . "\n";
+}
+$c = curl_init('https://example.com/');
+curl_setopt_array($c, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10]);
+curl_exec($c);
+echo 'outbound https: ' . curl_getinfo($c, CURLINFO_RESPONSE_CODE) . "\n";
+```
+
+Open `https://shopping.chillimuffin.com/host-check.php` (log in with the basic auth), read the output, then **delete `host-check.php` from the host immediately**. Expected: PHP 8.1 or newer, all four extensions `yes`, `outbound https: 200`. Anything else: the endpoint cannot run on this host as designed.
+
+### Post-upload checklist (repeat after every rebuild and upload)
+The `.htpasswd` re-creation (see Access protection above) belongs with this checklist: `npm run build` wipes `dist/`.
+1. Open `https://shopping.chillimuffin.com/api/fetch-recipe.php?url=ftp://x` (log in with the basic auth). Expected: `{"error":"bad_url"}`. This proves PHP runs and the endpoint arrived.
+2. Open `https://shopping.chillimuffin.com/api/src/UrlGuard.php`. Expected: 403. This proves `dist/api/src/.htaccess` arrived.
+3. Open `https://shopping.chillimuffin.com/api/fetch-recipe.php?url=https://example.com/`. Expected: `{"error":"no_content"}` or a JSON with `source`. This proves outbound fetching works from the host.
 
 ## Uncommitted changes (to commit together)
 `code/package.json`, `code/package-lock.json`, `code/src/__tests__/cookNowUtils.test.ts`, `code/src/components/shared/RecipeDetail.tsx`, `docs/STACK.md`, `docs/ALPHA-DEPLOY.md`, `AGENTS.md`.

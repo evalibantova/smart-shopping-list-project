@@ -22,6 +22,8 @@ data/
 ├── shopping-list.sublime-project    # Sublime Text project config
 ├── shopping-list.sublime-workspace  # Sublime Text workspace state
 ├── code/                            # Production source code (not yet started — placeholder)
+├── code/public/api/                 # PHP endpoint for Import from URL (fetch-recipe.php + src/)
+├── code/api-tests/                  # PHPUnit tests for the endpoint (dev-only)
 ├── design-v2/                       # Interactive HTML mockup of the Edit Recipe modal (ledger input style)
 │   └── edit-recipe-modal.html
 ├── design-v1/                       # Reference screenshots from the initial design pass
@@ -44,5 +46,6 @@ data/
     ├── COOKBOOK-IMPORT-WIRING.md    # The cookbook seed (cookbookSeed.json, source of truth) and how it is loaded
     ├── FUNCTIONALITY.md             # Feature spec: recipes, meal planner, shopping list, pantry
     ├── FUTURE-FEATURES.md           # Post-MVP feature backlog and AI chatbot architecture plan
-    └── STACK.md                     # Frontend tech stack decisions with rationale
+    ├── STACK.md                     # Frontend tech stack decisions with rationale
+    └── superpowers/                 # Specs and plans written with the superpowers workflow
 ```

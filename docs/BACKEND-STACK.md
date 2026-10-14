@@ -21,3 +21,11 @@
 - **Shopping list is not a backend endpoint** — live-computed client-side from meal plan + recipes + pantry. Server stays stateless on the most complex calculation.
 - **Phinx never runs on the server** — schema changes go through local Phinx → SQL file → phpMyAdmin. Phinx is `require-dev` only and excluded from the production `vendor/` upload.
 - **Path to JWT auth** — `tuupola/slim-jwt-auth` middleware drops in without restructuring routes when multi-user is introduced.
+
+## Recipe import endpoint (first server code)
+
+`code/public/api/fetch-recipe.php` is a standalone PHP file, not part of the Slim app. It ships inside `dist/` because it lives in `public/`. It needs PHP 8.1+ with the curl, dom, mbstring and iconv extensions on the host, and uses plain `require_once` (no Composer anywhere in the project). It holds no state and no secrets: the Gemini key stays in the user's browser. Safety rules: http(s) on ports 80 and 443 only, private and loopback IPs refused and re-checked on every redirect (the connection is pinned to the validated IP), 10 s timeout, 2 MB cap.
+
+Tests: `phpunit.xml`, `api-tests/` and the downloaded `phpunit.phar` (PHPUnit 10, gitignored) are dev-only and live outside `public/`, so they are never uploaded. Fetch the phar once with `curl -Lo phpunit.phar https://phar.phpunit.de/phpunit-10.phar` in `code/`, then run `npm run test:php` (which runs `php phpunit.phar`). Use `npm run api` plus `npm run dev` for local work.
+
+Status: the PHP code has not yet been run in CI or on the host. The first run of `npm run test:php` on a machine with PHP is still to do (tracked in `ALPHA-DEPLOY.md`).

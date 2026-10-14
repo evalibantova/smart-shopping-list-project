@@ -27,6 +27,8 @@ A fixed bottom bar replaces the sidebar. Each nav item shows an icon + small lab
 4. Shopping List
 5. Pantry
 
+**Settings** is not one of the five pages. On desktop it is a Settings link pinned at the bottom of the sidebar; on mobile it is a gear icon at the left of the page header, just before the page title.
+
 ---
 
 ## 1. Recipes
@@ -63,6 +65,14 @@ Opened for both creating and editing recipes. Fields:
 Validation on save: the name is required, the emoji is capped at 2 characters (default 🍽️), servings is at least 1.
 
 Save creates/updates the recipe via the API.
+
+### Import from URL
+
+An **Import from URL** button sits beside **Add recipe** in the Recipes header (icon only on mobile). The user pastes a recipe page address. A small PHP endpoint (`api/fetch-recipe.php`) fetches the page and returns the schema.org Recipe JSON-LD, or the page's visible text when there is none. The browser then asks Gemini, with the user's own key, to extract name, servings, ingredients and steps. Ingredient names are matched to `ingredients_db` locally, and quantities are converted into each ingredient's `default_unit` where the units are compatible (g/kg, ml/l, tsp/tbsp/cup, same-kind counts).
+
+The result opens the recipe form in **review mode**: a banner "Imported from {host}. Check everything, then save." Nothing is saved until **Save recipe**. **Discard** (or closing) saves nothing. Rows whose name did not match an ingredient are amber and show the original line ("From page: 2 g saffron"). Rows whose quantity could not be converted are flagged. Saving with unmatched ingredients asks "Save without N unmatched ingredients?" instead of silently dropping them.
+
+Needs a Gemini key (see Settings). Errors are shown in the dialog: no key, bad or blocked address, page unreachable or too large, no recipe found, Gemini rate limit or rejected key.
 
 ### Add to Week Modal
 
@@ -253,3 +263,9 @@ All mutations update the local state immediately before the API call completes, 
 ### Empty states
 
 When a list has no items, a centered illustration (large emoji + description text) replaces the list. Examples: "Nothing needed — your pantry covers this week's meals" on the Shopping List.
+
+---
+
+## 8. Settings
+
+Route `/settings`. Holds the **Gemini API key** used by Import from URL: a masked field with show/hide, **Save**, **Test key** (one minimal Gemini call) and **Clear**. The key is stored unencrypted in the browser's `localStorage` (`slist_gemini_key`) and is sent only to Google, in the `x-goog-api-key` header. Help text recommends restricting the key by HTTP referrer and setting a low quota in Google AI Studio, and this is recommended for every key used here. The Gemini model is a single constant (`GEMINI_MODEL` in `code/src/services/recipeImport/geminiParse.ts`).
