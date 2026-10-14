@@ -63,3 +63,44 @@ export class ImportError extends Error {
     this.code = code
   }
 }
+
+// Units a stored ingredient can use (the same set ingredientsDbService accepts) and the shopping-list categories.
+export const INGREDIENT_UNITS = ['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp'] as const
+export type IngredientUnit = (typeof INGREDIENT_UNITS)[number]
+export const INGREDIENT_CATEGORIES = [
+  'Produce',
+  'Fish & Seafood',
+  'Meat',
+  'Dairy',
+  'Pantry & Dry Goods',
+  'Other',
+] as const
+
+/** An ingredient the model proposes to add to the database. Created only when the user saves the recipe. */
+export interface NewIngredientProposal {
+  name: string
+  default_unit: IngredientUnit
+  category: string
+}
+
+/** A database ingredient offered to the model as a possible match. */
+export interface ResolveCandidate {
+  id: string
+  name: string
+  default_unit: string
+}
+
+/** One ingredient row the local pass could not finish. `locked` rows are already matched and only need an estimate. */
+export interface ResolveItem {
+  index: number
+  line: string
+  candidates: ResolveCandidate[]
+  locked: boolean
+}
+
+export interface Resolution {
+  index: number
+  matchId: string | null
+  newIngredient: NewIngredientProposal | null
+  estimate: number | null
+}

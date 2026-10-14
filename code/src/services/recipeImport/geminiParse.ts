@@ -38,7 +38,7 @@ const RESPONSE_SCHEMA = {
   required: ['name', 'servings', 'ingredients', 'steps'],
 }
 
-interface CallOptions {
+export interface CallOptions {
   signal?: AbortSignal
   fetchImpl?: typeof fetch
 }
@@ -115,7 +115,7 @@ async function errorMessage(res: Response): Promise<string> {
   }
 }
 
-async function callGemini(key: string, body: object, opts: CallOptions): Promise<unknown> {
+export async function callGemini(key: string, body: object, opts: CallOptions): Promise<unknown> {
   const res = await timedFetch(
     opts.fetchImpl ?? fetch,
     `${ENDPOINT}/${GEMINI_MODEL}:generateContent`,
