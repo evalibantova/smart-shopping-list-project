@@ -80,7 +80,9 @@ export function applyResolutions(
     const ing = parsed.ingredients[index]
     if (!res || !ing) return row
     if (row.ingredientId !== null) {
-      return res.estimate !== null ? { ...row, quantity: round2(res.estimate), estimated: true, flagged: true } : row
+      return row.flagged && res.estimate !== null
+        ? { ...row, quantity: round2(res.estimate), estimated: true, flagged: true }
+        : row
     }
     return resolveUnmatched(row, ing, res, db)
   })

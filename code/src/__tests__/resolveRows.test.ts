@@ -121,6 +121,20 @@ describe('applyResolutions', () => {
     expect(out.rows[3]).toMatchObject({ ingredientId: 'sol', quantity: 0.5, estimated: true, flagged: true })
   })
 
+  it('ignores an estimate for a matched row that was converted and not asked about', () => {
+    const before = draft()
+    const out = applyResolutions(before, parsed, [res({ index: 1, estimate: 5 })], db)
+    expect(out.rows[1]).toEqual(before.rows[1])
+    expect(out.rows[1]).toMatchObject({ quantity: 1, flagged: false })
+    expect(out.rows[1].estimated).not.toBe(true)
+  })
+
+  it('leaves a locked row unchanged when the model gives no estimate', () => {
+    const before = draft()
+    const out = applyResolutions(before, parsed, [res({ index: 3, matchId: 'sol' })], db)
+    expect(out.rows[3]).toEqual(before.rows[3])
+  })
+
   it('flags a row with no usable amount at quantity 0', () => {
     const out = applyResolutions(draft(), parsed, [res({ index: 2, matchId: 'nudle' })], db)
     const noAmount = applyResolutions(
