@@ -13,6 +13,8 @@ import { IngredientAutocomplete } from '../../components/shared/IngredientAutoco
 import { IngredientDbEntry } from '../../types/ingredients'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import type { RecipeDraft } from '../../services/recipeImport/mapToRecipe'
+import type { NewIngredientProposal } from '../../services/recipeImport/types'
+import { fold } from '../../services/recipeImport/ingredientMatch'
 
 const TAG_COLORS = [
   '#f07045',
@@ -25,6 +27,8 @@ const TAG_COLORS = [
   '#1a1a1a',
 ]
 
+const NEW_TAG_COLOR = '#9E9E9E'
+
 interface IngredientRow {
   rowId: string
   ingredientId: string | null
@@ -35,6 +39,12 @@ interface IngredientRow {
   flagged?: boolean
   /** Import review: the original line from the page. */
   sourceText?: string
+  /** Import review: how the match was made. */
+  matchedBy?: 'local' | 'ai'
+  /** Import review: the quantity is a guess. */
+  estimated?: boolean
+  /** Import review: an ingredient to create on save when the row stays unbound. */
+  newIngredient?: NewIngredientProposal | null
 }
 
 interface AddEditRecipeModalProps {
@@ -55,7 +65,8 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
   const [emoji, setEmoji] = useState(recipe?.emoji ?? '')
   const [name, setName] = useState(recipe?.name ?? draft?.name ?? '')
   const [servings, setServings] = useState(recipe?.servings ?? draft?.servings ?? 2)
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(recipe?.tagIds ?? [])
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(recipe?.tagIds ?? draft?.tagIds ?? [])
+  const [pendingNewTags, setPendingNewTags] = useState<string[]>(draft?.newTags ?? [])
   const [notes, setNotes] = useState(recipe?.notes ?? draft?.notes ?? '')
   const [confirmingDrop, setConfirmingDrop] = useState(false)
 
@@ -112,7 +123,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     setRows((prev) =>
       prev.map((row, i) =>
         i === idx
-          ? { ...row, ingredientId: entry.id, ingredientName: entry.name, unit: entry.default_unit, flagged: false }
+          ? { ...row, ingredientId: entry.id, ingredientName: entry.name, unit: entry.default_unit, flagged: false, newIngredient: null, estimated: false }
           : row
       )
     )
@@ -122,7 +133,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     setRows((prev) =>
       prev.map((row, i) =>
         i === idx
-          ? { ...row, ingredientName: value, ingredientId: null, unit: '' }
+          ? { ...row, ingredientName: value, ingredientId: null, unit: '', newIngredient: null, estimated: false }
           : row
       )
     )
@@ -130,7 +141,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
 
   function handleQuantityChange(idx: number, value: number) {
     setRows((prev) =>
-      prev.map((row, i) => (i === idx ? { ...row, quantity: value, flagged: false } : row))
+      prev.map((row, i) => (i === idx ? { ...row, quantity: value, flagged: false, estimated: false } : row))
     )
   }
 
@@ -150,11 +161,14 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     setShowNewTag(false)
   }
 
-  const unboundCount = rows.filter((r) => r.ingredientName.trim() !== '' && r.ingredientId === null).length
-  const flaggedCount = rows.filter((r) => r.flagged && r.ingredientId !== null).length
+  const isNewRow = (r: IngredientRow) => r.ingredientId === null && !!r.newIngredient
+  const unboundCount = rows.filter((r) => r.ingredientName.trim() !== '' && r.ingredientId === null && !r.newIngredient).length
+  const newIngredientCount = rows.filter(isNewRow).length
+  const estimatedCount = rows.filter((r) => r.estimated && (r.ingredientId !== null || isNewRow(r))).length
+  const flaggedCount = rows.filter((r) => r.flagged && !r.estimated && (r.ingredientId !== null || isNewRow(r))).length
 
-  // A matched row whose quantity could not be converted would put a 0 on the shopping list
-  const zeroQtyCount = rows.filter((r) => r.ingredientId !== null && !(r.quantity > 0)).length
+  // A matched or new row whose quantity could not be converted would put a 0 on the shopping list
+  const zeroQtyCount = rows.filter((r) => (r.ingredientId !== null || isNewRow(r)) && !(r.quantity > 0)).length
   const gateCount = unboundCount + zeroQtyCount
 
   function handleSave(force: boolean) {
@@ -164,7 +178,25 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
       return
     }
 
-    const validIngredients = rows
+    // Nothing is created before this point: new ingredients and tags only exist once the user saves
+    const createdIdByName = new Map<string, string>()
+    const savedRows = rows.map((r) => {
+      if (r.ingredientId !== null || !r.newIngredient) return r
+      const key = fold(r.newIngredient.name)
+      let id = createdIdByName.get(key)
+      if (!id) {
+        id = ingredientsDbService.create(r.newIngredient.name, r.newIngredient.default_unit, r.newIngredient.category).id
+        createdIdByName.set(key, id)
+      }
+      return { ...r, ingredientId: id }
+    })
+    const createdTagIds = pendingNewTags.map((tagName) => {
+      const tag = tagService.create(tagName, NEW_TAG_COLOR)
+      addTag(tag)
+      return tag.id
+    })
+
+    const validIngredients = savedRows
       .filter((r) => r.ingredientId !== null)
       .map((r) => ({ ingredientId: r.ingredientId!, quantity: r.quantity }))
 
@@ -172,7 +204,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
       emoji: emoji.trim().slice(0, 2) || '🍽️',
       name: name.trim(),
       servings: Math.max(1, servings),
-      tagIds: selectedTagIds,
+      tagIds: [...selectedTagIds, ...createdTagIds],
       ingredients: validIngredients,
       notes: notes.trim(),
     }
@@ -239,6 +271,12 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
                 {flaggedCount} {plural(flaggedCount, 'quantity', 'quantities')} to check.
               </div>
             )}
+            {newIngredientCount > 0 && (
+              <div>{newIngredientCount} new {plural(newIngredientCount, 'ingredient', 'ingredients')} will be created.</div>
+            )}
+            {estimatedCount > 0 && (
+              <div>{estimatedCount} {plural(estimatedCount, 'quantity', 'quantities')} estimated.</div>
+            )}
           </div>
         )}
         {/* Emoji + name */}
@@ -282,12 +320,12 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
         <div>
           <span className="form-label">
             Tags
-            {selectedTags.length > 0 && (
-              <span className="form-label-count">({selectedTags.length})</span>
+            {selectedTags.length + pendingNewTags.length > 0 && (
+              <span className="form-label-count">({selectedTags.length + pendingNewTags.length})</span>
             )}
           </span>
           <div className="rf-tags">
-            {selectedTags.length === 0 ? (
+            {selectedTags.length === 0 && pendingNewTags.length === 0 ? (
               <span className="rf-empty">No tags selected</span>
             ) : (
               selectedTags.map((tag) => (
@@ -300,6 +338,15 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
                 />
               ))
             )}
+            {pendingNewTags.map((tagName) => (
+              <TagChip
+                key={`new-${tagName}`}
+                name={`${tagName} (new)`}
+                color={NEW_TAG_COLOR}
+                selected
+                onClick={() => setPendingNewTags((prev) => prev.filter((n) => n !== tagName))}
+              />
+            ))}
           </div>
           <button
             type="button"
@@ -391,8 +438,15 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
           </span>
           <div className="rf-ing-list">
             {rows.map((row, idx) => {
-              const unlinked = row.ingredientName.trim() !== '' && row.ingredientId === null
-              const flagged = row.flagged === true && row.ingredientId !== null
+              const newRow = isNewRow(row)
+              const unlinked = row.ingredientName.trim() !== '' && row.ingredientId === null && !newRow
+              const flagged = (row.flagged === true || row.estimated === true) && (row.ingredientId !== null || newRow)
+              const hintParts = [
+                newRow ? `New ingredient (${row.newIngredient!.default_unit})` : null,
+                row.matchedBy === 'ai' && row.ingredientId !== null ? 'Matched by AI' : null,
+                row.estimated ? '≈ estimated' : null,
+              ].filter((p): p is string => p !== null)
+              if (row.sourceText && (unlinked || flagged || hintParts.length > 0)) hintParts.push(`From page: ${row.sourceText}`)
               return (
                 <div
                   key={row.rowId}
@@ -405,9 +459,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
                       onSelect={(entry) => handleIngredientSelect(idx, entry)}
                       placeholder="Ingredient…"
                     />
-                    {row.sourceText && (unlinked || flagged) && (
-                      <div className="rf-ing-hint">From page: {row.sourceText}</div>
-                    )}
+                    {hintParts.length > 0 && <div className="rf-ing-hint">{hintParts.join(' · ')}</div>}
                   </div>
                   <div className="qty-unit">
                     <input
