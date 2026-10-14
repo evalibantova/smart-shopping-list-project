@@ -15,6 +15,7 @@ interface Props {
 const STAGE_LABEL: Record<ImportStage, string> = {
   fetching: 'Fetching page…',
   reading: 'Reading recipe…',
+  matching: 'Matching ingredients…',
 }
 
 export function ImportRecipeModal({ onImported, onClose }: Props) {
