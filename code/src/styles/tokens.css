@@ -613,14 +613,3 @@ select.field {
     display: inline;
   }
 }
-
-/* Text shown from tablet width up; icon-only below that to keep headers from overflowing */
-.hide-mobile {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .hide-mobile {
-    display: inline;
-  }
-}
