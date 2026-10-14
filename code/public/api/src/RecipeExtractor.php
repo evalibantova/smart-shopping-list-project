@@ -8,7 +8,7 @@ final class RecipeExtractor
 {
     public const TEXT_LIMIT = 6000;
 
-    private const NOISE = ['script', 'style', 'nav', 'header', 'footer', 'aside', 'noscript', 'form', 'svg', 'iframe', 'button', 'template'];
+    private const NOISE = ['script', 'style', 'nav', 'header', 'footer', 'aside', 'noscript', 'svg', 'iframe', 'button', 'template'];
 
     /**
      * Prefer the page's schema.org Recipe JSON-LD (compacted); otherwise return capped visible text.
@@ -135,6 +135,13 @@ final class RecipeExtractor
             foreach ($elements ? iterator_to_array($elements) : [] as $element) {
                 $element->parentNode?->removeChild($element);
             }
+        }
+
+        // textContent glues block elements together ("200 g flour2 eggs"): put a space after each one
+        $blocks = $xpath->query('//p | //div | //li | //ul | //ol | //br | //h1 | //h2 | //h3 | //h4 | //h5 | //h6'
+            . ' | //tr | //td | //th | //section | //article | //main | //table');
+        foreach ($blocks ? iterator_to_array($blocks) : [] as $block) {
+            $block->parentNode?->insertBefore($doc->createTextNode(' '), $block->nextSibling);
         }
 
         $root = $xpath->query('//main')->item(0)

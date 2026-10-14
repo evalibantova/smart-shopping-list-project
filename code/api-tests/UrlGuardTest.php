@@ -76,6 +76,23 @@ final class UrlGuardTest extends TestCase
         }
     }
 
+    public static function parserDifferentialUrls(): array
+    {
+        return [
+            'backslash userinfo to private' => ['http://8.8.8.8\\@127.0.0.1/'],
+            'private userinfo to public' => ['http://127.0.0.1\\@8.8.8.8/'],
+            'plain userinfo to private' => ['http://user@127.0.0.1/'],
+            'fragment hides public host' => ['http://127.0.0.1#@8.8.8.8/'],
+        ];
+    }
+
+    #[DataProvider('parserDifferentialUrls')]
+    public function testParserDifferentialUrlsAreRejectedEvenWithAPublicResolver(string $url): void
+    {
+        $this->expectException(FetchError::class);
+        UrlGuard::check($url, fn (string $host): array => ['93.184.216.34']);
+    }
+
     public function testAcceptsAPublicIpLiteral(): void
     {
         $target = UrlGuard::check('https://8.8.8.8/x');

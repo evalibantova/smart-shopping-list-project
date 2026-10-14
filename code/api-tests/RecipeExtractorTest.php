@@ -88,6 +88,18 @@ final class RecipeExtractorTest extends TestCase
         $this->assertSame('Boil water.', $result['text']);
     }
 
+    public function testTextFallbackSeparatesBlockElements(): void
+    {
+        $result = RecipeExtractor::extract('<html><body><main><ul><li>200 g flour</li><li>2 eggs</li></ul></main></body></html>');
+        $this->assertStringContainsString('200 g flour 2 eggs', $result['text']);
+    }
+
+    public function testTextFallbackReadsContentWrappedInAForm(): void
+    {
+        $result = RecipeExtractor::extract('<html><body><form><main>Boil water.</main></form></body></html>');
+        $this->assertSame('Boil water.', $result['text']);
+    }
+
     public function testTextFallbackIsCapped(): void
     {
         $result = RecipeExtractor::extract('<html><body><main>' . str_repeat('word ', 5000) . '</main></body></html>');
