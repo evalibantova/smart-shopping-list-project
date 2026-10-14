@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { ChevronLeft, Plus, Search } from 'lucide-react'
+import { ChevronLeft, Link2, Plus, Search } from 'lucide-react'
 import { useStore } from '../../store'
 import { recipeService } from './services/recipeService'
 import { Recipe, Tag } from '../../types/recipes'
@@ -12,6 +12,8 @@ import { IconButton } from '../../components/ui/IconButton'
 import { TagChip } from '../../components/ui/TagChip'
 import { computeAvailability } from '../cook-now/utils/cookNowUtils'
 import { searchMatches } from '../../utils/search'
+import { ImportRecipeModal } from './ImportRecipeModal'
+import type { RecipeDraft } from '../../services/recipeImport/mapToRecipe'
 
 export function filterRecipes(recipes: Recipe[], tags: Tag[], query: string): Recipe[] {
   return query.trim()
@@ -27,6 +29,8 @@ type ModalState =
   | { type: 'none' }
   | { type: 'add' }
   | { type: 'edit'; recipe: Recipe }
+  | { type: 'importUrl' }
+  | { type: 'import'; draft: RecipeDraft }
 
 export default function RecipesPage() {
   const recipes = useStore((s) => s.recipes)
@@ -108,15 +112,26 @@ export default function RecipesPage() {
       {/* Page header */}
       <div className="page-header">
         <h1>Recipes</h1>
-        <Button
-          intent="primary"
-          size="sm"
-          style={{ paddingInline: '1.25rem' }}
-          onClick={() => setModal({ type: 'add' })}
-        >
-          <Plus size={14} />
-          Add recipe
-        </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Button
+            intent="secondary"
+            size="sm"
+            aria-label="Import recipe from URL"
+            onClick={() => setModal({ type: 'importUrl' })}
+          >
+            <Link2 size={14} />
+            <span className="hide-mobile">Import from URL</span>
+          </Button>
+          <Button
+            intent="primary"
+            size="sm"
+            style={{ paddingInline: '1.25rem' }}
+            onClick={() => setModal({ type: 'add' })}
+          >
+            <Plus size={14} />
+            Add recipe
+          </Button>
+        </div>
       </div>
 
       {/* Page body: two-panel on desktop, stacked on mobile */}
@@ -320,6 +335,15 @@ export default function RecipesPage() {
           recipe={modal.recipe}
           onClose={() => setModal({ type: 'none' })}
         />
+      )}
+      {modal.type === 'importUrl' && (
+        <ImportRecipeModal
+          onClose={() => setModal({ type: 'none' })}
+          onImported={(draft) => setModal({ type: 'import', draft })}
+        />
+      )}
+      {modal.type === 'import' && (
+        <AddEditRecipeModal mode="import" draft={modal.draft} onClose={() => setModal({ type: 'none' })} />
       )}
       {addToWeekRecipeId && (() => {
         const recipe = recipes.find((r) => r.id === addToWeekRecipeId)

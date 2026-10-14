@@ -602,3 +602,25 @@ select.field {
     padding-inline-start: max(52px, calc(env(safe-area-inset-left, 0px) + 52px));
   }
 }
+
+/* Text shown from tablet width up; icon-only below that to keep headers from overflowing */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: inline;
+  }
+}
+
+/* Text shown from tablet width up; icon-only below that to keep headers from overflowing */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: inline;
+  }
+}
