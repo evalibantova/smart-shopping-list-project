@@ -13,7 +13,7 @@ import { IngredientAutocomplete } from '../../components/shared/IngredientAutoco
 import { IngredientDbEntry } from '../../types/ingredients'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
 import type { RecipeDraft } from '../../services/recipeImport/mapToRecipe'
-import type { NewIngredientProposal } from '../../services/recipeImport/types'
+import { INGREDIENT_UNITS, type NewIngredientProposal } from '../../services/recipeImport/types'
 import { fold } from '../../services/recipeImport/ingredientMatch'
 
 const TAG_COLORS = [
@@ -123,7 +123,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     setRows((prev) =>
       prev.map((row, i) =>
         i === idx
-          ? { ...row, ingredientId: entry.id, ingredientName: entry.name, unit: entry.default_unit, flagged: false, newIngredient: null, estimated: false }
+          ? { ...row, ingredientId: entry.id, ingredientName: entry.name, unit: entry.default_unit, flagged: false, newIngredient: null, estimated: false, matchedBy: undefined }
           : row
       )
     )
@@ -133,7 +133,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     setRows((prev) =>
       prev.map((row, i) =>
         i === idx
-          ? { ...row, ingredientName: value, ingredientId: null, unit: '', newIngredient: null, estimated: false }
+          ? { ...row, ingredientName: value, ingredientId: null, unit: '', newIngredient: null, estimated: false, matchedBy: undefined }
           : row
       )
     )
@@ -161,8 +161,12 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     setShowNewTag(false)
   }
 
-  const isNewRow = (r: IngredientRow) => r.ingredientId === null && !!r.newIngredient
-  const unboundCount = rows.filter((r) => r.ingredientName.trim() !== '' && r.ingredientId === null && !r.newIngredient).length
+  // A proposal with a unit the ingredient database rejects is treated as an ordinary unmatched row
+  const isNewRow = (r: IngredientRow) =>
+    r.ingredientId === null &&
+    !!r.newIngredient &&
+    (INGREDIENT_UNITS as readonly string[]).includes(r.newIngredient.default_unit)
+  const unboundCount = rows.filter((r) => r.ingredientName.trim() !== '' && r.ingredientId === null && !isNewRow(r)).length
   const newIngredientCount = rows.filter(isNewRow).length
   const estimatedCount = rows.filter((r) => r.estimated && (r.ingredientId !== null || isNewRow(r))).length
   const flaggedCount = rows.filter((r) => r.flagged && !r.estimated && (r.ingredientId !== null || isNewRow(r))).length
@@ -181,7 +185,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     // Nothing is created before this point: new ingredients and tags only exist once the user saves
     const createdIdByName = new Map<string, string>()
     const savedRows = rows.map((r) => {
-      if (r.ingredientId !== null || !r.newIngredient) return r
+      if (r.ingredientId !== null || !r.newIngredient || !isNewRow(r)) return r
       const key = fold(r.newIngredient.name)
       let id = createdIdByName.get(key)
       if (!id) {

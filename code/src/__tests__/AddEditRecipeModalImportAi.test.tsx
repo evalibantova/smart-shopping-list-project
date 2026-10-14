@@ -166,4 +166,27 @@ describe('AddEditRecipeModal: import review with AI proposals', () => {
     expect(text()).toContain('Save 1 ingredient with quantity 0?')
     expect(dbNames()).toEqual(['Flour'])
   })
+  it('typing over an AI-matched row drops the "Matched by AI" label', () => {
+    renderDraft(draft())
+    const nameInputs = document.body.querySelectorAll<HTMLInputElement>('.rf-ing-row input:not([type="number"])')
+    act(() => typeInto(nameInputs[1], 'Fl'))
+    expect(text()).not.toContain('Matched by AI')
+  })
+
+  it('a proposal with an invalid unit is an ordinary unmatched row and is never created', () => {
+    const bad: DraftRow = {
+      ...cabbage,
+      estimated: false,
+      newIngredient: { name: 'čínska kapusta', default_unit: 'cup' as never, category: 'Produce' },
+    }
+    renderDraft(draft({ rows: [bad, flour()] }))
+    expect(text()).toContain('1 ingredient needs matching')
+    expect(text()).not.toContain('will be created')
+    act(() => button('Save recipe').click())
+    expect(text()).toContain('Save without 1 unmatched ingredient?')
+    expect(dbNames()).toEqual(['Flour'])
+    act(() => button('Save anyway').click())
+    expect(dbNames()).toEqual(['Flour'])
+    expect(useStore.getState().recipes[0].ingredients).toEqual([{ ingredientId: flourId, quantity: 100 }])
+  })
 })
