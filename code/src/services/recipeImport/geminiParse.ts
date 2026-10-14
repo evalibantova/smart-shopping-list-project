@@ -15,6 +15,8 @@ import {
 export const GEMINI_MODEL = 'gemini-3.5-flash-lite'
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models'
 const TIMEOUT_MS = 30_000
+const MAX_TAG_NAMES = 50
+const MAX_TAG_LENGTH = 40
 
 const RESPONSE_SCHEMA = {
   type: 'OBJECT',
@@ -46,7 +48,16 @@ export interface CallOptions {
   fetchImpl?: typeof fetch
 }
 
-export function buildPrompt(page: FetchedPage, tagNames: string[] = []): string {
+/** Tag names come from the user's data and go into the prompt: flatten, shorten and cap them. */
+function promptTagNames(tagNames: string[]): string[] {
+  return tagNames
+    .map((n) => n.replace(/[,\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, MAX_TAG_LENGTH).trim())
+    .filter((n) => n !== '')
+    .slice(0, MAX_TAG_NAMES)
+}
+
+export function buildPrompt(page: FetchedPage, allTagNames: string[] = []): string {
+  const tagNames = promptTagNames(allTagNames)
   const kind = page.source === 'jsonld' ? 'schema.org Recipe JSON-LD' : 'page text'
   const tagRules =
     tagNames.length > 0
@@ -117,7 +128,9 @@ export function toParsedRecipe(raw: unknown): ParsedRecipe | null {
   const servings = typeof r.servings === 'number' && Number.isFinite(r.servings) && r.servings > 0 ? r.servings : null
 
   const strings = (v: unknown): string[] =>
-    Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string' && s.trim() !== '').map((s) => s.trim()).slice(0, 5) : []
+    Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string' && s.trim() !== '' && s.trim().length <= MAX_TAG_LENGTH)
+          .map((s) => s.trim())
+          .slice(0, 5) : []
   const tags = strings(r.tags)
   const newTags = strings(r.newTags)
 

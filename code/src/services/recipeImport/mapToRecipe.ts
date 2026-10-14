@@ -98,6 +98,7 @@ export function buildNotes(steps: string[], sourceUrl: string): string {
 }
 
 const MAX_NEW_TAGS = 3
+const MAX_TAG_IDS = 3
 
 /** Existing tag names (ignoring case and accents) become ids; unknown names are proposed as new tags. */
 export function mapTags(
@@ -117,7 +118,7 @@ export function mapTags(
     if (id) tagIds.push(id)
     else if (newTags.length < MAX_NEW_TAGS) newTags.push(name)
   }
-  return { tagIds, newTags }
+  return { tagIds: tagIds.slice(0, MAX_TAG_IDS), newTags }
 }
 
 function sourceTextOf(ing: ParsedIngredient): string {

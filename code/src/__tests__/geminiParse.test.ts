@@ -197,6 +197,40 @@ describe('testGeminiKey', () => {
   })
 })
 
+describe('call 1: untrusted tag text', () => {
+  it('lists tag names without commas or line breaks inside a name', () => {
+    const prompt = buildPrompt(PAGE, ['a, b', 'c\nd'])
+    expect(prompt).toContain('a b, c d.')
+  })
+
+  it('lists at most the first 50 tag names', () => {
+    const names = Array.from({ length: 60 }, (_, n) => `tag${String(n).padStart(2, '0')}`)
+    const prompt = buildPrompt(PAGE, names)
+    expect(prompt).toContain('tag49')
+    expect(prompt).not.toContain('tag50')
+  })
+
+  it('cuts a long tag name to 40 characters and drops empty ones', () => {
+    const prompt = buildPrompt(PAGE, ['z'.repeat(100), '  ', ','])
+    expect(prompt).toContain(': ' + 'z'.repeat(40) + '.')
+    expect(prompt).not.toContain('z'.repeat(41))
+  })
+})
+
+describe('toParsedRecipe: tag length', () => {
+  it('drops tags and newTags longer than 40 characters and keeps one of 40', () => {
+    const parsed = toParsedRecipe({
+      name: 'X',
+      ingredients: [],
+      steps: ['Mix'],
+      tags: ['a'.repeat(41), 'b'.repeat(40)],
+      newTags: ['c'.repeat(41)],
+    })
+    expect(parsed?.tags).toEqual(['b'.repeat(40)])
+    expect(parsed?.newTags).toBeUndefined()
+  })
+})
+
 describe('call 1: original lines and tags', () => {
   it('asks for the original ingredient line and only mentions tags when names are given', () => {
     const without = buildPrompt(PAGE)

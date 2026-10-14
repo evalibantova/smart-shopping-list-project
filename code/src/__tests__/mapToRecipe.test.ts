@@ -226,6 +226,11 @@ describe('mapToRecipe: tags and original lines', () => {
     expect(mapTags({}, tags)).toEqual({ tagIds: [], newTags: [] })
   })
 
+  it('returns at most 3 existing tag ids', () => {
+    const many: Tag[] = ['a1', 'b2', 'c3', 'd4', 'e5'].map((n) => ({ id: 't-' + n, name: n, color: '#000000' }))
+    expect(mapTags({ tags: ['a1', 'b2', 'c3', 'd4', 'e5'] }, many).tagIds).toEqual(['t-a1', 't-b2', 't-c3'])
+  })
+
   it('puts the tags on the draft and uses the original line as the source text', () => {
     const draft = mapToRecipe(
       recipe([{ name: 'mrkva', quantity: 1, unit: 'pcs', line: '1 veľkú mrkvu' }], { tags: ['Polievka'], newTags: ['krevety'] }),

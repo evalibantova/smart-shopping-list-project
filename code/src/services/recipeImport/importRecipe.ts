@@ -50,6 +50,8 @@ export async function importRecipeFromUrl(
     return applyResolutions(draft, parsed, resolutions, db)
   } catch (err) {
     if (err instanceof ImportError && err.code === 'aborted') throw err
+    // An ImportError is an expected failure of call 2. Anything else is a bug in our own code: do not hide it.
+    if (!(err instanceof ImportError)) console.warn('Import: the matching step failed, using the local result.', err)
     return draft
   }
 }

@@ -11,6 +11,8 @@ import {
 
 // Candidates are labelled with letters so the request stays small and never carries database ids.
 const LETTERS = 'ABCDEFGH'
+// Names created from model output stay short, so one bad reply cannot put a paragraph into the database.
+const MAX_NAME_LENGTH = 60
 
 const RESOLVE_SCHEMA = {
   type: 'ARRAY',
@@ -45,7 +47,7 @@ export function buildResolvePrompt(recipeName: string, items: ResolveItem[]): st
     }),
   )
   return [
-    `Recipe: "${recipeName}". Resolve each ingredient line against the known ingredients (candidates).`,
+    `Recipe: ${JSON.stringify(recipeName)}. Resolve each ingredient line against the known ingredients (candidates).`,
     'For every item return i (copy the number), match, newIngredient and estimate.',
     '- match: the letter of the candidate that is the same ingredient, or null. Synonyms and a different word order count ("ryžové rezance" = "nudle ryžové"). A different variety is NOT a match ("čínska kapusta" is not "kapusta").',
     '- newIngredient: only when match is null, otherwise null: name in nominative singular in the recipe language; default_unit is the unit this ingredient is usually measured in (g, ml, kg, l, pcs, cloves, tbsp or tsp); category is one of Produce, Fish & Seafood, Meat, Dairy, Pantry & Dry Goods, Other.',
@@ -81,7 +83,7 @@ function toNewIngredient(raw: unknown): NewIngredientProposal | null {
   const r = raw as Record<string, unknown>
   const name = typeof r.name === 'string' ? r.name.trim() : ''
   const unit = r.default_unit
-  if (!name || typeof unit !== 'string' || !(INGREDIENT_UNITS as readonly string[]).includes(unit)) return null
+  if (!name || name.length > MAX_NAME_LENGTH || typeof unit !== 'string' || !(INGREDIENT_UNITS as readonly string[]).includes(unit)) return null
   const category =
     typeof r.category === 'string' && (INGREDIENT_CATEGORIES as readonly string[]).includes(r.category)
       ? r.category

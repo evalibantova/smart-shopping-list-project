@@ -114,6 +114,37 @@ describe('importRecipeFromUrl: matching call', () => {
     expect(draft.rows[0].flagged).toBe(true)
   })
 
+  it('keeps the local draft and logs a warning when applying the answer throws', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const resolve = vi.fn().mockResolvedValue([null as never])
+      const draft = await importRecipeFromUrl('https://example.com/p', {
+        deps: { fetchPage: vi.fn().mockResolvedValue(PAGE), parseRecipe: vi.fn().mockResolvedValue(unmatched), resolve },
+      })
+      expect(draft.rows[0].ingredientId).toBeNull()
+      expect(draft.rows[0].flagged).toBe(true)
+      expect(warn).toHaveBeenCalledTimes(1)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('does not log when the second call fails with an ImportError', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      await importRecipeFromUrl('https://example.com/p', {
+        deps: {
+          fetchPage: vi.fn().mockResolvedValue(PAGE),
+          parseRecipe: vi.fn().mockResolvedValue(unmatched),
+          resolve: vi.fn().mockRejectedValue(new ImportError('rate_limited')),
+        },
+      })
+      expect(warn).not.toHaveBeenCalled()
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('stops when the user aborts during the second call', async () => {
     const resolve = vi.fn().mockRejectedValue(new ImportError('aborted'))
     await expect(
