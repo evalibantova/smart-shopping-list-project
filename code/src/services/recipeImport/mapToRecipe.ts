@@ -1,4 +1,5 @@
 import type { IngredientDbEntry } from '../../types/ingredients'
+import { matchIngredient } from './ingredientMatch'
 import type { ParsedIngredient, ParsedRecipe } from './types'
 
 export interface DraftRow {
@@ -61,40 +62,6 @@ export function convertQuantity(quantity: number, from: string | null, to: strin
   return result !== null && result > 0 ? result : null
 }
 
-function fold(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-/** The folded name plus simple plural-stripped variants ("carrots" → "carrot", "tomatoes" → "tomato"). */
-function keysFor(name: string): string[] {
-  const f = fold(name)
-  const keys = [f]
-  if (f.length > 3 && f.endsWith('es')) keys.push(f.slice(0, -2))
-  if (f.length > 3 && f.endsWith('s')) keys.push(f.slice(0, -1))
-  return keys
-}
-
-function buildIndex(db: IngredientDbEntry[]) {
-  const exact = new Map<string, IngredientDbEntry>()
-  const loose = new Map<string, IngredientDbEntry>()
-  for (const entry of db) {
-    const [first, ...rest] = keysFor(entry.name)
-    if (!exact.has(first)) exact.set(first, entry)
-    for (const key of rest) if (!loose.has(key)) loose.set(key, entry)
-  }
-  return {
-    find(name: string): IngredientDbEntry | undefined {
-      const keys = keysFor(name)
-      return exact.get(keys[0]) ?? keys.map((k) => exact.get(k) ?? loose.get(k)).find((e) => e !== undefined)
-    },
-  }
-}
-
 export function hostOf(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, '')
@@ -126,11 +93,9 @@ function sourceTextOf(ing: ParsedIngredient): string {
 }
 
 export function mapToRecipe(parsed: ParsedRecipe, db: IngredientDbEntry[], sourceUrl: string): RecipeDraft {
-  const index = buildIndex(db)
-
   const rows: DraftRow[] = parsed.ingredients.map((ing) => {
     const sourceText = sourceTextOf(ing)
-    const entry = index.find(ing.name)
+    const entry = matchIngredient(ing.name, db)
     if (!entry) {
       return {
         ingredientId: null,

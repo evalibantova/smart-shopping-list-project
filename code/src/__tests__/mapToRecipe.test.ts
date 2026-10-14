@@ -44,6 +44,27 @@ describe('mapToRecipe — name matching', () => {
     expect(rows.map((r) => r.ingredientId)).toEqual(['carrot', 'tomato'])
   })
 
+  it('binds a reordered name with an ending change to its entry and default unit', () => {
+    const d: IngredientDbEntry[] = [{ id: 'spring', name: 'cibuľa jarná', default_unit: 'pcs', category: 'Veg' }]
+    const { rows } = mapToRecipe(recipe([{ name: 'jarná cibuľka', quantity: 1, unit: 'pcs' }]), d, URL)
+    expect(rows[0]).toMatchObject({ ingredientId: 'spring', unit: 'pcs', quantity: 1, flagged: false })
+  })
+
+  it('binds "olivový olej" to "olej olivový" and converts tbsp to ml', () => {
+    const d: IngredientDbEntry[] = [{ id: 'olive', name: 'olej olivový', default_unit: 'ml', category: 'Pantry' }]
+    const { rows } = mapToRecipe(recipe([{ name: 'olivový olej', quantity: 3, unit: 'tbsp' }]), d, URL)
+    expect(rows[0]).toMatchObject({ ingredientId: 'olive', unit: 'ml', quantity: 45, flagged: false })
+  })
+
+  it('keeps "čínska kapusta" unbound and flagged', () => {
+    const d: IngredientDbEntry[] = [
+      { id: 'cab', name: 'kapusta', default_unit: 'g', category: 'Veg' },
+      { id: 'sour', name: 'kapusta kyslá', default_unit: 'g', category: 'Veg' },
+    ]
+    const { rows } = mapToRecipe(recipe([{ name: 'čínska kapusta', quantity: 0.33, unit: 'pcs' }]), d, URL)
+    expect(rows[0]).toMatchObject({ ingredientId: null, flagged: true })
+  })
+
   it('leaves an unmatched name unbound, keeps the parsed quantity, and flags it', () => {
     const { rows } = mapToRecipe(recipe([{ name: 'saffron', quantity: 2, unit: 'g' }]), db, URL)
     expect(rows[0]).toMatchObject({
