@@ -8,6 +8,7 @@ final class PageFetcher
 {
     public const MAX_BYTES = 2_097_152;
     public const MAX_REDIRECTS = 3;
+    public const TIMEOUT_SECONDS = 10;
 
     /** @var callable(string, array): array{status: int, headers: array<string, string>, body: string} */
     private $transport;
@@ -27,9 +28,16 @@ final class PageFetcher
     /** Fetch a page and return its HTML as UTF-8. Every hop, including redirects, goes through UrlGuard. */
     public function fetch(string $url): string
     {
+        $url = trim($url); // check() and curl must see the very same string
+        $deadline = microtime(true) + self::TIMEOUT_SECONDS; // one budget for the whole fetch, redirects included
+
         for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
+            $remaining = (int) floor($deadline - microtime(true));
+            if ($remaining < 1) {
+                throw new FetchError('fetch_failed');
+            }
             $target = UrlGuard::check($url, $this->resolver);
-            $res = ($this->transport)($url, $target);
+            $res = ($this->transport)($url, $target, $remaining);
 
             if (in_array($res['status'], [301, 302, 303, 307, 308], true)) {
                 $location = $res['headers']['location'] ?? '';
@@ -58,19 +66,19 @@ final class PageFetcher
     }
 
     /** Default transport. Pins the connection to the IP UrlGuard validated (no DNS rebinding). */
-    public static function curlTransport(string $url, array $target): array
+    public static function curlTransport(string $url, array $target, int $timeoutSeconds = self::TIMEOUT_SECONDS): array
     {
         $headers = [];
         $body = '';
         $tooLarge = false;
-        $ip = str_contains($target['ip'], ':') ? '[' . $target['ip'] . ']' : $target['ip'];
+        $timeout = max(1, $timeoutSeconds);
 
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
+        $ch = curl_init(trim($url));
+        $options = [
             CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_TIMEOUT => 10,
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_RESOLVE => [$target['host'] . ':' . $target['port'] . ':' . $ip],
+            CURLOPT_PROXY => '', // an environment http_proxy must not defeat the IP pin
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_CONNECTTIMEOUT => min(5, $timeout),
             CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; MealPlannerImport/1.0)',
             CURLOPT_ENCODING => '',
             CURLOPT_HTTPHEADER => ['Accept: text/html,application/xhtml+xml'],
@@ -89,7 +97,12 @@ final class PageFetcher
                 }
                 return strlen($chunk);
             },
-        ]);
+        ];
+        // Pin the connection to the validated IP. Not needed (and fiddly for IPv6) when the host already is an IP literal.
+        if (filter_var($target['host'], FILTER_VALIDATE_IP) === false) {
+            $options[CURLOPT_RESOLVE] = [$target['host'] . ':' . $target['port'] . ':' . (str_contains($target['ip'], ':') ? '[' . $target['ip'] . ']' : $target['ip'])];
+        }
+        curl_setopt_array($ch, $options);
         $ok = curl_exec($ch);
         $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);

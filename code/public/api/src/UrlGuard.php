@@ -37,7 +37,14 @@ final class UrlGuard
             throw new FetchError('blocked_host');
         }
 
-        $ips = filter_var($host, FILTER_VALIDATE_IP) !== false
+        $isIpLiteral = filter_var($host, FILTER_VALIDATE_IP) !== false;
+        // Numeric spellings such as 2130706433, 0x7f.1, 017700000001 or 127.1 are not valid IPs for
+        // filter_var, but a libc resolver would read them as IPv4. Refuse them before any DNS lookup.
+        if (!$isIpLiteral && preg_match('/^(0x[0-9a-f]+|\d+)(\.(0x[0-9a-f]+|\d+))*$/i', $host) === 1) {
+            throw new FetchError('blocked_host');
+        }
+
+        $ips = $isIpLiteral
             ? [$host]
             : ($resolver ?? [self::class, 'resolve'])($host);
         if ($ips === []) {
@@ -54,13 +61,36 @@ final class UrlGuard
 
     public static function isPublicIp(string $ip): bool
     {
-        // ::ffff:a.b.c.d is IPv4 in disguise: judge the embedded address. Hex forms are refused.
-        if (stripos($ip, '::ffff:') === 0) {
-            $v4 = substr($ip, 7);
-            return filter_var($v4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false && self::isPublicIp($v4);
+        $packed = @inet_pton($ip);
+        if ($packed === false) {
+            return false;
         }
 
-        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+        if (strlen($packed) === 4) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                return false;
+            }
+            $long = ip2long($ip);
+            if ($long === false) {
+                return false;
+            }
+
+            return ($long & 0xFFC00000) !== 0x64400000   // 100.64.0.0/10 carrier-grade NAT
+                && ($long & 0xFFFFFF00) !== 0xC0000000   // 192.0.0.0/24 IETF protocol assignments
+                && ($long & 0xFFFE0000) !== 0xC6120000;  // 198.18.0.0/15 benchmarking
+        }
+
+        // IPv6: only global unicast 2000::/3 is public. That excludes ::, ::1, every ::ffff:0:0/96
+        // (IPv4-mapped) spelling, ::/96, 64:ff9b::/96 (NAT64), fc00::/7 and fe80::/10 by construction.
+        if ((ord($packed[0]) & 0xE0) !== 0x20) {
+            return false;
+        }
+        $prefix32 = substr($packed, 0, 4);
+        $prefix16 = substr($packed, 0, 2);
+
+        return $prefix16 !== "\x20\x02"                 // 2002::/16 6to4 (embeds IPv4)
+            && $prefix32 !== "\x20\x01\x00\x00"         // 2001::/32 Teredo
+            && $prefix32 !== "\x20\x01\x0d\xb8";        // 2001:db8::/32 documentation
     }
 
     /** @return list<string> IPv4 first, then IPv6 */

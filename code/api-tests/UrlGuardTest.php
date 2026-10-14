@@ -23,6 +23,22 @@ final class UrlGuardTest extends TestCase
             'ipv6 loopback' => ['http://[::1]/'],
             'ipv4-mapped loopback' => ['http://[::ffff:127.0.0.1]/'],
             'odd port' => ['http://8.8.8.8:22/'],
+            'mapped loopback long form' => ['http://[0:0:0:0:0:ffff:7f00:1]/'],
+            'mapped loopback zero-compressed' => ['http://[0::ffff:127.0.0.1]/'],
+            'mapped loopback hex' => ['http://[::ffff:7f00:1]/'],
+            'mapped metadata hex' => ['http://[::ffff:a9fe:a9fe]/'],
+            'nat64' => ['http://[64:ff9b::7f00:1]/'],
+            '6to4' => ['http://[2002:7f00:1::1]/'],
+            'ipv4-compatible' => ['http://[::127.0.0.1]/'],
+            'unique local' => ['http://[fd00::1]/'],
+            'ipv6 link-local' => ['http://[fe80::1]/'],
+            'carrier-grade nat' => ['http://100.64.0.1/'],
+            'benchmarking' => ['http://198.18.0.1/'],
+            'ietf protocol block' => ['http://192.0.0.1/'],
+            'decimal integer host' => ['http://2130706433/'],
+            'hex dotted host' => ['http://0x7f.1/'],
+            'octal integer host' => ['http://017700000001/'],
+            'short dotted host' => ['http://127.1/'],
         ];
     }
 
@@ -64,6 +80,13 @@ final class UrlGuardTest extends TestCase
     {
         $target = UrlGuard::check('https://8.8.8.8/x');
         $this->assertSame(['scheme' => 'https', 'host' => '8.8.8.8', 'port' => 443, 'ip' => '8.8.8.8'], $target);
+    }
+
+    public function testAcceptsAPublicIpv6Literal(): void
+    {
+        $target = UrlGuard::check('https://[2606:4700:4700::1111]/x');
+        $this->assertSame('2606:4700:4700::1111', $target['ip']);
+        $this->assertSame(443, $target['port']);
     }
 
     public function testBlocksAHostnameThatResolvesToAPrivateIp(): void

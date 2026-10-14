@@ -106,6 +106,24 @@ final class PageFetcherTest extends TestCase
         $this->assertSame('fetch_failed', $this->code(fn () => $notFound->fetch('http://good.example/')));
     }
 
+    public function testPassesTheTransportARemainingTimeoutBetweenOneAndTen(): void
+    {
+        $timeouts = [];
+        $transport = function (string $url, array $t, int $timeout) use (&$timeouts): array {
+            $timeouts[] = $timeout;
+            return count($timeouts) === 1
+                ? ['status' => 302, 'headers' => ['location' => 'http://good.example/b'], 'body' => '']
+                : self::html();
+        };
+        (new PageFetcher($transport, self::resolver()))->fetch('  http://good.example/a  ');
+        $this->assertCount(2, $timeouts);
+        foreach ($timeouts as $timeout) {
+            $this->assertGreaterThanOrEqual(1, $timeout);
+            $this->assertLessThanOrEqual(10, $timeout);
+        }
+        $this->assertGreaterThanOrEqual($timeouts[1], $timeouts[0]);
+    }
+
     public function testRejectsAnOversizeBody(): void
     {
         $big = str_repeat('a', PageFetcher::MAX_BYTES + 1);
