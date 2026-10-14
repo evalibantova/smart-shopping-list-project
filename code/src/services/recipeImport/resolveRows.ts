@@ -1,8 +1,15 @@
 // code/src/services/recipeImport/resolveRows.ts
 import type { IngredientDbEntry } from '../../types/ingredients'
-import { matchIngredient, shortlist } from './ingredientMatch'
+import { fold, matchIngredient, shortlist } from './ingredientMatch'
 import { convertQuantity, type DraftRow, type RecipeDraft } from './mapToRecipe'
-import type { ParsedIngredient, ParsedRecipe, Resolution, ResolveCandidate, ResolveItem } from './types'
+import type {
+  NewIngredientProposal,
+  ParsedIngredient,
+  ParsedRecipe,
+  Resolution,
+  ResolveCandidate,
+  ResolveItem,
+} from './types'
 
 const MAX_CANDIDATES = 5
 
@@ -39,7 +46,13 @@ function withQuantity(row: DraftRow, ing: ParsedIngredient, estimate: number | n
   return { ...row, quantity: 0, flagged: true, estimated: false }
 }
 
-function resolveUnmatched(row: DraftRow, ing: ParsedIngredient, res: Resolution, db: IngredientDbEntry[]): DraftRow {
+function resolveUnmatched(
+  row: DraftRow,
+  ing: ParsedIngredient,
+  res: Resolution,
+  db: IngredientDbEntry[],
+  seen: Map<string, NewIngredientProposal>,
+): DraftRow {
   const entry =
     (res.matchId ? db.find((e) => e.id === res.matchId) : undefined) ??
     (res.newIngredient ? matchIngredient(res.newIngredient.name, db) : undefined)
@@ -59,10 +72,21 @@ function resolveUnmatched(row: DraftRow, ing: ParsedIngredient, res: Resolution,
   }
   if (res.newIngredient) {
     const n = res.newIngredient
+    // A repeat of a new ingredient reuses the first proposal (unit and category). The model's estimate was
+    // given in this row's own proposed unit, so it only counts when that unit is the one we kept.
+    const proposal = seen.get(fold(n.name)) ?? n
+    seen.set(fold(n.name), proposal)
     return withQuantity(
-      { ...row, ingredientId: null, ingredientName: n.name, unit: n.default_unit, newIngredient: n, matchedBy: 'ai' },
+      {
+        ...row,
+        ingredientId: null,
+        ingredientName: proposal.name,
+        unit: proposal.default_unit,
+        newIngredient: proposal,
+        matchedBy: 'ai',
+      },
       ing,
-      res.estimate,
+      proposal.default_unit === n.default_unit ? res.estimate : null,
     )
   }
   return row
@@ -75,6 +99,7 @@ export function applyResolutions(
   db: IngredientDbEntry[],
 ): RecipeDraft {
   const byIndex = new Map(resolutions.map((r) => [r.index, r]))
+  const seen = new Map<string, NewIngredientProposal>()
   const rows = draft.rows.map((row, index) => {
     const res = byIndex.get(index)
     const ing = parsed.ingredients[index]
@@ -84,7 +109,7 @@ export function applyResolutions(
         ? { ...row, quantity: round2(res.estimate), estimated: true, flagged: true }
         : row
     }
-    return resolveUnmatched(row, ing, res, db)
+    return resolveUnmatched(row, ing, res, db, seen)
   })
   return { ...draft, rows }
 }

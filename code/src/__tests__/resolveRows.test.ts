@@ -165,4 +165,48 @@ describe('applyResolutions', () => {
     expect(out.name).toBe(before.name)
     expect(out.notes).toBe(before.notes)
   })
+
+  describe('a repeated new ingredient', () => {
+    const shrimp = (unit: 'pcs' | 'g') => ({ name: 'krevety', default_unit: unit, category: 'Fish & Seafood' })
+    const twoRows: ParsedRecipe = {
+      name: 'Krevety',
+      servings: 2,
+      steps: ['Mix'],
+      ingredients: [
+        { name: 'krevety', quantity: 12, unit: 'pcs', line: '12 ks kreviet' },
+        { name: 'krevety na ozdobu', quantity: 50, unit: 'g', line: 'krevety na ozdobu 50 g' },
+      ],
+    }
+
+    it('reuses the first proposal and does not reuse an estimate given in another unit', () => {
+      const out = applyResolutions(
+        mapToRecipe(twoRows, db, URL),
+        twoRows,
+        [
+          res({ index: 0, newIngredient: shrimp('pcs') }),
+          res({ index: 1, newIngredient: shrimp('g'), estimate: 50 }),
+        ],
+        db,
+      )
+      expect(out.rows[0]).toMatchObject({ quantity: 12, unit: 'pcs' })
+      expect(out.rows[1]).toMatchObject({ unit: 'pcs', quantity: 0, flagged: true, estimated: false })
+      expect(out.rows[1].newIngredient).toEqual(shrimp('pcs'))
+    })
+
+    it('converts normally and shares the proposal when the units agree', () => {
+      const same: ParsedRecipe = {
+        ...twoRows,
+        ingredients: [twoRows.ingredients[0], { name: 'krevety', quantity: 6, unit: 'pcs', line: '6 ks kreviet' }],
+      }
+      const out = applyResolutions(
+        mapToRecipe(same, db, URL),
+        same,
+        [res({ index: 0, newIngredient: shrimp('pcs') }), res({ index: 1, newIngredient: shrimp('pcs') })],
+        db,
+      )
+      expect(out.rows[0]).toMatchObject({ quantity: 12, unit: 'pcs', flagged: false })
+      expect(out.rows[1]).toMatchObject({ quantity: 6, unit: 'pcs', flagged: false })
+      expect(out.rows[1].newIngredient).toEqual(out.rows[0].newIngredient)
+    })
+  })
 })
