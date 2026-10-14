@@ -40,6 +40,13 @@ describe('tokensMatch', () => {
     expect(tokensMatch('cesnak', 'cesnaku')).toBe(true)
     expect(tokensMatch('sol', 'sol')).toBe(true)
   })
+  it('matches short plurals with s or es', () => {
+    expect(tokensMatch('egg', 'eggs')).toBe(true)
+    expect(tokensMatch('pea', 'peas')).toBe(true)
+    expect(tokensMatch('oat', 'oats')).toBe(true)
+    expect(tokensMatch('potato', 'potatoes')).toBe(true)
+    expect(tokensMatch('ab', 'abs')).toBe(false)
+  })
   it('rejects different words', () => {
     expect(tokensMatch('kapusta', 'kapustnica')).toBe(false)
     expect(tokensMatch('ryza', 'ryze')).toBe(false)
@@ -62,6 +69,11 @@ describe('matchIngredient', () => {
     const d = [e('c', 'Carrot'), e('t', 'Tomato')]
     expect(matchIngredient('carrots', d)?.id).toBe('c')
     expect(matchIngredient('tomatoes', d)?.id).toBe('t')
+  })
+  it('binds short plurals', () => {
+    const d = [e('egg', 'Egg', 'pcs'), e('pea', 'Pea')]
+    expect(matchIngredient('eggs', d)?.id).toBe('egg')
+    expect(matchIngredient('peas', d)?.id).toBe('pea')
   })
   it('gives no false positives', () => {
     expect(matchIngredient('čínska kapusta', db)).toBeUndefined()

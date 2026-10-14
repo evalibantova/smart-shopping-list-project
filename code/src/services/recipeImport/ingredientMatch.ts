@@ -19,6 +19,8 @@ export function tokens(name: string): string[] {
 /** Equal, or differing only by a short ending (cibulka/cibula, carrot/carrots). Inputs are folded tokens. */
 export function tokensMatch(a: string, b: string): boolean {
   if (a === b) return true
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a]
+  if (short.length >= 3 && (long === short + 's' || long === short + 'es')) return true
   if (Math.abs(a.length - b.length) > 2) return false
   let prefix = 0
   const max = Math.min(a.length, b.length)
