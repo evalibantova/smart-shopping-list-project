@@ -36,6 +36,7 @@ screenshots_*/
 
 # PHP cache
 *.cache
+code/phpunit.phar
 shopping-list.sublime-project
 shopping-list-claude.bat
 shopping-list-pitch.html

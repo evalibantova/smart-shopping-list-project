@@ -12,6 +12,10 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
+  server: {
+    // `npm run api` serves public/api/*.php locally
+    proxy: { '/api': 'http://localhost:8080' },
+  },
   test: {
     environment: 'jsdom',
     forceExit: true,

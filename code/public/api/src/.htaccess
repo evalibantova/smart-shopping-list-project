@@ -1,0 +1,3 @@
+# code/public/api/src/.htaccess
+# The classes here are loaded by fetch-recipe.php; they must not be reachable directly.
+Require all denied
