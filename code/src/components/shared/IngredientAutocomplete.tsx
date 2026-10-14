@@ -76,7 +76,6 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
     const newEntry = ingredientsDbService.create(value.trim(), unit, 'Other')
     onSelect(newEntry)
     setShowUnitPicker(false)
-    onChange('')
   }
 
   return (

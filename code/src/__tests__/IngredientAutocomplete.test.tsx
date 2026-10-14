@@ -114,7 +114,8 @@ describe('IngredientAutocomplete', () => {
 
   it('(e) clicking Create then selecting a unit calls onSelect with a new entry written to localStorage', async () => {
     const onSelect = vi.fn()
-    await renderComponent('Tahini', vi.fn(), onSelect)
+    const onChange = vi.fn()
+    await renderComponent('Tahini', onChange, onSelect)
 
     const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
     expect(dropdown).not.toBeNull()
@@ -125,6 +126,7 @@ describe('IngredientAutocomplete', () => {
 
     const unitPicker = container.querySelector('[data-testid="unit-picker"]')
     expect(unitPicker).not.toBeNull()
+    onChange.mockClear() // drop the helper's simulated keystroke
 
     const tbspBtn = Array.from(unitPicker!.querySelectorAll('button')).find(
       (b) => b.textContent === 'tbsp',
@@ -135,6 +137,8 @@ describe('IngredientAutocomplete', () => {
     })
 
     expect(onSelect).toHaveBeenCalledOnce()
+    // Clearing the input after creation would wipe the freshly selected ingredient
+    expect(onChange).not.toHaveBeenCalled()
     const entry = onSelect.mock.calls[0][0]
     expect(entry.name).toBe('Tahini')
     expect(entry.default_unit).toBe('tbsp')
