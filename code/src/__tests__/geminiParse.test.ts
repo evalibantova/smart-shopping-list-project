@@ -167,8 +167,14 @@ describe('buildPrompt and buildGeminiRequest', () => {
     expect(buildPrompt(PAGE)).toContain('JSON-LD')
   })
 
-  it('tells the model to null out quantities whose unit is not allowed', () => {
-    expect(buildPrompt(PAGE)).toContain('not in the allowed list')
+  it('guides units and quantities without telling the model to drop them', () => {
+    const prompt = buildPrompt(PAGE)
+    expect(prompt).not.toContain('not in the allowed list')
+    expect(prompt).toContain('pcs')
+    expect(prompt).toContain('lyžica')
+    expect(prompt).toContain('tbsp')
+    expect(prompt).toContain('decimals')
+    expect(prompt).toContain('NOT units')
   })
 
   it('uses temperature 0 and a bounded output', () => {
