@@ -44,7 +44,8 @@
   --bottom-nav-height: 60px;
 
   /* Typography */
-  font-family: 'Plus Jakarta Sans', 'Noto Color Emoji', system-ui, sans-serif;
+  /* Native emoji fonts first: iOS cannot render the Noto web font and shows blanks. Noto is the fallback for Linux. */
+  font-family: 'Plus Jakarta Sans', system-ui, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
