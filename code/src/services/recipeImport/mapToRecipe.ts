@@ -40,18 +40,25 @@ function round2(n: number): number {
 
 /** Convert into the ingredient's default unit, or null when that is not possible. */
 export function convertQuantity(quantity: number, from: string | null, to: string): number | null {
-  if (from === null) return to === 'pcs' ? round2(quantity) : null
-  if (from === to) {
-    const result = round2(quantity)
-    return result > 0 ? result : null
+  let result: number | null = null
+
+  if (from === null) {
+    // Unit-less quantities can only be pcs
+    result = to === 'pcs' ? round2(quantity) : null
+  } else if (from === to) {
+    // Same unit: just round
+    result = round2(quantity)
+  } else {
+    // Cross-unit conversion: check compatibility
+    const a = UNIT_INFO[from]
+    const b = UNIT_INFO[to]
+    // Counts (pcs, cloves) are never interchangeable with each other.
+    if (!a || !b || a.dim !== b.dim || a.dim === 'count') return null
+    result = round2((quantity * a.factor) / b.factor)
   }
-  const a = UNIT_INFO[from]
-  const b = UNIT_INFO[to]
-  // Counts (pcs, cloves) are never interchangeable with each other.
-  if (!a || !b || a.dim !== b.dim || a.dim === 'count') return null
-  const converted = round2((quantity * a.factor) / b.factor)
+
   // Treat a rounded result <= 0 as not convertible.
-  return converted > 0 ? converted : null
+  return result !== null && result > 0 ? result : null
 }
 
 function fold(s: string): string {

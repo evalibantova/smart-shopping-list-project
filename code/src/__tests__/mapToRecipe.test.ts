@@ -101,6 +101,13 @@ describe('mapToRecipe — quantities', () => {
     expect(convertQuantity(2, null, 'g')).toBeNull()
   })
 
+  it('flags a unit-less tiny quantity for pcs ingredients', () => {
+    // Tiny quantity rounds to 0
+    expect(convertQuantity(0.004, null, 'pcs')).toBeNull()
+    // Normal quantity still works
+    expect(convertQuantity(2, null, 'pcs')).toBe(2)
+  })
+
   it('flags a bound row whose conversion is impossible and sets its quantity to 0', () => {
     const { rows } = mapToRecipe(recipe([{ name: 'múka', quantity: 2, unit: 'cup' }]), db, URL)
     expect(rows[0]).toMatchObject({ ingredientId: 'flour', quantity: 0, unit: 'g', flagged: true })
@@ -128,6 +135,11 @@ describe('mapToRecipe — quantities', () => {
   it('flags a bound row whose quantity rounds to 0 and sets its quantity to 0', () => {
     const { rows } = mapToRecipe(recipe([{ name: 'múka', quantity: 0.004, unit: 'g' }]), db, URL)
     expect(rows[0]).toMatchObject({ ingredientId: 'flour', quantity: 0, unit: 'g', flagged: true })
+  })
+
+  it('flags a unit-less tiny quantity for a pcs ingredient and sets quantity to 0', () => {
+    const { rows } = mapToRecipe(recipe([{ name: 'vajce', quantity: 0.004, unit: null }]), db, URL)
+    expect(rows[0]).toMatchObject({ ingredientId: 'egg', quantity: 0, unit: 'pcs', flagged: true })
   })
 })
 
