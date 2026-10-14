@@ -1,7 +1,7 @@
 import type { IngredientDbEntry } from '../../types/ingredients'
 import type { Tag } from '../../types/recipes'
 import { fold, matchIngredient } from './ingredientMatch'
-import type { ParsedIngredient, ParsedRecipe } from './types'
+import type { NewIngredientProposal, ParsedIngredient, ParsedRecipe } from './types'
 
 export interface DraftRow {
   ingredientId: string | null
@@ -12,6 +12,12 @@ export interface DraftRow {
   flagged: boolean
   /** The original line from the page, shown as a hint in review. */
   sourceText: string
+  /** Who bound the ingredient: the local matcher or the model. Unset for unmatched rows. */
+  matchedBy?: 'local' | 'ai'
+  /** True when the quantity is the model's estimate, not a conversion. */
+  estimated?: boolean
+  /** A proposed ingredient to create on Save; the row has no ingredientId until then. */
+  newIngredient?: NewIngredientProposal | null
 }
 
 export interface RecipeDraft {
@@ -137,6 +143,8 @@ export function mapToRecipe(
         unit: '',
         flagged: true,
         sourceText,
+        estimated: false,
+        newIngredient: null,
       }
     }
     const converted =
@@ -148,6 +156,9 @@ export function mapToRecipe(
       unit: entry.default_unit,
       flagged: converted === null,
       sourceText,
+      matchedBy: 'local' as const,
+      estimated: false,
+      newIngredient: null,
     }
   })
 
