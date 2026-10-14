@@ -41,18 +41,23 @@ function round2(n: number): number {
 /** Convert into the ingredient's default unit, or null when that is not possible. */
 export function convertQuantity(quantity: number, from: string | null, to: string): number | null {
   if (from === null) return to === 'pcs' ? round2(quantity) : null
-  if (from === to) return round2(quantity)
+  if (from === to) {
+    const result = round2(quantity)
+    return result > 0 ? result : null
+  }
   const a = UNIT_INFO[from]
   const b = UNIT_INFO[to]
   // Counts (pcs, cloves) are never interchangeable with each other.
   if (!a || !b || a.dim !== b.dim || a.dim === 'count') return null
-  return round2((quantity * a.factor) / b.factor)
+  const converted = round2((quantity * a.factor) / b.factor)
+  // Treat a rounded result <= 0 as not convertible.
+  return converted > 0 ? converted : null
 }
 
 function fold(s: string): string {
   return s
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim()

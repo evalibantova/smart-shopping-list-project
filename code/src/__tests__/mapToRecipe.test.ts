@@ -85,6 +85,17 @@ describe('mapToRecipe — quantities', () => {
     expect(convertQuantity(2, 'g', 'pcs')).toBeNull()
   })
 
+  it('treats a rounded result <= 0 as unconvertible', () => {
+    // Same unit: 0.004 g rounds to 0
+    expect(convertQuantity(0.004, 'g', 'g')).toBeNull()
+    // Downward conversion: 0.0001 g to kg rounds to 0
+    expect(convertQuantity(0.0001, 'g', 'kg')).toBeNull()
+    // But normal small values do convert: 0.001 kg to g = 1 g
+    expect(convertQuantity(0.001, 'kg', 'g')).toBe(1)
+    // And 0.01 g to kg = 0.00001 kg, which rounds to 0.00
+    expect(convertQuantity(0.01, 'g', 'kg')).toBeNull()
+  })
+
   it('treats a missing unit as pieces only when the default unit is pcs', () => {
     expect(convertQuantity(2, null, 'pcs')).toBe(2)
     expect(convertQuantity(2, null, 'g')).toBeNull()
@@ -112,6 +123,11 @@ describe('mapToRecipe — quantities', () => {
   it('keeps a unit-less count for a pcs ingredient without flagging', () => {
     const { rows } = mapToRecipe(recipe([{ name: 'vajce', quantity: 2, unit: null }]), db, URL)
     expect(rows[0]).toMatchObject({ quantity: 2, unit: 'pcs', flagged: false })
+  })
+
+  it('flags a bound row whose quantity rounds to 0 and sets its quantity to 0', () => {
+    const { rows } = mapToRecipe(recipe([{ name: 'múka', quantity: 0.004, unit: 'g' }]), db, URL)
+    expect(rows[0]).toMatchObject({ ingredientId: 'flour', quantity: 0, unit: 'g', flagged: true })
   })
 })
 
