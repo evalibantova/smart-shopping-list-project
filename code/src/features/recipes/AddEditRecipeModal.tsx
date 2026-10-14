@@ -153,9 +153,13 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
   const unboundCount = rows.filter((r) => r.ingredientName.trim() !== '' && r.ingredientId === null).length
   const flaggedCount = rows.filter((r) => r.flagged && r.ingredientId !== null).length
 
+  // A matched row whose quantity could not be converted would put a 0 on the shopping list
+  const zeroQtyCount = rows.filter((r) => r.ingredientId !== null && !(r.quantity > 0)).length
+  const gateCount = unboundCount + zeroQtyCount
+
   function handleSave(force: boolean) {
     if (!name.trim()) return
-    if (isImport && unboundCount > 0 && !force) {
+    if (isImport && gateCount > 0 && !force) {
       setConfirmingDrop(true)
       return
     }
@@ -188,10 +192,18 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
 
   const plural = (n: number, one: string, many: string) => (n === 1 ? one : many)
 
-  const footer = confirmingDrop ? (
+  const unmatchedText = `${unboundCount} unmatched ${plural(unboundCount, 'ingredient', 'ingredients')}`
+  const confirmText =
+    zeroQtyCount === 0
+      ? `Save without ${unmatchedText}?`
+      : unboundCount === 0
+        ? `Save ${zeroQtyCount} ${plural(zeroQtyCount, 'ingredient', 'ingredients')} with quantity 0?`
+        : `Save without ${unmatchedText} and with ${zeroQtyCount} at quantity 0?`
+
+  const footer = confirmingDrop && gateCount > 0 ? (
     <>
       <span style={{ flex: 1, alignSelf: 'center', fontSize: 12, color: 'var(--amber)' }}>
-        Save without {unboundCount} unmatched {plural(unboundCount, 'ingredient', 'ingredients')}?
+        {confirmText}
       </span>
       <Button intent="ghost" size="sm" onClick={() => setConfirmingDrop(false)} type="button">
         Go back

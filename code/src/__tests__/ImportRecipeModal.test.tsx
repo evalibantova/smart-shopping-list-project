@@ -108,4 +108,18 @@ describe('ImportRecipeModal', () => {
     expect(signal?.aborted).toBe(true)
     expect(onClose).toHaveBeenCalledTimes(1)
   })
+
+  it('does not hand over a draft that resolves after Cancel', async () => {
+    settingsService.setGeminiKey('k')
+    let resolve!: (d: RecipeDraft) => void
+    vi.mocked(importRecipeFromUrl).mockImplementation(
+      () => new Promise<RecipeDraft>((r) => { resolve = r }),
+    )
+    renderModal()
+    act(() => typeInto(urlInput(), 'https://example.com/p'))
+    await act(async () => button('Import').click())
+    await act(async () => button('Cancel').click())
+    await act(async () => resolve(DRAFT))
+    expect(onImported).not.toHaveBeenCalled()
+  })
 })

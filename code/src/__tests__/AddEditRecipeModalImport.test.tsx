@@ -123,6 +123,96 @@ describe('AddEditRecipeModal — import review mode', () => {
     expect(document.body.textContent).not.toContain('quantity to check')
   })
 
+  const zeroRow = (over = {}) => ({
+    ingredientId: flourId,
+    ingredientName: 'Flour',
+    quantity: 0,
+    unit: 'g',
+    flagged: true,
+    sourceText: '2 cup flour',
+    ...over,
+  })
+  const unboundRow = (name = 'saffron') => ({
+    ingredientId: null,
+    ingredientName: name,
+    quantity: 2,
+    unit: '',
+    flagged: true,
+    sourceText: `2 g ${name}`,
+  })
+
+  it('asks before saving a matched row at quantity 0, and does not save yet', () => {
+    renderImport(draft({ rows: [zeroRow()] }))
+    act(() => button('Save recipe').click())
+    expect(document.body.textContent).toContain('Save 1 ingredient with quantity 0?')
+    expect(useStore.getState().recipes).toHaveLength(0)
+    act(() => button('Save anyway').click())
+    const saved = useStore.getState().recipes
+    expect(saved).toHaveLength(1)
+    expect(saved[0].ingredients).toEqual([{ ingredientId: flourId, quantity: 0 }])
+  })
+
+  it('uses plural wording for the zero-quantity prompt', () => {
+    renderImport(draft({ rows: [zeroRow(), zeroRow()] }))
+    act(() => button('Save recipe').click())
+    expect(document.body.textContent).toContain('Save 2 ingredients with quantity 0?')
+  })
+
+  it('combines both kinds in one prompt', () => {
+    renderImport(draft({ rows: [zeroRow(), unboundRow()] }))
+    act(() => button('Save recipe').click())
+    expect(document.body.textContent).toContain(
+      'Save without 1 unmatched ingredient and with 1 at quantity 0?',
+    )
+    expect(useStore.getState().recipes).toHaveLength(0)
+  })
+
+  it('drops the prompt, never showing "Save without 0", once the last issue is fixed', () => {
+    renderImport(draft({ rows: [zeroRow()] }))
+    act(() => button('Save recipe').click())
+    expect(document.body.textContent).toContain('with quantity 0?')
+    const qty = document.body.querySelector('input[aria-label="Quantity"]') as HTMLInputElement
+    act(() => typeInto(qty, '250'))
+    const text = document.body.textContent ?? ''
+    expect(text).not.toContain('Save without')
+    expect(text).not.toContain('quantity 0?')
+    expect(button('Discard')).toBeDefined()
+    expect(button('Save recipe')).toBeDefined()
+  })
+
+  it('removing the last unmatched row while the prompt is open never reads "Save without 0"', () => {
+    renderImport(draft())
+    act(() => button('Save recipe').click())
+    expect(document.body.textContent).toContain('Save without 1 unmatched ingredient?')
+    const removes = document.body.querySelectorAll('button[aria-label="Remove ingredient"]')
+    act(() => (removes[1] as HTMLButtonElement).click())
+    const text = document.body.textContent ?? ''
+    expect(text).not.toContain('Save without')
+    expect(button('Save recipe')).toBeDefined()
+  })
+
+  it('selecting an ingredient for an unbound row clears its flag and the unmatched count', () => {
+    renderImport(draft({ rows: [unboundRow('Flour')] }))
+    expect(document.body.textContent).toContain('1 ingredient needs matching')
+    const ing = document.body.querySelector('input[placeholder="Ingredient…"]') as HTMLInputElement
+    act(() => typeInto(ing, 'Flou'))
+    const option = Array.from(
+      document.body.querySelectorAll('[data-testid="ingredient-dropdown"] div'),
+    ).find((d) => d.textContent?.trim().startsWith('Flour')) as HTMLElement
+    act(() => option.click())
+    const text = document.body.textContent ?? ''
+    expect(text).not.toContain('needs matching')
+    expect(text).not.toContain('From page:')
+    expect(document.body.querySelector('.rf-flagged')).toBeNull()
+  })
+
+  it('uses plural wording in the banner', () => {
+    renderImport(draft({ rows: [unboundRow('saffron'), unboundRow('cumin'), zeroRow(), zeroRow()] }))
+    const text = document.body.textContent ?? ''
+    expect(text).toContain('2 ingredients need matching')
+    expect(text).toContain('2 quantities to check')
+  })
+
   it('leaves normal add mode unchanged', () => {
     act(() => {
       root.render(<AddEditRecipeModal mode="add" onClose={onClose} />)

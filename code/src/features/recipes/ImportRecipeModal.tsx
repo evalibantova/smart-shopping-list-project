@@ -43,6 +43,8 @@ export function ImportRecipeModal({ onImported, onClose }: Props) {
     setStage('fetching')
     try {
       const draft = await importRecipeFromUrl(url, { signal: controller.signal, onStage: setStage })
+      // A request that resolves after Cancel must not reopen a review the user dismissed
+      if (controller.signal.aborted) return
       onImported(draft)
     } catch (err) {
       if (err instanceof ImportError && err.code === 'aborted') return
