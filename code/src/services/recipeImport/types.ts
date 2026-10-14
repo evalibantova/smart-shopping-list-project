@@ -6,6 +6,8 @@ export interface ParsedIngredient {
   name: string
   quantity: number | null
   unit: ImportUnit | null
+  /** The ingredient line exactly as written on the page. */
+  line?: string
 }
 
 export interface ParsedRecipe {
@@ -13,6 +15,8 @@ export interface ParsedRecipe {
   servings: number | null
   ingredients: ParsedIngredient[]
   steps: string[]
+  tags?: string[]
+  newTags?: string[]
 }
 
 export interface FetchedPage {

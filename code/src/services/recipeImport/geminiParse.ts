@@ -29,11 +29,14 @@ const RESPONSE_SCHEMA = {
           name: { type: 'STRING' },
           quantity: { type: 'NUMBER', nullable: true },
           unit: { type: 'STRING', enum: [...IMPORT_UNITS], nullable: true },
+          line: { type: 'STRING' },
         },
-        required: ['name', 'quantity', 'unit'],
+        required: ['name', 'quantity', 'unit', 'line'],
       },
     },
     steps: { type: 'ARRAY', items: { type: 'STRING' } },
+    tags: { type: 'ARRAY', items: { type: 'STRING' } },
+    newTags: { type: 'ARRAY', items: { type: 'STRING' } },
   },
   required: ['name', 'servings', 'ingredients', 'steps'],
 }
@@ -43,8 +46,15 @@ export interface CallOptions {
   fetchImpl?: typeof fetch
 }
 
-export function buildPrompt(page: FetchedPage): string {
+export function buildPrompt(page: FetchedPage, tagNames: string[] = []): string {
   const kind = page.source === 'jsonld' ? 'schema.org Recipe JSON-LD' : 'page text'
+  const tagRules =
+    tagNames.length > 0
+      ? [
+          `- tags: up to 3 names copied exactly from this list that fit the recipe: ${tagNames.join(', ')}.`,
+          '- newTags: up to 2 more short tags (a main ingredient or a dish type), only if none of the listed tags fits; otherwise an empty list.',
+        ]
+      : []
   return [
     `Extract the recipe from this ${kind}.`,
     'Rules:',
@@ -56,6 +66,8 @@ export function buildPrompt(page: FetchedPage): string {
     '- If the unit is something the allowed list cannot express (for example oz, lb, cups of a countable item), keep the number and set unit to null; do not drop the number.',
     '- steps: the method as short steps, in order.',
     '- servings: a number, or null if not stated.',
+    "- line: each ingredient's line exactly as written on the page.",
+    ...tagRules,
     '',
     page.text,
   ].join('\n')
@@ -97,13 +109,26 @@ export function toParsedRecipe(raw: unknown): ParsedRecipe | null {
       name: i.name.trim(),
       quantity: typeof i.quantity === 'number' && Number.isFinite(i.quantity) ? i.quantity : null,
       unit: isUnit(i.unit) ? i.unit : null,
+      ...(typeof i.line === 'string' && i.line.trim() !== '' ? { line: i.line.trim() } : {}),
     })
   }
 
   const steps = r.steps.filter((s): s is string => typeof s === 'string' && s.trim() !== '').map((s) => s.trim())
   const servings = typeof r.servings === 'number' && Number.isFinite(r.servings) && r.servings > 0 ? r.servings : null
 
-  return { name: r.name.trim(), servings, ingredients, steps }
+  const strings = (v: unknown): string[] =>
+    Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string' && s.trim() !== '').map((s) => s.trim()).slice(0, 5) : []
+  const tags = strings(r.tags)
+  const newTags = strings(r.newTags)
+
+  return {
+    name: r.name.trim(),
+    servings,
+    ingredients,
+    steps,
+    ...(tags.length > 0 ? { tags } : {}),
+    ...(newTags.length > 0 ? { newTags } : {}),
+  }
 }
 
 async function errorMessage(res: Response): Promise<string> {
@@ -144,9 +169,9 @@ export async function callGemini(key: string, body: object, opts: CallOptions): 
 export async function parseRecipeWithGemini(
   page: FetchedPage,
   key: string,
-  opts: CallOptions = {},
+  opts: CallOptions & { tagNames?: string[] } = {},
 ): Promise<ParsedRecipe> {
-  const body = buildGeminiRequest(buildPrompt(page))
+  const body = buildGeminiRequest(buildPrompt(page, opts.tagNames ?? []))
 
   // One automatic retry when the reply is not valid JSON of the expected shape.
   for (let attempt = 0; attempt < 2; attempt++) {

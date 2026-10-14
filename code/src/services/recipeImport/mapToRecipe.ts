@@ -1,5 +1,6 @@
 import type { IngredientDbEntry } from '../../types/ingredients'
-import { matchIngredient } from './ingredientMatch'
+import type { Tag } from '../../types/recipes'
+import { fold, matchIngredient } from './ingredientMatch'
 import type { ParsedIngredient, ParsedRecipe } from './types'
 
 export interface DraftRow {
@@ -19,6 +20,8 @@ export interface RecipeDraft {
   rows: DraftRow[]
   notes: string
   sourceHost: string
+  tagIds?: string[]
+  newTags?: string[]
 }
 
 type Dimension = 'mass' | 'volume' | 'count'
@@ -88,11 +91,41 @@ export function buildNotes(steps: string[], sourceUrl: string): string {
   return [method, source].filter(Boolean).join('\n\n')
 }
 
-function sourceTextOf(ing: ParsedIngredient): string {
-  return [ing.quantity, ing.unit, ing.name].filter((part) => part !== null && part !== '').join(' ')
+const MAX_NEW_TAGS = 3
+
+/** Existing tag names (ignoring case and accents) become ids; unknown names are proposed as new tags. */
+export function mapTags(
+  parsed: Pick<ParsedRecipe, 'tags' | 'newTags'>,
+  tags: Tag[],
+): { tagIds: string[]; newTags: string[] } {
+  const byFold = new Map(tags.map((t) => [fold(t.name), t.id]))
+  const tagIds: string[] = []
+  const newTags: string[] = []
+  const seen = new Set<string>()
+  for (const raw of [...(parsed.tags ?? []), ...(parsed.newTags ?? [])]) {
+    const name = raw.trim()
+    const key = fold(name)
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    const id = byFold.get(key)
+    if (id) tagIds.push(id)
+    else if (newTags.length < MAX_NEW_TAGS) newTags.push(name)
+  }
+  return { tagIds, newTags }
 }
 
-export function mapToRecipe(parsed: ParsedRecipe, db: IngredientDbEntry[], sourceUrl: string): RecipeDraft {
+function sourceTextOf(ing: ParsedIngredient): string {
+  return (
+    ing.line?.trim() || [ing.quantity, ing.unit, ing.name].filter((part) => part !== null && part !== '').join(' ')
+  )
+}
+
+export function mapToRecipe(
+  parsed: ParsedRecipe,
+  db: IngredientDbEntry[],
+  sourceUrl: string,
+  tags: Tag[] = [],
+): RecipeDraft {
   const rows: DraftRow[] = parsed.ingredients.map((ing) => {
     const sourceText = sourceTextOf(ing)
     const entry = matchIngredient(ing.name, db)
@@ -124,5 +157,6 @@ export function mapToRecipe(parsed: ParsedRecipe, db: IngredientDbEntry[], sourc
     rows,
     notes: buildNotes(parsed.steps, sourceUrl),
     sourceHost: hostOf(sourceUrl),
+    ...mapTags(parsed, tags),
   }
 }

@@ -195,3 +195,58 @@ describe('testGeminiKey', () => {
     expect(await codeOf(testGeminiKey(KEY, { fetchImpl }))).toBe('key_rejected')
   })
 })
+
+describe('call 1: original lines and tags', () => {
+  it('asks for the original ingredient line and only mentions tags when names are given', () => {
+    const without = buildPrompt(PAGE)
+    expect(without).toContain('exactly as written on the page')
+    expect(without).not.toContain('newTags')
+
+    const withTags = buildPrompt(PAGE, ['Polievka', 'bravčové'])
+    expect(withTags).toContain('Polievka, bravčové')
+    expect(withTags).toContain('newTags')
+  })
+
+  it('has line, tags and newTags in the response schema', () => {
+    type Schema = {
+      generationConfig: {
+        responseSchema: {
+          properties: {
+            ingredients: { items: { properties: Record<string, unknown> } }
+            tags: { type: string }
+            newTags: { type: string }
+          }
+        }
+      }
+    }
+    const schema = (buildGeminiRequest('p') as Schema).generationConfig.responseSchema
+    expect(schema.properties.ingredients.items.properties.line).toBeDefined()
+    expect(schema.properties.tags.type).toBe('ARRAY')
+    expect(schema.properties.newTags.type).toBe('ARRAY')
+  })
+
+  it('keeps line, tags and newTags from the reply, trimmed and limited to strings', () => {
+    const parsed = toParsedRecipe({
+      name: 'X',
+      servings: 2,
+      ingredients: [
+        { name: 'mrkva', quantity: 1, unit: 'pcs', line: ' 1 veľkú mrkvu ' },
+        { name: 'soľ', quantity: null, unit: null },
+      ],
+      steps: ['Mix'],
+      tags: [' Polievka ', '', 5, 'bravčové'],
+      newTags: ['krevety'],
+    })
+    expect(parsed?.ingredients[0].line).toBe('1 veľkú mrkvu')
+    expect(parsed?.ingredients[1].line).toBeUndefined()
+    expect(parsed?.tags).toEqual(['Polievka', 'bravčové'])
+    expect(parsed?.newTags).toEqual(['krevety'])
+  })
+
+  it('puts the tag names into the request when parsing', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(geminiOk(GOOD))
+    await parseRecipeWithGemini(PAGE, KEY, { fetchImpl, tagNames: ['Polievka', 'Dezert'] })
+    const body = JSON.parse((fetchImpl.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.contents[0].parts[0].text).toContain('Polievka, Dezert')
+  })
+})

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { buildNotes, convertQuantity, mapToRecipe } from '../services/recipeImport/mapToRecipe'
+import { buildNotes, convertQuantity, mapTags, mapToRecipe } from '../services/recipeImport/mapToRecipe'
 import type { ParsedRecipe } from '../services/recipeImport/types'
 import type { IngredientDbEntry } from '../types/ingredients'
+import type { Tag } from '../types/recipes'
 
 const db: IngredientDbEntry[] = [
   { id: 'flour', name: 'Múka', default_unit: 'g', category: 'Pantry' },
@@ -197,5 +198,49 @@ describe('mapToRecipe — servings, notes and host', () => {
 
   it('renumbers steps that Gemini already numbered', () => {
     expect(buildNotes(['1. Mix', '2) Bake'], 'not a url')).toBe('1. Mix\n2. Bake')
+  })
+})
+
+describe('mapToRecipe: tags and original lines', () => {
+  const tags: Tag[] = [
+    { id: 't-soup', name: 'Polievka', color: '#26A69A' },
+    { id: 't-pork', name: 'bravčové', color: '#E57373' },
+  ]
+
+  it('maps tag names to existing ids ignoring case and accents, and lists unknown ones as new', () => {
+    expect(mapTags({ tags: ['polievka', 'BRAVCOVE'], newTags: ['krevety'] }, tags)).toEqual({
+      tagIds: ['t-soup', 't-pork'],
+      newTags: ['krevety'],
+    })
+  })
+
+  it('treats a "new" tag that already exists as the existing tag, and removes duplicates', () => {
+    expect(mapTags({ tags: ['Polievka'], newTags: ['polievka', 'krevety', 'Krevety'] }, tags)).toEqual({
+      tagIds: ['t-soup'],
+      newTags: ['krevety'],
+    })
+  })
+
+  it('proposes at most 3 new tags and tolerates missing lists', () => {
+    expect(mapTags({ newTags: ['a1', 'b2', 'c3', 'd4'] }, tags).newTags).toEqual(['a1', 'b2', 'c3'])
+    expect(mapTags({}, tags)).toEqual({ tagIds: [], newTags: [] })
+  })
+
+  it('puts the tags on the draft and uses the original line as the source text', () => {
+    const draft = mapToRecipe(
+      recipe([{ name: 'mrkva', quantity: 1, unit: 'pcs', line: '1 veľkú mrkvu' }], { tags: ['Polievka'], newTags: ['krevety'] }),
+      db,
+      URL,
+      tags,
+    )
+    expect(draft.tagIds).toEqual(['t-soup'])
+    expect(draft.newTags).toEqual(['krevety'])
+    expect(draft.rows[0].sourceText).toBe('1 veľkú mrkvu')
+  })
+
+  it('keeps working without a tag list', () => {
+    const draft = mapToRecipe(recipe([]), db, URL)
+    expect(draft.tagIds).toEqual([])
+    expect(draft.newTags).toEqual([])
   })
 })
