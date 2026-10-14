@@ -12,6 +12,7 @@ import { TagChip } from '../../components/ui/TagChip'
 import { IngredientAutocomplete } from '../../components/shared/IngredientAutocomplete'
 import { IngredientDbEntry } from '../../types/ingredients'
 import { ingredientsDbService } from '../../services/ingredientsDbService'
+import type { RecipeDraft } from '../../services/recipeImport/mapToRecipe'
 
 const TAG_COLORS = [
   '#f07045',
@@ -30,28 +31,39 @@ interface IngredientRow {
   ingredientName: string
   quantity: number
   unit: string
+  /** Import review: quantity or match needs the user's attention. */
+  flagged?: boolean
+  /** Import review: the original line from the page. */
+  sourceText?: string
 }
 
 interface AddEditRecipeModalProps {
-  mode: 'add' | 'edit'
+  mode: 'add' | 'edit' | 'import'
   recipe?: Recipe
+  draft?: RecipeDraft
   onClose: () => void
 }
 
-export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModalProps) {
+export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditRecipeModalProps) {
   const tags = useStore((s) => s.tags)
   const addRecipe = useStore((s) => s.addRecipe)
   const updateRecipe = useStore((s) => s.updateRecipe)
   const addTag = useStore((s) => s.addTag)
 
+  const isImport = mode === 'import'
+
   const [emoji, setEmoji] = useState(recipe?.emoji ?? '')
-  const [name, setName] = useState(recipe?.name ?? '')
-  const [servings, setServings] = useState(recipe?.servings ?? 2)
+  const [name, setName] = useState(recipe?.name ?? draft?.name ?? '')
+  const [servings, setServings] = useState(recipe?.servings ?? draft?.servings ?? 2)
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(recipe?.tagIds ?? [])
-  const [notes, setNotes] = useState(recipe?.notes ?? '')
+  const [notes, setNotes] = useState(recipe?.notes ?? draft?.notes ?? '')
+  const [confirmingDrop, setConfirmingDrop] = useState(false)
 
   // Ingredients rows
   const [rows, setRows] = useState<IngredientRow[]>(() => {
+    if (draft && draft.rows.length > 0) {
+      return draft.rows.map((r) => ({ rowId: crypto.randomUUID(), ...r }))
+    }
     if (!recipe || recipe.ingredients.length === 0) {
       return [{ rowId: crypto.randomUUID(), ingredientId: null, ingredientName: '', quantity: 1, unit: '' }]
     }
@@ -100,7 +112,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
     setRows((prev) =>
       prev.map((row, i) =>
         i === idx
-          ? { ...row, ingredientId: entry.id, ingredientName: entry.name, unit: entry.default_unit }
+          ? { ...row, ingredientId: entry.id, ingredientName: entry.name, unit: entry.default_unit, flagged: false }
           : row
       )
     )
@@ -118,7 +130,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
 
   function handleQuantityChange(idx: number, value: number) {
     setRows((prev) =>
-      prev.map((row, i) => (i === idx ? { ...row, quantity: value } : row))
+      prev.map((row, i) => (i === idx ? { ...row, quantity: value, flagged: false } : row))
     )
   }
 
@@ -138,8 +150,15 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
     setShowNewTag(false)
   }
 
-  function handleSave() {
+  const unboundCount = rows.filter((r) => r.ingredientName.trim() !== '' && r.ingredientId === null).length
+  const flaggedCount = rows.filter((r) => r.flagged && r.ingredientId !== null).length
+
+  function handleSave(force: boolean) {
     if (!name.trim()) return
+    if (isImport && unboundCount > 0 && !force) {
+      setConfirmingDrop(true)
+      return
+    }
 
     const validIngredients = rows
       .filter((r) => r.ingredientId !== null)
@@ -154,7 +173,7 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
       notes: notes.trim(),
     }
 
-    if (mode === 'add') {
+    if (mode === 'add' || mode === 'import') {
       const created = recipeService.create(data)
       addRecipe(created)
     } else if (mode === 'edit' && recipe) {
@@ -165,15 +184,29 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
     onClose()
   }
 
-  const title = mode === 'add' ? 'New Recipe' : 'Edit Recipe'
+  const title = mode === 'edit' ? 'Edit Recipe' : mode === 'import' ? 'Review imported recipe' : 'New Recipe'
 
-  const footer = (
+  const plural = (n: number, one: string, many: string) => (n === 1 ? one : many)
+
+  const footer = confirmingDrop ? (
+    <>
+      <span style={{ flex: 1, alignSelf: 'center', fontSize: 12, color: 'var(--amber)' }}>
+        Save without {unboundCount} unmatched {plural(unboundCount, 'ingredient', 'ingredients')}?
+      </span>
+      <Button intent="ghost" size="sm" onClick={() => setConfirmingDrop(false)} type="button">
+        Go back
+      </Button>
+      <Button intent="coral" size="sm" onClick={() => handleSave(true)} type="button">
+        Save anyway
+      </Button>
+    </>
+  ) : (
     <>
       <Button intent="ghost" size="sm" onClick={onClose} type="button">
-        Cancel
+        {isImport ? 'Discard' : 'Cancel'}
       </Button>
-      <Button intent="coral" size="sm" onClick={handleSave} type="button">
-        Save
+      <Button intent="coral" size="sm" onClick={() => handleSave(false)} type="button">
+        {isImport ? 'Save recipe' : 'Save'}
       </Button>
     </>
   )
@@ -181,6 +214,21 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
   return (
     <Modal isOpen onClose={onClose} title={title} footer={footer}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {isImport && draft && (
+          <div className="rf-import-banner" role="status">
+            <strong>Imported from {draft.sourceHost || 'the web'}.</strong> Check everything, then save.
+            {unboundCount > 0 && (
+              <div>
+                {unboundCount} {plural(unboundCount, 'ingredient needs', 'ingredients need')} matching.
+              </div>
+            )}
+            {flaggedCount > 0 && (
+              <div>
+                {flaggedCount} {plural(flaggedCount, 'quantity', 'quantities')} to check.
+              </div>
+            )}
+          </div>
+        )}
         {/* Emoji + name */}
         <div className="rf-id-row">
           <input
@@ -332,10 +380,11 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
           <div className="rf-ing-list">
             {rows.map((row, idx) => {
               const unlinked = row.ingredientName.trim() !== '' && row.ingredientId === null
+              const flagged = row.flagged === true && row.ingredientId !== null
               return (
                 <div
                   key={row.rowId}
-                  className={`rf-ing-row${unlinked ? ' rf-unlinked' : ''}`}
+                  className={`rf-ing-row${unlinked ? ' rf-unlinked' : ''}${flagged ? ' rf-flagged' : ''}`}
                 >
                   <div style={{ minWidth: 0 }}>
                     <IngredientAutocomplete
@@ -344,6 +393,9 @@ export function AddEditRecipeModal({ mode, recipe, onClose }: AddEditRecipeModal
                       onSelect={(entry) => handleIngredientSelect(idx, entry)}
                       placeholder="Ingredient…"
                     />
+                    {row.sourceText && (unlinked || flagged) && (
+                      <div className="rf-ing-hint">From page: {row.sourceText}</div>
+                    )}
                   </div>
                   <div className="qty-unit">
                     <input

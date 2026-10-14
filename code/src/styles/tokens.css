@@ -533,6 +533,27 @@ select.field {
   border-bottom-color: var(--coral);
 }
 
+/* Import review: a bound row whose quantity needs checking */
+.rf-ing-row.rf-flagged .qty-unit input {
+  background: var(--amber-pale);
+  border-bottom: 2px solid var(--amber);
+}
+
+.rf-ing-hint {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.rf-import-banner {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--amber-pale);
+  color: var(--text-mid);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @keyframes rf-reveal {
   from { opacity: 0; transform: translateY(-4px) }
 }
