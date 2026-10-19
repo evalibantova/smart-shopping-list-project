@@ -1,27 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createRoot } from 'react-dom/client'
 import { act } from 'react'
 import { AddEditRecipeModal } from '../features/recipes/AddEditRecipeModal'
-import { ingredientsDbService } from '../services/ingredientsDbService'
-import { tagService } from '../features/recipes/services/tagService'
-import { useStore } from '../store'
+import { installApi } from '../test/fetchMock'
+import { FLOUR } from '../test/fixtures'
+import { renderWithClient, typeInto, waitFor, type Rendered } from '../test/renderWithClient'
 import type { DraftRow, RecipeDraft } from '../services/recipeImport/mapToRecipe'
+import type { Tag } from '../types/recipes'
 
-// React testing needs this flag to run act() without warnings
-;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+type SavedBody = { ingredients: { ingredientId: string; quantity: number }[]; tagIds: string[] }
 
-function typeInto(input: HTMLInputElement, value: string) {
-  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
-  setter.call(input, value)
-  input.dispatchEvent(new Event('input', { bubbles: true }))
-}
+const TAG_SOUP: Tag = { id: 'tag-soup', name: 'Polievka', color: '#26A69A' }
 
 describe('AddEditRecipeModal: import review with AI proposals', () => {
-  let container: HTMLDivElement
-  let root!: ReturnType<typeof createRoot>
-  let flourId: string
-  let soupTagId: string
   const onClose = vi.fn()
+  const flourId = FLOUR.id
+  let rendered: Rendered
+  let server: ReturnType<typeof installApi>
 
   const cabbage: DraftRow = {
     ingredientId: null,
@@ -51,40 +45,32 @@ describe('AddEditRecipeModal: import review with AI proposals', () => {
     notes: '',
     sourceHost: 'example.com',
     rows: [cabbage, flour()],
-    tagIds: [soupTagId],
+    tagIds: [TAG_SOUP.id],
     newTags: ['krevety'],
     ...over,
   })
 
   beforeEach(() => {
-    localStorage.clear()
     onClose.mockReset()
-    useStore.setState({ recipes: [], tags: [] })
-    flourId = ingredientsDbService.create('Flour', 'g', 'Pantry & Dry Goods').id
-    soupTagId = tagService.create('Polievka', '#26A69A').id
-    useStore.setState({ tags: tagService.getAll() })
-    container = document.createElement('div')
-    document.body.appendChild(container)
-    act(() => {
-      root = createRoot(container)
-    })
+    server = installApi({ seed: { ingredients: [FLOUR], tags: [TAG_SOUP] } })
   })
 
   afterEach(() => {
-    act(() => root.unmount())
-    container.remove()
+    rendered.unmount()
     document.body.innerHTML = ''
+    vi.unstubAllGlobals()
   })
 
   function renderDraft(d: RecipeDraft) {
-    act(() => {
-      root.render(<AddEditRecipeModal mode="import" draft={d} onClose={onClose} />)
+    rendered = renderWithClient(<AddEditRecipeModal mode="import" draft={d} onClose={onClose} />, {
+      seed: { ingredients: [FLOUR], tags: [TAG_SOUP] },
     })
   }
   const text = () => document.body.textContent ?? ''
   const button = (label: string) =>
     Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.trim() === label) as HTMLButtonElement
-  const dbNames = () => ingredientsDbService.getAll().map((e) => e.name)
+  const posts = (path: string) => server.find('POST', path)
+  const recipeBody = () => posts('/api/recipes')[0].body as SavedBody
 
   it('shows the hints and banner counts for new, AI-matched and estimated rows', () => {
     renderDraft(draft())
@@ -97,31 +83,32 @@ describe('AddEditRecipeModal: import review with AI proposals', () => {
   it('creates nothing before Save, and Discard creates nothing', () => {
     renderDraft(draft())
     act(() => button('Discard').click())
-    expect(dbNames()).toEqual(['Flour'])
-    expect(tagService.getAll().map((t) => t.name)).toEqual(['Polievka'])
-    expect(localStorage.getItem('slist_recipes')).toBeNull()
+    expect(server.calls).toHaveLength(0)
   })
 
-  it('Save creates the new ingredient and the new tag, and binds the recipe to them', () => {
+  it('Save creates the new ingredient and the new tag first, then the recipe bound to their server ids', async () => {
     renderDraft(draft())
-    act(() => button('Save recipe').click())
+    await act(async () => button('Save recipe').click())
+    await waitFor(() => expect(posts('/api/recipes')).toHaveLength(1))
     expect(text()).not.toContain('Save without')
 
-    const created = ingredientsDbService.getAll().find((e) => e.name === 'čínska kapusta')!
-    expect(created).toMatchObject({ default_unit: 'g', category: 'Produce' })
-    const newTag = tagService.getAll().find((t) => t.name === 'krevety')!
-    expect(newTag.color).toBe('#9E9E9E')
-
-    const saved = useStore.getState().recipes[0]
-    expect(saved.ingredients).toEqual([
-      { ingredientId: created.id, quantity: 300 },
+    // The recipe is only sent once everything it points at exists
+    expect(server.calls.filter((c) => c.method === 'POST').map((c) => c.path)).toEqual([
+      '/api/ingredients',
+      '/api/tags',
+      '/api/recipes',
+    ])
+    expect(posts('/api/ingredients')[0].body).toEqual({ name: 'čínska kapusta', default_unit: 'g', category: 'Produce' })
+    expect(posts('/api/tags')[0].body).toEqual({ name: 'krevety', color: '#9E9E9E' })
+    expect(recipeBody().ingredients).toEqual([
+      { ingredientId: 'srv-1', quantity: 300 },
       { ingredientId: flourId, quantity: 100 },
     ])
-    expect(saved.tagIds).toEqual([soupTagId, newTag.id])
-    expect(useStore.getState().tags.map((t) => t.name)).toContain('krevety')
+    expect(recipeBody().tagIds).toEqual([TAG_SOUP.id, 'srv-2'])
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
   })
 
-  it('a deselected new tag is not created', () => {
+  it('a deselected new tag is not created', async () => {
     renderDraft(draft())
     // the chip's text may sit in a nested element: take the deepest match, the click bubbles to the chip
     const chip = Array.from(document.body.querySelectorAll('*'))
@@ -129,16 +116,19 @@ describe('AddEditRecipeModal: import review with AI proposals', () => {
       .pop() as HTMLElement
     act(() => chip.click())
     expect(text()).not.toContain('krevety (new)')
-    act(() => button('Save recipe').click())
-    expect(tagService.getAll().map((t) => t.name)).toEqual(['Polievka'])
+    await act(async () => button('Save recipe').click())
+    await waitFor(() => expect(posts('/api/recipes')).toHaveLength(1))
+    expect(posts('/api/tags')).toHaveLength(0)
+    expect(recipeBody().tagIds).toEqual([TAG_SOUP.id])
   })
 
-  it('creates a new ingredient once when two rows propose it', () => {
+  it('creates a new ingredient once when two rows propose it', async () => {
     renderDraft(draft({ rows: [cabbage, { ...cabbage, ingredientName: 'Čínska kapusta ' }] }))
-    act(() => button('Save recipe').click())
-    expect(dbNames().filter((n) => n.toLowerCase().startsWith('čínska'))).toHaveLength(1)
-    const saved = useStore.getState().recipes[0]
-    expect(saved.ingredients[0].ingredientId).toBe(saved.ingredients[1].ingredientId)
+    await act(async () => button('Save recipe').click())
+    await waitFor(() => expect(posts('/api/recipes')).toHaveLength(1))
+    expect(posts('/api/ingredients')).toHaveLength(1)
+    const [first, second] = recipeBody().ingredients
+    expect(first.ingredientId).toBe(second.ingredientId)
   })
 
   it('editing the estimated quantity clears the estimate hint', () => {
@@ -157,15 +147,16 @@ describe('AddEditRecipeModal: import review with AI proposals', () => {
     expect(text()).not.toContain('New ingredient (g)')
     act(() => button('Save recipe').click())
     expect(text()).toContain('Save without 1 unmatched ingredient?')
-    expect(dbNames()).toEqual(['Flour'])
+    expect(server.calls).toHaveLength(0)
   })
 
   it('a new ingredient with quantity 0 asks before saving', () => {
     renderDraft(draft({ rows: [{ ...cabbage, quantity: 0, estimated: false }] }))
     act(() => button('Save recipe').click())
     expect(text()).toContain('Save 1 ingredient with quantity 0?')
-    expect(dbNames()).toEqual(['Flour'])
+    expect(server.calls).toHaveLength(0)
   })
+
   it('typing over an AI-matched row drops the "Matched by AI" label', () => {
     renderDraft(draft())
     const nameInputs = document.body.querySelectorAll<HTMLInputElement>('.rf-ing-row input:not([type="number"])')
@@ -173,7 +164,7 @@ describe('AddEditRecipeModal: import review with AI proposals', () => {
     expect(text()).not.toContain('Matched by AI')
   })
 
-  it('a proposal with an invalid unit is an ordinary unmatched row and is never created', () => {
+  it('a proposal with an invalid unit is an ordinary unmatched row and is never created', async () => {
     const bad: DraftRow = {
       ...cabbage,
       estimated: false,
@@ -184,9 +175,10 @@ describe('AddEditRecipeModal: import review with AI proposals', () => {
     expect(text()).not.toContain('will be created')
     act(() => button('Save recipe').click())
     expect(text()).toContain('Save without 1 unmatched ingredient?')
-    expect(dbNames()).toEqual(['Flour'])
-    act(() => button('Save anyway').click())
-    expect(dbNames()).toEqual(['Flour'])
-    expect(useStore.getState().recipes[0].ingredients).toEqual([{ ingredientId: flourId, quantity: 100 }])
+    expect(server.calls).toHaveLength(0)
+    await act(async () => button('Save anyway').click())
+    await waitFor(() => expect(posts('/api/recipes')).toHaveLength(1))
+    expect(posts('/api/ingredients')).toHaveLength(0)
+    expect(recipeBody().ingredients).toEqual([{ ingredientId: flourId, quantity: 100 }])
   })
 })

@@ -1,26 +1,23 @@
 // code/src/__tests__/AddEditRecipeModalImport.test.tsx
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createRoot } from 'react-dom/client'
 import { act } from 'react'
 import { AddEditRecipeModal } from '../features/recipes/AddEditRecipeModal'
-import { ingredientsDbService } from '../services/ingredientsDbService'
-import { useStore } from '../store'
+import { queryKeys } from '../api/queryKeys'
+import { installApi } from '../test/fetchMock'
+import { FLOUR } from '../test/fixtures'
+import { renderWithClient, typeInto, waitFor, type Rendered } from '../test/renderWithClient'
 import type { RecipeDraft } from '../services/recipeImport/mapToRecipe'
+import type { Recipe } from '../types/recipes'
 
-// Tell React this is an act() environment so act() calls do not warn
-;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+type SavedBody = { name: string; notes: string; ingredients: { ingredientId: string; quantity: number }[] }
 
-function typeInto(input: HTMLInputElement, value: string) {
-  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
-  setter.call(input, value)
-  input.dispatchEvent(new Event('input', { bubbles: true }))
-}
-
-describe('AddEditRecipeModal — import review mode', () => {
-  let container: HTMLDivElement
-  let root!: ReturnType<typeof createRoot>
-  let flourId: string
+describe('AddEditRecipeModal: import review mode', () => {
   const onClose = vi.fn()
+  const flourId = FLOUR.id
+  let rendered: Rendered
+  let server: ReturnType<typeof installApi>
+  const recipePosts = () => server.find('POST', '/api/recipes')
+  const savedBody = () => recipePosts()[0].body as SavedBody
 
   function draft(over: Partial<RecipeDraft> = {}): RecipeDraft {
     return {
@@ -37,78 +34,70 @@ describe('AddEditRecipeModal — import review mode', () => {
   }
 
   beforeEach(() => {
-    localStorage.clear()
     onClose.mockReset()
-    useStore.setState({ recipes: [], tags: [] })
-    flourId = ingredientsDbService.create('Flour', 'g', 'Pantry').id
-    container = document.createElement('div')
-    document.body.appendChild(container)
-    act(() => {
-      root = createRoot(container)
-    })
+    server = installApi({ seed: { ingredients: [FLOUR] } })
   })
 
   afterEach(() => {
-    act(() => root.unmount())
-    container.remove()
+    rendered.unmount()
     document.body.innerHTML = ''
+    vi.unstubAllGlobals()
   })
 
   function renderImport(d: RecipeDraft) {
-    act(() => {
-      root.render(<AddEditRecipeModal mode="import" draft={d} onClose={onClose} />)
+    rendered = renderWithClient(<AddEditRecipeModal mode="import" draft={d} onClose={onClose} />, {
+      seed: { ingredients: [FLOUR] },
     })
   }
   const button = (label: string) =>
     Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.trim() === label) as HTMLButtonElement
+  const text = () => document.body.textContent ?? ''
 
   it('shows the banner, the title, and counts of unmatched and flagged rows', () => {
     renderImport(draft())
-    const text = document.body.textContent ?? ''
-    expect(text).toContain('Review imported recipe')
-    expect(text).toContain('Imported from example.com')
-    expect(text).toContain('1 ingredient needs matching')
-    expect(text).toContain('From page: 2 g saffron')
+    expect(text()).toContain('Review imported recipe')
+    expect(text()).toContain('Imported from example.com')
+    expect(text()).toContain('1 ingredient needs matching')
+    expect(text()).toContain('From page: 2 g saffron')
   })
 
-  it('writes nothing before Save, and Discard saves nothing', () => {
+  it('sends nothing before Save, and Discard saves nothing', () => {
     renderImport(draft())
-    expect(localStorage.getItem('slist_recipes')).toBeNull()
+    expect(server.calls).toHaveLength(0)
     act(() => button('Discard').click())
     expect(onClose).toHaveBeenCalledTimes(1)
-    expect(localStorage.getItem('slist_recipes')).toBeNull()
-    expect(useStore.getState().recipes).toHaveLength(0)
+    expect(server.calls).toHaveLength(0)
   })
 
   it('asks before dropping unmatched ingredients, and Go back keeps everything unsaved', () => {
     renderImport(draft())
     act(() => button('Save recipe').click())
-    expect(document.body.textContent).toContain('Save without 1 unmatched ingredient?')
-    expect(localStorage.getItem('slist_recipes')).toBeNull()
+    expect(text()).toContain('Save without 1 unmatched ingredient?')
+    expect(server.calls).toHaveLength(0)
 
     act(() => button('Go back').click())
-    expect(document.body.textContent).not.toContain('Save without')
+    expect(text()).not.toContain('Save without')
     expect(onClose).not.toHaveBeenCalled()
   })
 
-  it('Save anyway saves the recipe with only the matched ingredient', () => {
+  it('Save anyway saves the recipe with only the matched ingredient', async () => {
     renderImport(draft())
     act(() => button('Save recipe').click())
-    act(() => button('Save anyway').click())
+    await act(async () => button('Save anyway').click())
 
-    const saved = useStore.getState().recipes
-    expect(saved).toHaveLength(1)
-    expect(saved[0].name).toBe('Pancakes')
-    expect(saved[0].ingredients).toEqual([{ ingredientId: flourId, quantity: 200 }])
-    expect(saved[0].notes).toContain('Zdroj: [example.com]')
-    expect(onClose).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(recipePosts()).toHaveLength(1))
+    expect(savedBody().name).toBe('Pancakes')
+    expect(savedBody().ingredients).toEqual([{ ingredientId: flourId, quantity: 200 }])
+    expect(savedBody().notes).toContain('Zdroj: [example.com]')
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
+    expect(rendered.client.getQueryData<Recipe[]>(queryKeys.recipes)).toHaveLength(1)
   })
 
-  it('saves directly, with no confirmation, when every row is matched', () => {
+  it('saves directly, with no confirmation, when every row is matched', async () => {
     renderImport(draft({ rows: [draft().rows[0]] }))
-    act(() => button('Save recipe').click())
-    expect(document.body.textContent).not.toContain('Save without')
-    expect(useStore.getState().recipes).toHaveLength(1)
+    await act(async () => button('Save recipe').click())
+    expect(text()).not.toContain('Save without')
+    await waitFor(() => expect(recipePosts()).toHaveLength(1))
   })
 
   it('editing a flagged quantity clears its flag', () => {
@@ -117,10 +106,10 @@ describe('AddEditRecipeModal — import review mode', () => {
         rows: [{ ingredientId: flourId, ingredientName: 'Flour', quantity: 0, unit: 'g', flagged: true, sourceText: '2 cup flour' }],
       }),
     )
-    expect(document.body.textContent).toContain('1 quantity to check')
+    expect(text()).toContain('1 quantity to check')
     const qty = document.body.querySelector('input[aria-label="Quantity"]') as HTMLInputElement
     act(() => typeInto(qty, '250'))
-    expect(document.body.textContent).not.toContain('quantity to check')
+    expect(text()).not.toContain('quantity to check')
   })
 
   const zeroRow = (over = {}) => ({
@@ -141,41 +130,37 @@ describe('AddEditRecipeModal — import review mode', () => {
     sourceText: `2 g ${name}`,
   })
 
-  it('asks before saving a matched row at quantity 0, and does not save yet', () => {
+  it('asks before saving a matched row at quantity 0, and does not save yet', async () => {
     renderImport(draft({ rows: [zeroRow()] }))
     act(() => button('Save recipe').click())
-    expect(document.body.textContent).toContain('Save 1 ingredient with quantity 0?')
-    expect(useStore.getState().recipes).toHaveLength(0)
-    act(() => button('Save anyway').click())
-    const saved = useStore.getState().recipes
-    expect(saved).toHaveLength(1)
-    expect(saved[0].ingredients).toEqual([{ ingredientId: flourId, quantity: 0 }])
+    expect(text()).toContain('Save 1 ingredient with quantity 0?')
+    expect(recipePosts()).toHaveLength(0)
+    await act(async () => button('Save anyway').click())
+    await waitFor(() => expect(recipePosts()).toHaveLength(1))
+    expect(savedBody().ingredients).toEqual([{ ingredientId: flourId, quantity: 0 }])
   })
 
   it('uses plural wording for the zero-quantity prompt', () => {
     renderImport(draft({ rows: [zeroRow(), zeroRow()] }))
     act(() => button('Save recipe').click())
-    expect(document.body.textContent).toContain('Save 2 ingredients with quantity 0?')
+    expect(text()).toContain('Save 2 ingredients with quantity 0?')
   })
 
   it('combines both kinds in one prompt', () => {
     renderImport(draft({ rows: [zeroRow(), unboundRow()] }))
     act(() => button('Save recipe').click())
-    expect(document.body.textContent).toContain(
-      'Save without 1 unmatched ingredient and with 1 at quantity 0?',
-    )
-    expect(useStore.getState().recipes).toHaveLength(0)
+    expect(text()).toContain('Save without 1 unmatched ingredient and with 1 at quantity 0?')
+    expect(recipePosts()).toHaveLength(0)
   })
 
   it('drops the prompt, never showing "Save without 0", once the last issue is fixed', () => {
     renderImport(draft({ rows: [zeroRow()] }))
     act(() => button('Save recipe').click())
-    expect(document.body.textContent).toContain('with quantity 0?')
+    expect(text()).toContain('with quantity 0?')
     const qty = document.body.querySelector('input[aria-label="Quantity"]') as HTMLInputElement
     act(() => typeInto(qty, '250'))
-    const text = document.body.textContent ?? ''
-    expect(text).not.toContain('Save without')
-    expect(text).not.toContain('quantity 0?')
+    expect(text()).not.toContain('Save without')
+    expect(text()).not.toContain('quantity 0?')
     expect(button('Discard')).toBeDefined()
     expect(button('Save recipe')).toBeDefined()
   })
@@ -183,43 +168,37 @@ describe('AddEditRecipeModal — import review mode', () => {
   it('removing the last unmatched row while the prompt is open never reads "Save without 0"', () => {
     renderImport(draft())
     act(() => button('Save recipe').click())
-    expect(document.body.textContent).toContain('Save without 1 unmatched ingredient?')
+    expect(text()).toContain('Save without 1 unmatched ingredient?')
     const removes = document.body.querySelectorAll('button[aria-label="Remove ingredient"]')
     act(() => (removes[1] as HTMLButtonElement).click())
-    const text = document.body.textContent ?? ''
-    expect(text).not.toContain('Save without')
+    expect(text()).not.toContain('Save without')
     expect(button('Save recipe')).toBeDefined()
   })
 
   it('selecting an ingredient for an unbound row clears its flag and the unmatched count', () => {
     renderImport(draft({ rows: [unboundRow('Flour')] }))
-    expect(document.body.textContent).toContain('1 ingredient needs matching')
+    expect(text()).toContain('1 ingredient needs matching')
     const ing = document.body.querySelector('input[placeholder="Ingredient…"]') as HTMLInputElement
     act(() => typeInto(ing, 'Flou'))
-    const option = Array.from(
-      document.body.querySelectorAll('[data-testid="ingredient-dropdown"] div'),
-    ).find((d) => d.textContent?.trim().startsWith('Flour')) as HTMLElement
+    const option = Array.from(document.body.querySelectorAll('[data-testid="ingredient-dropdown"] div')).find((d) =>
+      d.textContent?.trim().startsWith('Flour'),
+    ) as HTMLElement
     act(() => option.click())
-    const text = document.body.textContent ?? ''
-    expect(text).not.toContain('needs matching')
-    expect(text).not.toContain('From page:')
+    expect(text()).not.toContain('needs matching')
+    expect(text()).not.toContain('From page:')
     expect(document.body.querySelector('.rf-flagged')).toBeNull()
   })
 
   it('uses plural wording in the banner', () => {
     renderImport(draft({ rows: [unboundRow('saffron'), unboundRow('cumin'), zeroRow(), zeroRow()] }))
-    const text = document.body.textContent ?? ''
-    expect(text).toContain('2 ingredients need matching')
-    expect(text).toContain('2 quantities to check')
+    expect(text()).toContain('2 ingredients need matching')
+    expect(text()).toContain('2 quantities to check')
   })
 
   it('leaves normal add mode unchanged', () => {
-    act(() => {
-      root.render(<AddEditRecipeModal mode="add" onClose={onClose} />)
-    })
-    const text = document.body.textContent ?? ''
-    expect(text).toContain('New Recipe')
-    expect(text).not.toContain('Imported from')
+    rendered = renderWithClient(<AddEditRecipeModal mode="add" onClose={onClose} />, { seed: { ingredients: [FLOUR] } })
+    expect(text()).toContain('New Recipe')
+    expect(text()).not.toContain('Imported from')
     expect(button('Cancel')).toBeDefined()
     expect(button('Save')).toBeDefined()
   })

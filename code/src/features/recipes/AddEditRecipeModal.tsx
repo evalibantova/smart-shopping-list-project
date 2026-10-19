@@ -1,9 +1,10 @@
 import { useState, useRef, useLayoutEffect } from 'react'
 import { X, Plus, ChevronRight } from 'lucide-react'
 import { Recipe } from '../../types/recipes'
-import { recipeService } from './services/recipeService'
-import { tagService } from './services/tagService'
-import { useStore } from '../../store'
+import { useTags, useCreateTag } from '../../api/tags'
+import { useIngredients, useCreateIngredient } from '../../api/ingredients'
+import { useSaveRecipe } from '../../api/recipes'
+import { messageForError, type WriteKind } from '../../api/client'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { IconButton } from '../../components/ui/IconButton'
@@ -11,7 +12,6 @@ import { NumberInput } from '../../components/ui/NumberInput'
 import { TagChip } from '../../components/ui/TagChip'
 import { IngredientAutocomplete } from '../../components/shared/IngredientAutocomplete'
 import { IngredientDbEntry } from '../../types/ingredients'
-import { ingredientsDbService } from '../../services/ingredientsDbService'
 import type { RecipeDraft } from '../../services/recipeImport/mapToRecipe'
 import { INGREDIENT_UNITS, type NewIngredientProposal } from '../../services/recipeImport/types'
 import { fold } from '../../services/recipeImport/ingredientMatch'
@@ -55,12 +55,20 @@ interface AddEditRecipeModalProps {
 }
 
 export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditRecipeModalProps) {
-  const tags = useStore((s) => s.tags)
-  const addRecipe = useStore((s) => s.addRecipe)
-  const updateRecipe = useStore((s) => s.updateRecipe)
-  const addTag = useStore((s) => s.addTag)
+  const tags = useTags()
+  const ingredients = useIngredients()
+  const createTag = useCreateTag()
+  const createIngredient = useCreateIngredient()
+  const saveRecipe = useSaveRecipe()
 
   const isImport = mode === 'import'
+
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  // Names already created on the server by an earlier failed Save, so a retry reuses them instead of creating
+  // them again (a second create would be a 409).
+  const createdIngredientIds = useRef(new Map<string, string>())
+  const createdTagIds = useRef(new Map<string, string>())
 
   const [emoji, setEmoji] = useState(recipe?.emoji ?? '')
   const [name, setName] = useState(recipe?.name ?? draft?.name ?? '')
@@ -78,8 +86,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     if (!recipe || recipe.ingredients.length === 0) {
       return [{ rowId: crypto.randomUUID(), ingredientId: null, ingredientName: '', quantity: 1, unit: '' }]
     }
-    const db = ingredientsDbService.getAll()
-    const dbMap = new Map(db.map((e) => [e.id, e]))
+    const dbMap = new Map(ingredients.map((e) => [e.id, e]))
     return recipe.ingredients.map((ing) => ({
       rowId: crypto.randomUUID(),
       ingredientId: ing.ingredientId,
@@ -110,6 +117,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
   const [showNewTag, setShowNewTag] = useState(false)
   const [newTagName, setNewTagName] = useState('')
   const [newTagColor, setNewTagColor] = useState(TAG_COLORS[0])
+  const [tagError, setTagError] = useState('')
 
   function handleAddRow() {
     setRows((prev) => [...prev, { rowId: crypto.randomUUID(), ingredientId: null, ingredientName: '', quantity: 1, unit: '' }])
@@ -151,14 +159,20 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
     )
   }
 
-  function handleCreateTag() {
-    if (!newTagName.trim()) return
-    const tag = tagService.create(newTagName.trim(), newTagColor)
-    addTag(tag)
-    setSelectedTagIds((prev) => [...prev, tag.id])
-    setNewTagName('')
-    setNewTagColor(TAG_COLORS[0])
-    setShowNewTag(false)
+  // The tag is saved first; it is only selected (with its server id) once that worked
+  async function handleCreateTag() {
+    const tagName = newTagName.trim()
+    if (!tagName || createTag.isPending) return
+    setTagError('')
+    try {
+      const tag = await createTag.mutateAsync({ name: tagName, color: newTagColor })
+      setSelectedTagIds((prev) => [...prev, tag.id])
+      setNewTagName('')
+      setNewTagColor(TAG_COLORS[0])
+      setShowNewTag(false)
+    } catch (err) {
+      setTagError(messageForError(err, 'tag'))
+    }
   }
 
   // A proposal with a unit the ingredient database rejects is treated as an ordinary unmatched row
@@ -175,53 +189,74 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
   const zeroQtyCount = rows.filter((r) => (r.ingredientId !== null || isNewRow(r)) && !(r.quantity > 0)).length
   const gateCount = unboundCount + zeroQtyCount
 
-  function handleSave(force: boolean) {
-    if (!name.trim()) return
+  async function handleSave(force: boolean) {
+    if (!name.trim() || saving) return
     if (isImport && gateCount > 0 && !force) {
       setConfirmingDrop(true)
       return
     }
 
-    // Nothing is created before this point: new ingredients and tags only exist once the user saves
-    const createdIdByName = new Map<string, string>()
-    const savedRows = rows.map((r) => {
-      if (r.ingredientId !== null || !r.newIngredient || !isNewRow(r)) return r
-      const key = fold(r.newIngredient.name)
-      let id = createdIdByName.get(key)
-      if (!id) {
-        id = ingredientsDbService.create(r.newIngredient.name, r.newIngredient.default_unit, r.newIngredient.category).id
-        createdIdByName.set(key, id)
+    setConfirmingDrop(false)
+    setSaving(true)
+    setSaveError('')
+    // What is being written decides which 409 message applies
+    let writing: WriteKind = 'ingredient'
+    try {
+      // Nothing is created before this point: new ingredients and tags only exist once the user saves.
+      // They are created first, one at a time, and the recipe is sent only after every id it points at exists.
+      const savedRows: IngredientRow[] = []
+      for (const r of rows) {
+        if (r.ingredientId !== null || !r.newIngredient || !isNewRow(r)) {
+          savedRows.push(r)
+          continue
+        }
+        const key = fold(r.newIngredient.name)
+        let id = createdIngredientIds.current.get(key)
+        if (!id) {
+          const created = await createIngredient.mutateAsync({
+            name: r.newIngredient.name,
+            default_unit: r.newIngredient.default_unit,
+            category: r.newIngredient.category,
+          })
+          id = created.id
+          createdIngredientIds.current.set(key, id)
+        }
+        savedRows.push({ ...r, ingredientId: id })
       }
-      return { ...r, ingredientId: id }
-    })
-    const createdTagIds = pendingNewTags.map((tagName) => {
-      const tag = tagService.create(tagName, NEW_TAG_COLOR)
-      addTag(tag)
-      return tag.id
-    })
 
-    const validIngredients = savedRows
-      .filter((r) => r.ingredientId !== null)
-      .map((r) => ({ ingredientId: r.ingredientId!, quantity: r.quantity }))
+      writing = 'tag'
+      const newTagIds: string[] = []
+      for (const tagName of pendingNewTags) {
+        let id = createdTagIds.current.get(tagName)
+        if (!id) {
+          const created = await createTag.mutateAsync({ name: tagName, color: NEW_TAG_COLOR })
+          id = created.id
+          createdTagIds.current.set(tagName, id)
+        }
+        newTagIds.push(id)
+      }
 
-    const data = {
-      emoji: emoji.trim().slice(0, 2) || '🍽️',
-      name: name.trim(),
-      servings: Math.max(1, servings),
-      tagIds: [...selectedTagIds, ...createdTagIds],
-      ingredients: validIngredients,
-      notes: notes.trim(),
+      writing = 'recipe'
+      const validIngredients = savedRows
+        .filter((r) => r.ingredientId !== null)
+        .map((r) => ({ ingredientId: r.ingredientId!, quantity: r.quantity }))
+
+      const data = {
+        emoji: emoji.trim().slice(0, 2) || '🍽️',
+        name: name.trim(),
+        servings: Math.max(1, servings),
+        tagIds: [...selectedTagIds, ...newTagIds],
+        ingredients: validIngredients,
+        notes: notes.trim(),
+      }
+
+      await saveRecipe.mutateAsync({ id: mode === 'edit' ? recipe?.id : undefined, data })
+      onClose()
+    } catch (err) {
+      setSaveError(messageForError(err, writing))
+    } finally {
+      setSaving(false)
     }
-
-    if (mode === 'add' || mode === 'import') {
-      const created = recipeService.create(data)
-      addRecipe(created)
-    } else if (mode === 'edit' && recipe) {
-      const updated = recipeService.update(recipe.id, data)
-      updateRecipe(updated)
-    }
-
-    onClose()
   }
 
   const title = mode === 'edit' ? 'Edit Recipe' : mode === 'import' ? 'Review imported recipe' : 'New Recipe'
@@ -244,17 +279,22 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
       <Button intent="ghost" size="sm" onClick={() => setConfirmingDrop(false)} type="button">
         Go back
       </Button>
-      <Button intent="coral" size="sm" onClick={() => handleSave(true)} type="button">
+      <Button intent="coral" size="sm" onClick={() => handleSave(true)} type="button" disabled={saving}>
         Save anyway
       </Button>
     </>
   ) : (
     <>
+      {saveError && (
+        <span role="alert" style={{ flex: 1, alignSelf: 'center', fontSize: 12, color: 'var(--red)' }}>
+          {saveError}
+        </span>
+      )}
       <Button intent="ghost" size="sm" onClick={onClose} type="button">
         {isImport ? 'Discard' : 'Cancel'}
       </Button>
-      <Button intent="coral" size="sm" onClick={() => handleSave(false)} type="button">
-        {isImport ? 'Save recipe' : 'Save'}
+      <Button intent="coral" size="sm" onClick={() => handleSave(false)} type="button" disabled={saving}>
+        {saving ? 'Saving…' : isImport ? 'Save recipe' : 'Save'}
       </Button>
     </>
   )
@@ -412,9 +452,14 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
                       />
                     ))}
                   </div>
+                  {tagError && (
+                    <span role="alert" style={{ fontSize: 12, color: 'var(--red)' }}>
+                      {tagError}
+                    </span>
+                  )}
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <Button intent="coral" size="xs" type="button" onClick={handleCreateTag}>
-                      Add
+                    <Button intent="coral" size="xs" type="button" onClick={handleCreateTag} disabled={createTag.isPending}>
+                      {createTag.isPending ? 'Adding…' : 'Add'}
                     </Button>
                     <Button
                       intent="ghost"
@@ -423,6 +468,7 @@ export function AddEditRecipeModal({ mode, recipe, draft, onClose }: AddEditReci
                       onClick={() => {
                         setShowNewTag(false)
                         setNewTagName('')
+                        setTagError('')
                       }}
                     >
                       Cancel

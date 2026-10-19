@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Pencil, CalendarPlus, Minus, Plus, RotateCcw, Trash2, CheckCircle, Loader2 } from 'lucide-react'
-import { useStore } from '../../store'
-import { ingredientsDbService } from '../../services/ingredientsDbService'
+import { useRecipes } from '../../api/recipes'
+import { useTags } from '../../api/tags'
+import { useIngredients } from '../../api/ingredients'
 import { IconButton } from '../ui/IconButton'
 import { TagChip } from '../ui/TagChip'
 import { NotesMarkdown } from './NotesMarkdown'
@@ -24,8 +25,10 @@ interface RecipeDetailProps {
 }
 
 export function RecipeDetail({ recipeId, onEdit, onDelete, onAddToWeek, onRemoveFromPlan, onCooked, isCooked, isCooking, ingredientAvailability }: RecipeDetailProps) {
-  const recipe = useStore((s) => s.recipes.find((r) => r.id === recipeId) ?? null)
-  const tags = useStore((s) => s.tags)
+  const recipes = useRecipes()
+  const recipe = recipes.find((r) => r.id === recipeId) ?? null
+  const tags = useTags()
+  const allIngredients = useIngredients()
   const [displayServings, setDisplayServings] = useState<number | null>(null)
 
   useEffect(() => {
@@ -55,7 +58,6 @@ export function RecipeDetail({ recipeId, onEdit, onDelete, onAddToWeek, onRemove
   const base = recipe.servings
   const displayed = displayServings ?? base
 
-  const allIngredients = ingredientsDbService.getAll()
   const ingredientMap = new Map(allIngredients.map((i) => [i.id, i]))
 
   const recipeTags = tags.filter((t) => recipe.tagIds.includes(t.id))

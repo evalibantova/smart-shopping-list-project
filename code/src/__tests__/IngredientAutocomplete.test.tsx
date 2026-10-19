@@ -1,165 +1,176 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createRoot } from 'react-dom/client'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { act } from 'react'
 import { IngredientAutocomplete } from '../components/shared/IngredientAutocomplete'
-import { ingredientsDbService } from '../services/ingredientsDbService'
+import { queryKeys } from '../api/queryKeys'
+import { errorResponse, gate, installApi } from '../test/fetchMock'
+import { renderWithClient, typeInto, waitFor, type Rendered } from '../test/renderWithClient'
+import type { IngredientDbEntry } from '../types/ingredients'
+
+const SEED: IngredientDbEntry[] = ['Chicken breast', 'Chicken thigh', 'Chickpeas'].map((name, i) => ({
+  id: `ing-${i}`,
+  name,
+  default_unit: 'g',
+  category: 'Other',
+}))
 
 describe('IngredientAutocomplete', () => {
-  let container: HTMLDivElement
-  let root!: ReturnType<typeof createRoot>
-
-  beforeEach(() => {
-    localStorage.clear()
-    for (const name of ['Chicken breast', 'Chicken thigh', 'Chickpeas'])
-      ingredientsDbService.create(name, 'g', 'Other')
-    container = document.createElement('div')
-    document.body.appendChild(container)
-    act(() => {
-      root = createRoot(container)
-    })
-  })
+  let rendered: Rendered | undefined
 
   afterEach(() => {
-    act(() => {
-      root.unmount()
-    })
-    container.remove()
-    localStorage.clear()
+    rendered?.unmount()
+    rendered = undefined
+    vi.unstubAllGlobals()
+    document.body.innerHTML = ''
   })
 
   async function renderComponent(
     value: string,
-    onChange = vi.fn(),
-    onSelect = vi.fn(),
-    typed = true,
+    { onChange = vi.fn(), onSelect = vi.fn(), typed = true }: { onChange?: ReturnType<typeof vi.fn>; onSelect?: ReturnType<typeof vi.fn>; typed?: boolean } = {},
   ) {
-    await act(async () => {
-      root.render(
-        <IngredientAutocomplete
-          value={value}
-          onChange={onChange}
-          onSelect={onSelect}
-        />,
-      )
+    rendered = renderWithClient(<IngredientAutocomplete value={value} onChange={onChange} onSelect={onSelect} />, {
+      seed: { ingredients: SEED },
     })
+    const container = rendered.container
     if (typed) {
       // The dropdown opens only after the user types, so simulate a keystroke
       const input = container.querySelector('input') as HTMLInputElement
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
       await act(async () => {
-        setter.call(input, value + "x")
-        input.dispatchEvent(new Event('input', { bubbles: true }))
+        typeInto(input, value + 'x')
       })
     }
-    return { onChange, onSelect }
+    return { container, onChange, onSelect }
   }
 
+  const dropdownOf = (c: HTMLElement) => c.querySelector('[data-testid="ingredient-dropdown"]')
+
+  async function openUnitPicker(container: HTMLElement) {
+    const createDiv = dropdownOf(container)!.querySelector('div') as HTMLElement
+    await act(async () => {
+      createDiv.click()
+    })
+    return container.querySelector('[data-testid="unit-picker"]')!
+  }
+  const unitButton = (picker: Element, unit: string) =>
+    Array.from(picker.querySelectorAll('button')).find((b) => b.textContent === unit) as HTMLButtonElement
+
   it('(a) input with 2 chars renders a dropdown element', async () => {
-    await renderComponent('ch')
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
-    expect(dropdown).not.toBeNull()
+    const { container } = await renderComponent('ch')
+    expect(dropdownOf(container)).not.toBeNull()
   })
 
   it('pre-filled value does not open the dropdown until the user types', async () => {
-    await renderComponent('chicken', vi.fn(), vi.fn(), false)
-    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
+    const { container } = await renderComponent('chicken', { typed: false })
+    expect(dropdownOf(container)).toBeNull()
   })
 
   it('(b) input with 1 char renders no dropdown', async () => {
-    await renderComponent('c')
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
-    expect(dropdown).toBeNull()
+    const { container } = await renderComponent('c')
+    expect(dropdownOf(container)).toBeNull()
   })
 
-  it('(c) clicking a dropdown entry calls onSelect with the correct IngredientDbEntry', async () => {
+  it('(c) clicking a dropdown entry calls onSelect with the cached IngredientDbEntry', async () => {
     const onSelect = vi.fn()
-    await renderComponent('chi', vi.fn(), onSelect)
-
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
-    expect(dropdown).not.toBeNull()
-
-    const firstItem = dropdown!.querySelector('div') as HTMLElement
+    const { container } = await renderComponent('chi', { onSelect })
+    const firstItem = dropdownOf(container)!.querySelector('div') as HTMLElement
     await act(async () => {
       firstItem.click()
     })
-
     expect(onSelect).toHaveBeenCalledOnce()
-    const entry = onSelect.mock.calls[0][0]
-    expect(typeof entry.id).toBe('string')
-    expect(entry.name.toLowerCase()).toContain('chi')
-    expect(entry).toHaveProperty('default_unit')
-    expect(entry).toHaveProperty('category')
+    expect(onSelect.mock.calls[0][0]).toEqual(SEED[0])
   })
 
   it('(d) typing a no-match name renders a Create option', async () => {
-    await renderComponent('Tahini')
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
-    expect(dropdown).not.toBeNull()
-    expect(dropdown!.textContent).toContain('Create')
+    const { container } = await renderComponent('Tahini')
+    expect(dropdownOf(container)!.textContent).toContain('Create')
   })
 
   it('(d2) Create is offered next to partial matches', async () => {
-    await renderComponent('Chick')
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')!
+    const { container } = await renderComponent('Chick')
+    const dropdown = dropdownOf(container)!
     expect(dropdown.textContent).toContain('Chicken breast')
     expect(dropdown.querySelector('[data-testid="ingredient-create"]')).not.toBeNull()
   })
 
   it('(d3) Create is not offered when the typed name matches an ingredient exactly', async () => {
-    await renderComponent('chickpeas')
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')!
+    const { container } = await renderComponent('chickpeas')
+    const dropdown = dropdownOf(container)!
     expect(dropdown.textContent).toContain('Chickpeas')
     expect(dropdown.querySelector('[data-testid="ingredient-create"]')).toBeNull()
   })
 
-  it('(e) clicking Create then selecting a unit calls onSelect with a new entry written to localStorage', async () => {
+  it('(e) Create then a unit POSTs the ingredient and calls onSelect with the saved entry', async () => {
+    const server = installApi({ seed: { ingredients: SEED } })
     const onSelect = vi.fn()
     const onChange = vi.fn()
-    await renderComponent('Tahini', onChange, onSelect)
-
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
-    expect(dropdown).not.toBeNull()
-    const createDiv = dropdown!.querySelector('div') as HTMLElement
-    await act(async () => {
-      createDiv.click()
-    })
-
-    const unitPicker = container.querySelector('[data-testid="unit-picker"]')
-    expect(unitPicker).not.toBeNull()
+    const { container } = await renderComponent('Tahini', { onChange, onSelect })
+    const picker = await openUnitPicker(container)
     onChange.mockClear() // drop the helper's simulated keystroke
 
-    const tbspBtn = Array.from(unitPicker!.querySelectorAll('button')).find(
-      (b) => b.textContent === 'tbsp',
-    ) as HTMLElement
-    expect(tbspBtn).not.toBeUndefined()
     await act(async () => {
-      tbspBtn.click()
+      unitButton(picker, 'tbsp').click()
     })
+    await waitFor(() => expect(onSelect).toHaveBeenCalledOnce())
 
-    expect(onSelect).toHaveBeenCalledOnce()
     // Clearing the input after creation would wipe the freshly selected ingredient
     expect(onChange).not.toHaveBeenCalled()
-    const entry = onSelect.mock.calls[0][0]
-    expect(entry.name).toBe('Tahini')
-    expect(entry.default_unit).toBe('tbsp')
-    expect(typeof entry.id).toBe('string')
+    expect(server.find('POST', '/api/ingredients')[0].body).toEqual({ name: 'Tahini', default_unit: 'tbsp', category: 'Other' })
+    const entry = onSelect.mock.calls[0][0] as IngredientDbEntry
+    expect(entry).toEqual({ id: 'srv-1', name: 'Tahini', default_unit: 'tbsp', category: 'Other' })
+    expect(rendered!.client.getQueryData(queryKeys.ingredients)).toContainEqual(entry)
+    expect(container.querySelector('[data-testid="unit-picker"]')).toBeNull()
+  })
 
-    const all = ingredientsDbService.getAll()
-    expect(all.some((e) => e.name === 'Tahini')).toBe(true)
+  it('(e2) shows a spinner and disables the units while the server saves, and selects nothing before it answers', async () => {
+    const g = gate()
+    installApi({
+      seed: { ingredients: SEED },
+      handler: async (call) => {
+        if (call.method === 'POST') await g.wait
+        return undefined
+      },
+    })
+    const onSelect = vi.fn()
+    const { container } = await renderComponent('Tahini', { onSelect })
+    const picker = await openUnitPicker(container)
+    await act(async () => {
+      unitButton(picker, 'tbsp').click()
+    })
+    await waitFor(() => expect(container.querySelector('[data-testid="ingredient-saving"]')).not.toBeNull())
+    expect(unitButton(picker, 'g').disabled).toBe(true)
+    expect(onSelect).not.toHaveBeenCalled()
+
+    g.open()
+    await waitFor(() => expect(onSelect).toHaveBeenCalledOnce())
+    expect(container.querySelector('[data-testid="ingredient-saving"]')).toBeNull()
+  })
+
+  it('(e3) a 409 (name already exists) shows a message, keeps the picker open and selects nothing', async () => {
+    installApi({
+      seed: { ingredients: SEED },
+      handler: (call) => (call.method === 'POST' ? errorResponse(409, 'conflict') : undefined),
+    })
+    const onSelect = vi.fn()
+    const { container } = await renderComponent('Tahini', { onSelect })
+    const picker = await openUnitPicker(container)
+    await act(async () => {
+      unitButton(picker, 'tbsp').click()
+    })
+    await waitFor(() => expect(container.querySelector('[role="alert"]')?.textContent).toBe('An ingredient with that name already exists.'))
+    expect(onSelect).not.toHaveBeenCalled()
+    expect(container.querySelector('[data-testid="unit-picker"]')).not.toBeNull()
   })
 
   it('(f) Escape key closes dropdown without calling onSelect', async () => {
     const onSelect = vi.fn()
     const onChange = vi.fn()
-    await renderComponent('chi', onChange, onSelect)
-
-    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).not.toBeNull()
+    const { container } = await renderComponent('chi', { onChange, onSelect })
+    expect(dropdownOf(container)).not.toBeNull()
 
     await act(async () => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     })
 
-    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
+    expect(dropdownOf(container)).toBeNull()
     expect(onSelect).not.toHaveBeenCalled()
     expect(onChange).toHaveBeenCalledWith('')
   })
@@ -167,25 +178,23 @@ describe('IngredientAutocomplete', () => {
   it('(g) mousedown outside closes dropdown without clearing input', async () => {
     const onSelect = vi.fn()
     const onChange = vi.fn()
-    await renderComponent('chi', onChange, onSelect)
-
-    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).not.toBeNull()
+    const { container } = await renderComponent('chi', { onChange, onSelect })
+    expect(dropdownOf(container)).not.toBeNull()
 
     await act(async () => {
       document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     })
 
-    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
+    expect(dropdownOf(container)).toBeNull()
     expect(onSelect).not.toHaveBeenCalled()
     expect(onChange).not.toHaveBeenCalledWith('')
   })
 
-  it('(f2) Escape when both pickers are closed is a no-op — onChange not called', async () => {
+  it('(f2) Escape when both pickers are closed is a no-op: onChange not called', async () => {
     const onChange = vi.fn()
     const onSelect = vi.fn()
-    await renderComponent('', onChange, onSelect, false)
-
-    expect(container.querySelector('[data-testid="ingredient-dropdown"]')).toBeNull()
+    const { container } = await renderComponent('', { onChange, onSelect, typed: false })
+    expect(dropdownOf(container)).toBeNull()
 
     await act(async () => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
@@ -195,18 +204,11 @@ describe('IngredientAutocomplete', () => {
     expect(onSelect).not.toHaveBeenCalled()
   })
 
-  it('(h) Escape while unit picker is open closes picker without creating an entry', async () => {
+  it('(h) Escape while the unit picker is open closes it without creating anything', async () => {
+    const server = installApi({ seed: { ingredients: SEED } })
     const onSelect = vi.fn()
-    await renderComponent('Tahini', vi.fn(), onSelect)
-
-    const dropdown = container.querySelector('[data-testid="ingredient-dropdown"]')
-    const createDiv = dropdown!.querySelector('div') as HTMLElement
-    await act(async () => {
-      createDiv.click()
-    })
-
-    expect(container.querySelector('[data-testid="unit-picker"]')).not.toBeNull()
-    const countBefore = ingredientsDbService.getAll().length
+    const { container } = await renderComponent('Tahini', { onSelect })
+    await openUnitPicker(container)
 
     await act(async () => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
@@ -214,6 +216,6 @@ describe('IngredientAutocomplete', () => {
 
     expect(container.querySelector('[data-testid="unit-picker"]')).toBeNull()
     expect(onSelect).not.toHaveBeenCalled()
-    expect(ingredientsDbService.getAll().length).toBe(countBefore)
+    expect(server.calls).toHaveLength(0)
   })
 })

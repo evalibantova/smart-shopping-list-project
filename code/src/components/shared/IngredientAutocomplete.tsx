@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { IngredientDbEntry } from '../../types/ingredients'
-import { ingredientsDbService } from '../../services/ingredientsDbService'
+import { useCreateIngredient, useIngredients } from '../../api/ingredients'
+import { messageForError } from '../../api/client'
+import { searchIngredients } from '../../utils/ingredientSearch'
 
 const CANONICAL_UNITS = ['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp'] as const
 
@@ -12,23 +14,29 @@ interface Props {
 }
 
 export function IngredientAutocomplete({ value, onChange, onSelect, placeholder }: Props) {
-  const [matches, setMatches] = useState<IngredientDbEntry[]>([])
+  const ingredients = useIngredients()
+  const createIngredient = useCreateIngredient()
   const [showDropdown, setShowDropdown] = useState(false)
   const [showUnitPicker, setShowUnitPicker] = useState(false)
+  const [createError, setCreateError] = useState('')
   // Dropdown opens only once the user has typed — not for a pre-filled value on mount
   const [typed, setTyped] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const matches = useMemo(
+    () => (value.length >= 2 ? searchIngredients(ingredients, value) : []),
+    [ingredients, value],
+  )
+
   useEffect(() => {
     if (value.length >= 2) {
-      setMatches(ingredientsDbService.search(value))
       setShowDropdown(typed)
       setShowUnitPicker(false)
     } else {
-      setMatches([])
       setShowDropdown(false)
       setShowUnitPicker(false)
     }
+    setCreateError('')
   }, [value, typed])
 
   useEffect(() => {
@@ -69,13 +77,20 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
 
   function handleCreate() {
     setShowDropdown(false)
+    setCreateError('')
     setShowUnitPicker(true)
   }
 
-  function handleUnitSelect(unit: string) {
-    const newEntry = ingredientsDbService.create(value.trim(), unit, 'Other')
-    onSelect(newEntry)
-    setShowUnitPicker(false)
+  // The ingredient is saved on the server first; the row only gets it (with its server id) once that worked
+  async function handleUnitSelect(unit: string) {
+    setCreateError('')
+    try {
+      const entry = await createIngredient.mutateAsync({ name: value.trim(), default_unit: unit, category: 'Other' })
+      onSelect(entry)
+      setShowUnitPicker(false)
+    } catch (err) {
+      setCreateError(messageForError(err, 'ingredient'))
+    }
   }
 
   return (
@@ -162,10 +177,12 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
               <button
                 key={unit}
                 type="button"
+                disabled={createIngredient.isPending}
                 onClick={() => handleUnitSelect(unit)}
                 style={{
                   padding: '6px 12px',
-                  cursor: 'pointer',
+                  cursor: createIngredient.isPending ? 'default' : 'pointer',
+                  opacity: createIngredient.isPending ? 0.5 : 1,
                   border: 'none',
                   background: 'var(--surface2)',
                   color: 'var(--text)',
@@ -177,6 +194,30 @@ export function IngredientAutocomplete({ value, onChange, onSelect, placeholder 
               </button>
             ))}
           </div>
+          {createIngredient.isPending && (
+            <div
+              data-testid="ingredient-saving"
+              role="status"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: 'var(--text-dim)' }}
+            >
+              <span
+                style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  border: '2px solid var(--coral)',
+                  borderTopColor: 'transparent',
+                  animation: 'spin 1s linear infinite',
+                }}
+              />
+              Saving…
+            </div>
+          )}
+          {createError && (
+            <div role="alert" style={{ marginTop: 8, fontSize: 12, color: 'var(--red)' }}>
+              {createError}
+            </div>
+          )}
         </div>
       )}
     </div>
