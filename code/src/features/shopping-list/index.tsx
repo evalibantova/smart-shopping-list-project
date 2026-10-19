@@ -1,16 +1,18 @@
 import { useState, useMemo } from 'react'
-import { useStore } from '../../store'
+import { useMealPlan } from '../../api/mealPlan'
+import { useRecipes } from '../../api/recipes'
+import { useIngredients } from '../../api/ingredients'
+import { newPantryItem, useAddPantryItem, useBatchPantry, usePantry } from '../../api/pantry'
 import { Button } from '../../components/ui/Button'
-import { ingredientsDbService } from '../../services/ingredientsDbService'
 import { getWeekStart } from '../meal-planner/utils/calendarUtils'
 import { computeShoppingList, CATEGORY_ORDER, type ShoppingItem } from './shoppingListSelector'
 
 export default function ShoppingListPage() {
-  const entries = useStore((s) => s.entries)
-  const recipes = useStore((s) => s.recipes)
-  const pantryItems = useStore((s) => s.pantryItems)
-  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
-  const addPantryItem = useStore((s) => s.addPantryItem)
+  const entries = useMealPlan()
+  const recipes = useRecipes()
+  const pantryItems = usePantry()
+  const batchPantry = useBatchPantry()
+  const addPantryItem = useAddPantryItem()
 
   // Snapshots of checked items — keyed by ingredientId, holds the item at check time.
   // Kept separate from allItems so that adding to pantry (which drops the item from allItems)
@@ -18,7 +20,7 @@ export default function ShoppingListPage() {
   const [checkedSnapshots, setCheckedSnapshots] = useState<Map<string, ShoppingItem>>(new Map())
 
   const weekStart = useMemo(() => getWeekStart(new Date()), [])
-  const ingredientsDb = useMemo(() => ingredientsDbService.getAll(), [])
+  const ingredientsDb = useIngredients()
 
   const allItems = useMemo(
     () => computeShoppingList(entries, recipes, ingredientsDb, weekStart, pantryItems),
@@ -48,22 +50,25 @@ export default function ShoppingListPage() {
     const { ingredientId, quantity } = item
     const isChecked = checkedSnapshots.has(ingredientId)
 
+    const uncheck = () =>
+      setCheckedSnapshots((prev) => {
+        const m = new Map(prev)
+        m.delete(ingredientId)
+        return m
+      })
+
     if (isChecked) {
-      setCheckedSnapshots((prev) => { const m = new Map(prev); m.delete(ingredientId); return m })
-      try {
-        batchUpdatePantry([{ ingredientId, delta: -quantity }])
-      } catch { /* best-effort pantry reversal */ }
+      uncheck()
+      // Best-effort pantry reversal: a failure rolls the pantry back and toasts (see useBatchPantry)
+      batchPantry.mutate([{ ingredientId, delta: -quantity }])
     } else {
       setCheckedSnapshots((prev) => new Map([...prev, [ingredientId, item]]))
       const hasPantryEntry = pantryItems.some((p) => p.ingredientId === ingredientId)
-      try {
-        if (!hasPantryEntry) {
-          addPantryItem({ ingredientId, quantity })
-        } else {
-          batchUpdatePantry([{ ingredientId, delta: quantity }])
-        }
-      } catch {
-        setCheckedSnapshots((prev) => { const m = new Map(prev); m.delete(ingredientId); return m })
+      // Optimistic pantry write; when it fails the pantry rolls back (and toasts) and the item is un-checked again
+      if (!hasPantryEntry) {
+        addPantryItem.mutate(newPantryItem({ ingredientId, quantity }), { onError: uncheck })
+      } else {
+        batchPantry.mutate([{ ingredientId, delta: quantity }], { onError: uncheck })
       }
     }
   }

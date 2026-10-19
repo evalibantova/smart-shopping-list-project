@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ChevronLeft } from 'lucide-react'
-import { useStore } from '../../store'
+import { useRecipes } from '../../api/recipes'
+import { useTags } from '../../api/tags'
+import { usePantry, useBatchPantry, recipeDeltas } from '../../api/pantry'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
 import { AddToWeekModal } from '../../components/shared/AddToWeekModal'
 import { AddEditRecipeModal } from '../recipes/AddEditRecipeModal'
@@ -13,19 +15,16 @@ const FILTER_TABS = ['All', 'Ready', 'Almost'] as const
 type Filter = 'All' | 'Ready' | 'Almost'
 
 export default function CookNowPage() {
-  const recipes = useStore((s) => s.recipes)
-  const tags = useStore((s) => s.tags)
-  const pantryItems = useStore((s) => s.pantryItems)
-  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
-  const initPantry = useStore((s) => s.initPantry)
+  const recipes = useRecipes()
+  const tags = useTags()
+  const pantryItems = usePantry()
+  const batchPantry = useBatchPantry()
 
   const [filter, setFilter] = useState<Filter>('All')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [addToWeekOpen, setAddToWeekOpen] = useState(false)
-
-  useEffect(() => { initPantry() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const weekStart = getWeekStart(new Date())
 
@@ -74,9 +73,9 @@ export default function CookNowPage() {
     if (!selectedId) return
     const recipe = recipes.find((r) => r.id === selectedId)
     if (!recipe) return
-    try {
-      batchUpdatePantry(recipe.ingredients.map((ing) => ({ ingredientId: ing.ingredientId, delta: -ing.quantity })))
-    } catch { /* best-effort */ }
+    // Optimistic: the pantry shows the deduction at once; a failure rolls it back and toasts (see useBatchPantry)
+    const deltas = recipeDeltas(recipe)
+    if (deltas.length > 0) batchPantry.mutate(deltas)
     setSelectedId(null)
     setMobileDetailOpen(false)
   }

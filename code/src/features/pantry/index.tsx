@@ -1,12 +1,16 @@
 import { useState, useMemo } from 'react'
 import { Plus } from 'lucide-react'
-import { useStore } from '../../store'
-import { ingredientsDbService } from '../../services/ingredientsDbService'
+import { useIngredients } from '../../api/ingredients'
+import {
+  newPantryItem,
+  useAddPantryItem,
+  useDeletePantryItem,
+  usePantry,
+  useUpdatePantryItem,
+} from '../../api/pantry'
 import { IngredientAutocomplete } from '../../components/shared/IngredientAutocomplete'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
-import { SavingIndicator } from '../../components/ui/SavingIndicator'
-import { Toast } from '../../components/ui/Toast'
 import type { IngredientDbEntry } from '../../types/ingredients'
 
 export function stockBarColor(ratio: number): string {
@@ -113,12 +117,12 @@ function AddItemModal({ onClose, onSave }: AddItemModalProps) {
 }
 
 export default function PantryPage() {
-  const pantryItems = useStore((s) => s.pantryItems)
-  const addPantryItem = useStore((s) => s.addPantryItem)
-  const updatePantryItem = useStore((s) => s.updatePantryItem)
-  const deletePantryItem = useStore((s) => s.deletePantryItem)
+  const pantryItems = usePantry()
+  const addItem = useAddPantryItem()
+  const updateItem = useUpdatePantryItem()
+  const deleteItem = useDeletePantryItem()
 
-  const ingredientsDb = useMemo(() => ingredientsDbService.getAll(), [])
+  const ingredientsDb = useIngredients()
   const ingMap = useMemo(
     () => new Map(ingredientsDb.map((i) => [i.id, i])),
     [ingredientsDb]
@@ -128,8 +132,6 @@ export default function PantryPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editQty, setEditQty] = useState('')
   const [editMaxStock, setEditMaxStock] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [toastMsg, setToastMsg] = useState('')
 
   function startEdit(id: string, quantity: number, maxStock: number) {
     setEditingId(id)
@@ -141,52 +143,33 @@ export default function PantryPage() {
     setEditingId(null)
   }
 
-  async function handleSave(id: string) {
+  // Optimistic: the row shows the new numbers at once; a failed save puts the old ones back and toasts
+  function handleSave(id: string) {
     const qty = parseFloat(editQty)
     const max = parseFloat(editMaxStock)
     if (isNaN(qty) || qty < 0 || isNaN(max) || max <= 0) return
-    setSaving(true)
-    try {
-      updatePantryItem(id, { quantity: qty, maxStock: max })
-      setEditingId(null)
-    } catch (err: unknown) {
-      setToastMsg(err instanceof Error ? err.message : 'Could not save — please try again.')
-    } finally {
-      setSaving(false)
-    }
+    updateItem.mutate({ id, patch: { quantity: qty, maxStock: max } })
+    setEditingId(null)
   }
 
-  async function handleDelete(id: string) {
-    setSaving(true)
-    try {
-      deletePantryItem(id)
-      setEditingId(null)
-    } catch (err: unknown) {
-      setToastMsg(err instanceof Error ? err.message : 'Could not delete — please try again.')
-    } finally {
-      setSaving(false)
-    }
+  function handleDelete(id: string) {
+    deleteItem.mutate(id)
+    setEditingId(null)
   }
 
+  // The add modal waits for the answer (it shows "Saving…" and an inline error), the list updates at once.
+  // The pantry has one row per ingredient (the server enforces it), so an existing ingredient gets its quantity raised.
   async function handleAdd(ingredientId: string, quantity: number) {
-    setSaving(true)
-    try {
-      const existing = pantryItems.find((p) => p.ingredientId === ingredientId)
-      if (existing) {
-        updatePantryItem(existing.id, { quantity: existing.quantity + quantity })
-      } else {
-        addPantryItem({ ingredientId, quantity })
-      }
-    } finally {
-      setSaving(false)
+    const existing = pantryItems.find((p) => p.ingredientId === ingredientId)
+    if (existing) {
+      await updateItem.mutateAsync({ id: existing.id, patch: { quantity: existing.quantity + quantity } })
+    } else {
+      await addItem.mutateAsync(newPantryItem({ ingredientId, quantity }))
     }
   }
 
   return (
     <div className="page">
-      <SavingIndicator visible={saving} />
-      {toastMsg && <Toast message={toastMsg} onDismiss={() => setToastMsg('')} />}
-
       <div className="page-header">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flexShrink: 1 }}>
           <h1>Pantry</h1>
@@ -291,7 +274,6 @@ export default function PantryPage() {
                       intent="coral"
                       size="xs"
                       onClick={() => handleSave(item.id)}
-                      disabled={saving}
                       data-testid="pantry-save-btn"
                     >
                       Save
@@ -300,7 +282,6 @@ export default function PantryPage() {
                       intent="ghost"
                       size="xs"
                       onClick={cancelEdit}
-                      disabled={saving}
                       data-testid="pantry-cancel-btn"
                     >
                       Cancel
@@ -309,7 +290,6 @@ export default function PantryPage() {
                       intent="danger"
                       size="xs"
                       onClick={() => handleDelete(item.id)}
-                      disabled={saving}
                       data-testid="pantry-delete-btn"
                     >
                       Delete
