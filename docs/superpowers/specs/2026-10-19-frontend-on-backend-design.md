@@ -9,7 +9,7 @@ This spec covers the rest: the frontend switches to the API, then the app ships 
 Each cycle gets its own plan and subagent-driven run, with a checkpoint between them.
 
 1. **Cycle A — the whole frontend switch** (plan `2026-10-19-frontend-on-backend.md`): dev environment fix, API client and app gate, then ingredients, tags, recipes, pantry, meal plan, import and cook-now, then deletion of the localStorage services. Tasks are ordered so unit tests stay green after each one.
-2. **Cycle B — docs and production deploy** (called "cycle B" below).
+2. **Cycle B — docs and production deploy**.
 
 Why not pantry first (the original three-cycle split): the cookbook import creates local ingredients with random UUIDs and the seeded recipes point at those ids, while the server seeder generates its own ids. A server-side pantry only makes sense with server ingredient ids, so with recipes still local the shopping list, cook-now and the cooked deduction would silently mismatch. Every cross-feature view needs ingredients, recipes, pantry and meal plan together, so the resources must move as one. The app is therefore only coherent in manual use at the end of cycle A.
 
