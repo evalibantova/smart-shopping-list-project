@@ -9,7 +9,7 @@ export interface RecordedCall {
   body: unknown
 }
 
-export type Handler = (call: RecordedCall) => Response | Promise<Response> | undefined | Promise<undefined>
+export type Handler = (call: RecordedCall) => Response | undefined | Promise<Response | undefined>
 
 export function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })

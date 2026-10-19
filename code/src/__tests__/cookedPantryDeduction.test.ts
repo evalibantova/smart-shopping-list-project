@@ -1,86 +1,115 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createStore } from 'zustand/vanilla'
-import { pantrySlice } from '../store/pantrySlice'
-import type { PantrySlice } from '../store/pantrySlice'
-import * as pantryService from '../features/pantry/services/pantryService'
+import { describe, it, expect, afterEach, vi } from 'vitest'
+import { act } from 'react'
+import { applyPantryDeltas } from '../utils/pantryDeltas'
+import { useBatchPantry } from '../api/pantry'
+import { queryKeys } from '../api/queryKeys'
+import { useToastStore } from '../store/toastStore'
 import { buildCookDeltas } from '../features/meal-planner/MealPlanOverlay'
+import { errorResponse, gate, installApi } from '../test/fetchMock'
+import { renderHookWithClient, waitFor } from '../test/renderWithClient'
+import type { PantryItem } from '../types/pantry'
 import type { Recipe } from '../types/recipes'
 import type { MealPlanEntry } from '../types/mealPlan'
 
-function makeStore() {
-  return createStore<PantrySlice>()((...a) => pantrySlice(...a))
-}
+afterEach(() => {
+  vi.unstubAllGlobals()
+  useToastStore.setState({ message: '' })
+  document.body.innerHTML = ''
+})
 
-describe('batchUpdatePantry', () => {
-  let store: ReturnType<typeof makeStore>
+const item = (id: string, ingredientId: string, quantity: number): PantryItem => ({
+  id,
+  ingredientId,
+  quantity,
+  maxStock: quantity * 3,
+})
 
-  beforeEach(() => {
-    localStorage.clear()
-    store = makeStore()
+describe('applyPantryDeltas', () => {
+  it('(a) deducts a matched ingredient: qty=3, delta=-1.5 -> 1.5', () => {
+    const result = applyPantryDeltas([item('p1', 'ing-1', 3)], [{ ingredientId: 'ing-1', delta: -1.5 }])
+    expect(result[0].quantity).toBe(1.5)
   })
 
-  it('(a) deducts matched ingredient: qty=3, delta=-1.5 → qty=1.5', () => {
-    pantryService.create({ ingredientId: 'ing-1', quantity: 3, maxStock: 9 })
-    store.getState().initPantry()
-
-    store.getState().batchUpdatePantry([{ ingredientId: 'ing-1', delta: -1.5 }])
-
-    const result = store.getState().pantryItems.find((i) => i.ingredientId === 'ing-1')
-    expect(result?.quantity).toBe(1.5)
+  it('(b) floors at 0: qty=1, delta=-3 -> 0', () => {
+    const result = applyPantryDeltas([item('p1', 'ing-2', 1)], [{ ingredientId: 'ing-2', delta: -3 }])
+    expect(result[0].quantity).toBe(0)
   })
 
-  it('(b) floors at 0: qty=1, delta=-3 → qty=0', () => {
-    pantryService.create({ ingredientId: 'ing-2', quantity: 1, maxStock: 3 })
-    store.getState().initPantry()
-
-    store.getState().batchUpdatePantry([{ ingredientId: 'ing-2', delta: -3 }])
-
-    const result = store.getState().pantryItems.find((i) => i.ingredientId === 'ing-2')
-    expect(result?.quantity).toBe(0)
+  it('(c) skips an unknown ingredientId silently; other items keep their identity', () => {
+    const items = [item('p1', 'ing-3', 5)]
+    const result = applyPantryDeltas(items, [{ ingredientId: 'unknown-ing', delta: -2 }])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toBe(items[0])
+    expect(result[0].quantity).toBe(5)
   })
 
-  it('(c) skips unknown ingredientId silently; other items unaffected', () => {
-    pantryService.create({ ingredientId: 'ing-3', quantity: 5, maxStock: 15 })
-    store.getState().initPantry()
-
-    store.getState().batchUpdatePantry([{ ingredientId: 'unknown-ing', delta: -2 }])
-
-    const unchanged = store.getState().pantryItems.find((i) => i.ingredientId === 'ing-3')
-    expect(unchanged?.quantity).toBe(5)
-    expect(store.getState().pantryItems).toHaveLength(1)
+  it('(e) a reverse delta adds back: qty=1.5, delta=+1.5 -> 3', () => {
+    const result = applyPantryDeltas([item('p1', 'ing-6', 1.5)], [{ ingredientId: 'ing-6', delta: 1.5 }])
+    expect(result[0].quantity).toBe(3)
   })
 
-  it('(d) rollback on failure: restores all matched items when second service call throws', () => {
-    const item1 = pantryService.create({ ingredientId: 'ing-4', quantity: 5, maxStock: 15 })
-    const item2 = pantryService.create({ ingredientId: 'ing-5', quantity: 5, maxStock: 15 })
-    store.getState().initPantry()
-
-    // Remove item2 from localStorage so pantryService.update throws for it
-    const withoutItem2 = pantryService.getAll().filter((i) => i.id !== item2.id)
-    localStorage.setItem('slist_pantry', JSON.stringify(withoutItem2))
-
-    expect(() =>
-      store.getState().batchUpdatePantry([
-        { ingredientId: 'ing-4', delta: -2 },
-        { ingredientId: 'ing-5', delta: -2 },
-      ])
-    ).toThrow()
-
-    // Both items should be restored to original qty in the store
-    const restored1 = store.getState().pantryItems.find((i) => i.id === item1.id)
-    const restored2 = store.getState().pantryItems.find((i) => i.id === item2.id)
-    expect(restored1?.quantity).toBe(5)
-    expect(restored2?.quantity).toBe(5)
+  it('(f) two deltas for the same ingredient apply one after the other, clamping at each step (like the server)', () => {
+    const items = [item('p1', 'ing-7', 5)]
+    expect(applyPantryDeltas(items, [{ ingredientId: 'ing-7', delta: -3 }, { ingredientId: 'ing-7', delta: -3 }])[0].quantity).toBe(0)
+    expect(applyPantryDeltas(items, [{ ingredientId: 'ing-7', delta: -3 }, { ingredientId: 'ing-7', delta: 1 }])[0].quantity).toBe(3)
   })
 
-  it('(e) reverse delta adds back: qty=1.5, delta=+1.5 → qty=3', () => {
-    pantryService.create({ ingredientId: 'ing-6', quantity: 1.5, maxStock: 9 })
-    store.getState().initPantry()
+  it('(g) does not mutate its input', () => {
+    const items = [item('p1', 'ing-8', 5)]
+    applyPantryDeltas(items, [{ ingredientId: 'ing-8', delta: -2 }])
+    expect(items[0].quantity).toBe(5)
+  })
+})
 
-    store.getState().batchUpdatePantry([{ ingredientId: 'ing-6', delta: 1.5 }])
+describe('useBatchPantry', () => {
+  const SEED = { pantry: [item('p4', 'ing-4', 5), item('p5', 'ing-5', 5)] }
+  const DELTAS = [
+    { ingredientId: 'ing-4', delta: -2 },
+    { ingredientId: 'ing-5', delta: -2 },
+  ]
 
-    const result = store.getState().pantryItems.find((i) => i.ingredientId === 'ing-6')
-    expect(result?.quantity).toBe(3)
+  it('applies the deductions at once, sends PUT /api/pantry/batch and keeps the server answer', async () => {
+    const g = gate()
+    const server = installApi({
+      seed: SEED,
+      handler: async (call) => {
+        if (call.path !== '/api/pantry/batch') return undefined
+        await g.wait
+        return new Response(JSON.stringify([item('p4', 'ing-4', 3), item('p5', 'ing-5', 3)]), { status: 200 })
+      },
+    })
+    const { result, client } = renderHookWithClient(() => useBatchPantry(), { seed: SEED })
+    act(() => {
+      result.current.mutate(DELTAS)
+    })
+    await waitFor(() =>
+      expect((client.getQueryData(queryKeys.pantry) as PantryItem[]).map((i) => i.quantity)).toEqual([3, 3]),
+    )
+    g.open()
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(server.find('PUT', '/api/pantry/batch')[0].body).toEqual({ deltas: DELTAS })
+  })
+
+  it('(d) rollback on failure: restores every matched item and toasts when the server rejects the batch', async () => {
+    const g = gate()
+    installApi({
+      seed: SEED,
+      handler: async (call) => {
+        if (call.path !== '/api/pantry/batch') return undefined
+        await g.wait
+        return errorResponse(500, 'server_error')
+      },
+    })
+    const { result, client } = renderHookWithClient(() => useBatchPantry(), { seed: SEED })
+    act(() => {
+      result.current.mutate(DELTAS)
+    })
+    await waitFor(() =>
+      expect((client.getQueryData(queryKeys.pantry) as PantryItem[]).map((i) => i.quantity)).toEqual([3, 3]),
+    )
+    g.open()
+    await waitFor(() => expect(useToastStore.getState().message).toBe('Could not save — please try again.'))
+    expect(client.getQueryData(queryKeys.pantry)).toEqual(SEED.pantry)
   })
 })
 
