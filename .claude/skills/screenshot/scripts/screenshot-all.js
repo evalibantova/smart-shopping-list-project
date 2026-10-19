@@ -7,14 +7,14 @@
  * Pass --routes to override. Pass a bare path to capture only that route.
  *
  * Usage:
- *   node /tmp/screenshot-all.js                                — all routes, all viewports
- *   node /tmp/screenshot-all.js /shopping-list                 — one route, all viewports
- *   node /tmp/screenshot-all.js --vp mobile,tablet             — all routes, specific viewports
- *   node /tmp/screenshot-all.js /recipes --vp mobile,pc        — one route, specific viewports
- *   node /tmp/screenshot-all.js --routes /a,/b --vp notebook   — explicit routes, specific viewports
- *   node /tmp/screenshot-all.js --app /path/to/App.tsx         — alternate router file
- *   node /tmp/screenshot-all.js --port 5173                    — dev server port (default: 5173)
- *   node /tmp/screenshot-all.js --out /tmp/shots               — output directory (default: cwd/screenshots_<ts>)
+ *   node screenshot-all.js                                — all routes, all viewports
+ *   node screenshot-all.js /shopping-list                 — one route, all viewports
+ *   node screenshot-all.js --vp mobile,tablet             — all routes, specific viewports
+ *   node screenshot-all.js /recipes --vp mobile,pc        — one route, specific viewports
+ *   node screenshot-all.js --routes /a,/b --vp notebook   — explicit routes, specific viewports
+ *   node screenshot-all.js --app /path/to/App.tsx         — alternate router file
+ *   node screenshot-all.js --port 5173                    — dev server port (default: 5173)
+ *   node screenshot-all.js --out /tmp/shots               — output directory (default: cwd/screenshots_<ts>)
  *
  * Viewport keys: mobile, tablet, notebook, pc, 4k
  */
@@ -118,9 +118,9 @@ if (viewports.length === 0) {
   process.exit(1);
 }
 
-// Output folder — /data by default
+// Output folder — under the current working directory by default
 const ts     = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
-const outDir = outOverride || path.join('/data', `screenshots_${ts}`);
+const outDir = outOverride || path.join(process.cwd(), `screenshots_${ts}`);
 fs.mkdirSync(outDir, { recursive: true });
 
 const browserEnv = { ...process.env, FONTCONFIG_FILE: '/tmp/chrome-fonts.conf', DISPLAY: '' };

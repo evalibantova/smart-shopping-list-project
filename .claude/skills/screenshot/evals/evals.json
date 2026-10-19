@@ -1,0 +1,23 @@
+{
+  "skill_name": "screenshot",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "i just changed the pantry stock colors, can you show me how the pantry page looks on mobile and tablet?",
+      "expected_output": "Captures only /pantry at mobile and tablet viewports (2 PNGs), reads them, and reports observations grouped by viewport.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "check the whole app visually at notebook size, I want to make sure nothing is broken after the refactor",
+      "expected_output": "Auto-discovers all routes from code/src/App.tsx, captures each at notebook only, reads every PNG and summarizes issues per page.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "the dev server is on 5176 this time, grab the recipes page on mobile and pc and save the shots to /tmp/shots",
+      "expected_output": "Uses --port 5176 and --out /tmp/shots, captures /recipes at mobile and pc, and reads both files.",
+      "files": []
+    }
+  ]
+}

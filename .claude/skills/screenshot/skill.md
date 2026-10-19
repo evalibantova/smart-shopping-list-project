@@ -1,129 +1,62 @@
 ---
 name: screenshot
-description: 'Takes screenshots of the running dev server and displays them. Routes are auto-discovered from the app router. By default captures all routes at all 5 responsive viewports; pass a route and/or --vp to narrow the capture. Use when the user asks to see the app, check the UI, or verify a visual change. Fully autonomous — no manual steps.'
+description: Takes screenshots of the running dev server and displays them. Routes are auto-discovered from the app router. By default captures all routes at all 5 responsive viewports; pass a route and/or --vp to narrow the capture. Use whenever the user asks to see the app, check the UI, look at a page, or verify a visual or layout change (including responsive/mobile checks), even if they don't say "screenshot". Fully autonomous, no manual steps.
 ---
 
-# Screenshot Skill
+# Screenshot
 
-Capture screenshots of the app and read them back visually.
+Capture screenshots of the running app, then read them back visually and report what you see.
+
 
 ## Parameters
 
-All parameters are optional and combinable:
+All optional and combinable:
 
-- **Bare path** (e.g. `/pantry`) — capture only that route. Omit to capture all discovered routes.
-- **`--vp <keys>`** — comma-separated viewport keys. Omit to capture all viewports.
-- **`--routes <paths>`** — comma-separated explicit paths, overrides auto-discovery.
-- **`--app <file>`** — path to the router file if not auto-found.
-- **`--port <n>`** — dev server port (default: `5173`, Vite's default).
-- **`--out <dir>`** — output directory (default: `screenshots_<timestamp>` under cwd).
+- **Bare path** (e.g. `/pantry`): capture only that route. Omit to capture every discovered route.
+- `--vp <keys>`: comma-separated viewport keys. Omit for all.
+- `--routes <paths>`: comma-separated explicit paths; overrides auto-discovery.
+- `--app <file>`: router file, if not at `src/App.tsx` / `src/App.jsx` under cwd.
+- `--port <n>`: dev server port (default `5173`).
+- `--out <dir>`: output directory (default `screenshots_<timestamp>` under cwd).
 
-Viewport keys: `mobile`, `tablet`, `notebook`, `pc`, `4k`
-
-| Key      | Device    | Size      |
-|----------|-----------|-----------|
-| mobile   | iPhone SE | 375×667   |
-| tablet   | Tablet    | 768×1024  |
-| notebook | Notebook  | 1280×800  |
+| Key      | Device    | Size     |
+|----------|-----------|----------|
+| mobile   | iPhone SE | 375×667  |
+| tablet   | Tablet    | 768×1024 |
+| notebook | Notebook  | 1280×800 |
 | pc       | PC        | 1920×1080 |
 | 4k       | 4K screen | 3840×2160 |
 
-Routes are auto-discovered by parsing `path=` attributes from the app's router file (`src/App.tsx` or `src/App.jsx` relative to cwd). No routes are hardcoded in this skill.
-
-Screenshots are saved to `screenshots_YYYY-MM-DD_HH-MM-SS/` under the current working directory (or the path given with `--out`).
-Files are named `{route}_{viewport}.png` (e.g. `recipes_mobile.png`).
+Files are named `{route}_{viewport}.png` (e.g. `recipes_mobile.png`; `/` becomes `home`).
 
 ## Steps
 
-1. **Check if the Playwright libs are installed:**
+1. **Make sure the dev server is up** on the target port (it is not started for you). Check with the one-liner in `references/environment.md`; if it is down, start it or ask the user.
+
+2. **Install the browser libs if missing.** Chromium needs system libraries that the container lacks; the installer fetches them into `/tmp/chrome-libs` (wiped on container restart). Check first, and run the installer only if the check exits 1. Keep these as two separate commands; chained ones get blocked by the permission system:
    ```bash
-   node -e "const fs=require('fs'); process.exit(fs.existsSync('/tmp/chrome-libs/usr/lib/x86_64-linux-gnu/libX11.so.6') ? 0 : 1);"
+   node -e "process.exit(require('fs').existsSync('/tmp/chrome-libs/usr/lib/x86_64-linux-gnu/libX11.so.6') ? 0 : 1)"
+   ```
+   ```bash
+   node /data/.claude/skills/screenshot/scripts/install-chrome-libs.js
    ```
 
-2. **If libs are missing (exit code 1)** — copy the installer from the skill directory, then run it:
+3. **Run the capture**, adding parameters as needed:
    ```bash
-   cp /data/.claude/skills/screenshot/install-chrome-libs.js /tmp/install-chrome-libs.js
-   node /tmp/install-chrome-libs.js
+   LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib \
+   FONTCONFIG_FILE=/tmp/chrome-fonts.conf \
+   node /data/.claude/skills/screenshot/scripts/screenshot-all.js [/route] [--vp mobile,tablet] [--port 5176]
    ```
+   Run it from the app's project root (`code/` in this repo) so route discovery finds `src/App.tsx`. The script prints the output folder and each saved file.
 
-3. **Run the screenshot script** (combine parameters as needed):
+4. **Read each PNG** with the Read tool and report layout, content and any issues, grouped by viewport when there are several.
 
-   All routes, all viewports (on default port 5173):
-   ```bash
-   LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib FONTCONFIG_FILE=/tmp/chrome-fonts.conf node /tmp/screenshot-all.js
-   ```
+## When something goes wrong
 
-   One route, all viewports:
-   ```bash
-   LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib FONTCONFIG_FILE=/tmp/chrome-fonts.conf node /tmp/screenshot-all.js /pantry
-   ```
+Failed captures, empty-looking pages, missing routes, and font or animation oddities are usually environment limits rather than app bugs. Read `references/environment.md` before debugging. The most common cases:
 
-   All routes, specific viewports:
-   ```bash
-   LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib FONTCONFIG_FILE=/tmp/chrome-fonts.conf node /tmp/screenshot-all.js --vp mobile,tablet
-   ```
-
-   One route, specific viewports, non-default port:
-   ```bash
-   LD_LIBRARY_PATH=/tmp/chrome-libs/usr/lib/x86_64-linux-gnu:/tmp/chrome-libs/usr/lib FONTCONFIG_FILE=/tmp/chrome-fonts.conf node /tmp/screenshot-all.js /recipes --vp mobile,pc --port 5176
-   ```
-
-   The script prints the output folder path and each saved filename.
-
-4. **Read each PNG** using the Read tool and report what you see — layout, content, any issues. Group observations by viewport when multiple are captured.
-
-## Environment Limitations
-
-> **Why all this complexity?** Claude Code runs inside a locked-down container where normal browser access, Python GUI libs, debug/remote-DevTools connections to outside processes, and third-party skill installation are all unavailable. There is no `google-chrome`, no `python -m playwright`, no Xvfb, no way to open a browser window or attach to one running on the host, and no package manager or registry to pull in a pre-built screenshot skill. The workarounds below are the result of having to bootstrap a headless Chromium entirely from within the container using only Node.js and downloaded Debian packages.
-
-### Platform
-- **Linux x86_64 only.** The library installer downloads Debian `amd64` packages and the Playwright binary is `chrome-headless-shell-linux64`. This skill does not work on ARM, macOS, or Windows (even WSL on ARM).
-
-### No display server
-- The container has no X server or Wayland compositor. Chrome runs with `DISPLAY=''` and the flags `--no-sandbox --single-process --disable-gpu --no-zygote`. These are hard requirements, not optimisations.
-
-### Single-process mode side-effects
-`--single-process` is needed to avoid the Zygote process launcher (not available without sandbox). Known consequences:
-- Web Workers and SharedArrayBuffer are disabled.
-- Heavy pages or slow JS may time out (20 s limit per route).
-- CSS animations capture at whatever frame the `load` event fires — animated state is not guaranteed.
-- iframes and cross-origin content may not render.
-
-### System libraries must be bootstrapped
-The container lacks the X11/NSS/ATK/GBM libraries Chromium needs. `install-chrome-libs.js` downloads ~30 Debian packages from `deb.debian.org` (Debian 13 "trixie", amd64) and extracts them to `/tmp/chrome-libs/`. This requires outbound HTTP access. If the Debian mirror is unreachable the setup will fail.
-
-### `/tmp/` is ephemeral
-Everything in `/tmp/` — `chrome-libs/`, `chrome-fonts.conf`, `screenshot-all.js` — is wiped on container restart. Re-run the lib setup after each restart. The `.deb` files are cached in `/tmp/chrome-debs/` within a session, so a second setup call in the same session is fast; across restarts it re-downloads.
-
-### playwright-core is not a project dependency
-playwright-core is installed via `npx` and lives in `~/.npm/_npx/<hash>/`. The hash changes when npx or playwright-core is upgraded. The script resolves it dynamically — if resolution fails, run `npx playwright-core install` to repopulate the cache.
-
-### Font rendering
-Fonts come from the extracted Debian packages (`fonts-dejavu-core`), not from the system font stack. Text rendering will differ from a real browser on the same host. Custom fonts loaded via `@font-face` from a CDN will render correctly only if the dev server is running and the network is reachable.
-
-### Route discovery scope
-Auto-discovery reads `path="…"` JSX attributes from `src/App.tsx` or `src/App.jsx`. It will **not** discover:
-- Next.js / Remix file-based routes
-- Vue Router, Angular Router
-- Routes defined as plain JS objects (not JSX props)
-- Dynamic segments (`:id`, `[slug]`) — these are skipped by the wildcard filter
-Use `--routes` to specify paths explicitly in those cases.
-
-### Screenshots only — no interaction
-The skill captures static screenshots at page load. It cannot click, type, scroll, or hover. Auth-gated pages won't render unless the app provides a dev/seed bypass. Lazy-loaded content below the fold is not captured.
-
-### Viewport simulation
-Only `width` and `height` are set. There is no touch emulation, device pixel ratio override, or mobile user-agent spoofing. Layouts that depend on those (e.g. `hover` media queries, DPR-dependent images) may look different from a real device.
-
-## Notes
-
-- All Bash commands are pre-approved in `.claude/settings.local.json` — no permission prompts.
-- The canonical sources of both scripts live in the skill directory (`skills/screenshot/`). If either `/tmp/screenshot-all.js` or `/tmp/install-chrome-libs.js` is missing after a restart, copy from there rather than regenerating:
-  ```bash
-  cp /data/.claude/skills/screenshot/screenshot-all.js /tmp/screenshot-all.js
-  cp /data/.claude/skills/screenshot/install-chrome-libs.js /tmp/install-chrome-libs.js
-  ```
-- **Debian trixie package names:** Several libs were renamed with a `t64` suffix in trixie — e.g. `libglib2.0-0t64` (not `libglib2.0-0`). The installer already uses the correct names.
-- **`ss` command not available:** Use `node -e "require('net').createConnection(5173,'localhost').on('connect',()=>{console.log('UP');process.exit(0)}).on('error',()=>{console.log('DOWN');process.exit(1)})"` to check if the dev server is up instead of `ss -tlnp`.
-- **`zcat` ENOBUFS:** The Packages.gz index is too large to pipe through `execSync`. The installer writes it to `/tmp/Packages.txt` first — do not change this.
-- **`waitUntil: 'load'` fires before `useEffect`:** In React apps where pages initialize data via `useEffect` (e.g. loading from localStorage into a store), the page captures the empty initial-render state. The script adds an 800 ms `waitForTimeout` after navigation to allow effects to complete. If pages still appear empty, increase this delay; never revert it or the timing bug returns.
+- **Page looks empty:** data loads in a `useEffect`; raise the 800 ms wait in `screenshot-all.js` (never remove it).
+- **`playwright-core not found`:** run `npx playwright-core install`.
+- **Dynamic or non-JSX routes not found:** pass `--routes`.
+- **Pantry/shopping list look empty:** a fresh headless browser has no localStorage data, so stock colours and populated lists can't be seen. Say so in the report rather than concluding nothing changed.
+- **Captures are static:** no clicking, hovering or scrolling; auth-gated pages need a dev bypass.
