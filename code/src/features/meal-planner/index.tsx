@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { CalendarCheck, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useStore } from '../../store'
+import { useMealPlan, useRemoveMealEntry } from '../../api/mealPlan'
+import { useRecipes } from '../../api/recipes'
 import {
   getWeekStart,
   toDateStr,
@@ -11,7 +12,6 @@ import {
 } from './utils/calendarUtils'
 import { RecipePickerModal } from './RecipePickerModal'
 import { MealPlanOverlay } from './MealPlanOverlay'
-import { remove } from './services/mealPlanService'
 
 const SLOTS = [
   { key: 'breakfast' as const, label: 'Breakfast' },
@@ -20,30 +20,25 @@ const SLOTS = [
 ]
 
 export default function MealPlannerPage() {
-  const entries = useStore((s) => s.entries)
-  const initMealPlan = useStore((s) => s.initMealPlan)
-  const removeEntry = useStore((s) => s.removeEntry)
+  const entries = useMealPlan()
+  const recipes = useRecipes()
+  const removeEntry = useRemoveMealEntry()
 
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()))
   const [pickerSlot, setPickerSlot] = useState<{ date: string; slot: 'breakfast' | 'lunch' | 'dinner' } | null>(null)
   const [overlayEntry, setOverlayEntry] = useState<{ id: string } | null>(null)
 
-  useEffect(() => {
-    if (entries.length === 0) initMealPlan()
-  }, [])
-
-  const storeRecipes = useStore((s) => s.recipes)
   const recipeMap = useMemo(
-    () => new Map(storeRecipes.map((r) => [r.id, r])),
-    [storeRecipes]
+    () => new Map(recipes.map((r) => [r.id, r])),
+    [recipes]
   )
 
   const dayDates = getDayDates(weekStart)
   const isCurrentWeek = toDateStr(weekStart) === toDateStr(getWeekStart(new Date()))
 
+  // The server deletes a recipe's meal-plan entries with it, so this is only a safety net for stale caches
   function handleRemoveOrphan(id: string) {
-    removeEntry(id)
-    remove(id)
+    removeEntry.mutate(id)
   }
 
   function goToPrev() {

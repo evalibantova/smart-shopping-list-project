@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
-import { useStore } from '../../store'
+import { useRecipes } from '../../api/recipes'
+import { useTags } from '../../api/tags'
+import { useAddMealEntry, newMealEntry } from '../../api/mealPlan'
 import { Modal } from '../../components/ui/Modal'
-import { create } from './services/mealPlanService'
-import type { MealPlanEntry } from '../../types/mealPlan'
 import { searchMatches } from '../../utils/search'
 
 interface Props {
@@ -13,9 +13,9 @@ interface Props {
 }
 
 export function RecipePickerModal({ date, slot, onClose }: Props) {
-  const recipes = useStore((s) => s.recipes)
-  const tags = useStore((s) => s.tags)
-  const addEntry = useStore((s) => s.addEntry)
+  const recipes = useRecipes()
+  const tags = useTags()
+  const addEntry = useAddMealEntry()
   const [query, setQuery] = useState('')
 
   const filtered = query.trim()
@@ -26,16 +26,9 @@ export function RecipePickerModal({ date, slot, onClose }: Props) {
       })
     : recipes
 
+  // Optimistic: the entry shows in the grid at once; a failed save removes it again and toasts
   function handleSelect(recipe: (typeof recipes)[0]) {
-    const entry: MealPlanEntry = {
-      id: crypto.randomUUID(),
-      date,
-      slot,
-      recipeId: recipe.id,
-      servings: recipe.servings,
-    }
-    addEntry(entry)
-    create(entry)
+    addEntry.mutate(newMealEntry({ date, slot, recipeId: recipe.id, servings: recipe.servings }))
     onClose()
   }
 

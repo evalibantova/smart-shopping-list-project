@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useStore } from '../../store'
+import { useMealPlan, useRemoveMealEntry } from '../../api/mealPlan'
+import { useRecipes } from '../../api/recipes'
+import { usePantry } from '../../api/pantry'
+import { useSetEntryCooked } from '../../api/cooking'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
 import { computeAvailability } from '../cook-now/utils/cookNowUtils'
-import { remove, update } from './services/mealPlanService'
 import { AddToWeekModal } from '../../components/shared/AddToWeekModal'
 import { AddEditRecipeModal } from '../recipes/AddEditRecipeModal'
-import { SavingIndicator } from '../../components/ui/SavingIndicator'
-import { Toast } from '../../components/ui/Toast'
 import type { Recipe } from '../../types/recipes'
 import type { MealPlanEntry } from '../../types/mealPlan'
 
@@ -30,16 +30,14 @@ interface Props {
 }
 
 export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
-  const entry = useStore((s) => s.entries.find((e) => e.id === entryId))
-  const recipes = useStore((s) => s.recipes)
-  const pantryItems = useStore((s) => s.pantryItems)
-  const removeEntry = useStore((s) => s.removeEntry)
-  const updateEntry = useStore((s) => s.updateEntry)
-  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
+  const entries = useMealPlan()
+  const entry = entries.find((e) => e.id === entryId)
+  const recipes = useRecipes()
+  const pantryItems = usePantry()
+  const removeEntry = useRemoveMealEntry()
+  const setCooked = useSetEntryCooked()
   const [editOpen, setEditOpen] = useState(false)
   const [addToWeekOpen, setAddToWeekOpen] = useState(false)
-  const [isCooking, setIsCooking] = useState(false)
-  const [toastMsg, setToastMsg] = useState('')
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -49,7 +47,7 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
     return () => document.removeEventListener('keydown', handleKey)
   }, [onClose, editOpen, addToWeekOpen])
 
-  // Close overlay if entry is removed from the store elsewhere
+  // Close overlay if entry is removed from the plan elsewhere
   useEffect(() => {
     if (!entry) onClose()
   }, [entry, onClose])
@@ -59,41 +57,19 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
     ? computeAvailability(recipe, { servings: entry.servings }, pantryItems)
     : null
 
+  // Optimistic: gone from the plan at once; a failed delete brings it back and toasts
   function handleRemove() {
     if (!entry) return
-    removeEntry(entry.id)
-    remove(entry.id)
+    removeEntry.mutate(entry.id)
     onClose()
   }
 
-  async function handleToggleCooked() {
-    if (!entry || isCooking) return
-    const prev = !!entry.cooked
-    const newCooked = !prev
-    setIsCooking(true)
-
-    const deltas = recipe ? buildCookDeltas(recipe, entry, newCooked) : []
-
-    updateEntry(entry.id, { cooked: newCooked })
-
-    try {
-      batchUpdatePantry(deltas)
-    } catch {
-      updateEntry(entry.id, { cooked: prev })
-      setToastMsg('Could not save — please try again.')
-      setIsCooking(false)
-      return
-    }
-
-    try {
-      await update(entry.id, { cooked: newCooked })
-    } catch {
-      try { batchUpdatePantry(deltas.map((d) => ({ ...d, delta: -d.delta }))) } catch { /* best-effort reversal */ }
-      updateEntry(entry.id, { cooked: prev })
-      setToastMsg('Could not save — please try again.')
-    } finally {
-      setIsCooking(false)
-    }
+  // Optimistic: the entry and the pantry change at once; a failed save rolls both back and toasts
+  function handleToggleCooked() {
+    if (!entry || setCooked.isPending) return
+    const cooked = !entry.cooked
+    const deltas = recipe ? buildCookDeltas(recipe, entry, cooked) : []
+    setCooked.mutate({ entry, deltas, cooked })
   }
 
   return createPortal(
@@ -135,14 +111,11 @@ export function MealPlanOverlay({ entryId, weekStart, onClose }: Props) {
             onRemoveFromPlan={handleRemove}
             onCooked={handleToggleCooked}
             isCooked={!!entry?.cooked}
-            isCooking={isCooking}
+            isCooking={setCooked.isPending}
             ingredientAvailability={avail?.ingredientAvailability}
           />
         </div>
       </div>
-
-      <SavingIndicator visible={isCooking} />
-      {toastMsg && <Toast message={toastMsg} onDismiss={() => setToastMsg('')} />}
 
       {editOpen && recipe && (
         <AddEditRecipeModal

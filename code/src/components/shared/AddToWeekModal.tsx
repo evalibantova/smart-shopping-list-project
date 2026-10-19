@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
-import { useStore } from '../../store'
-import { create } from '../../features/meal-planner/services/mealPlanService'
+import { useAddMealEntry, newMealEntry } from '../../api/mealPlan'
 import { getDayDates, toDateStr, DAYS } from '../../features/meal-planner/utils/calendarUtils'
 import type { MealPlanEntry } from '../../types/mealPlan'
 
@@ -23,7 +22,7 @@ interface Props {
 }
 
 export function AddToWeekModal({ recipeId, defaultServings, weekStart, onClose, onAfterConfirm }: Props) {
-  const addEntry = useStore((s) => s.addEntry)
+  const addEntry = useAddMealEntry()
   const dayDates = getDayDates(weekStart)
 
   const todayStr = toDateStr(new Date())
@@ -32,16 +31,9 @@ export function AddToWeekModal({ recipeId, defaultServings, weekStart, onClose, 
   const [selectedSlot, setSelectedSlot] = useState<MealPlanEntry['slot']>('lunch')
   const [servings, setServings] = useState(defaultServings)
 
+  // Optimistic: the entry shows in the planner at once; a failed save removes it again and toasts
   function handleConfirm() {
-    const entry: MealPlanEntry = {
-      id: crypto.randomUUID(),
-      date: selectedDate,
-      slot: selectedSlot,
-      recipeId,
-      servings,
-    }
-    addEntry(entry)
-    create(entry)
+    addEntry.mutate(newMealEntry({ date: selectedDate, slot: selectedSlot, recipeId, servings }))
     onClose()
     onAfterConfirm?.()
   }
@@ -112,7 +104,7 @@ export function AddToWeekModal({ recipeId, defaultServings, weekStart, onClose, 
             data-testid="add-to-week-servings"
             min={1}
             value={servings}
-            onChange={(e) => setServings(Math.max(1, Number(e.target.value)))}
+            onChange={(e) => setServings(Math.max(1, Math.round(Number(e.target.value))))}
           />
         </div>
       </div>
