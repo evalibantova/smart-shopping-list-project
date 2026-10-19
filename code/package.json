@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "lint": "eslint src",
-    "api": "php -S localhost:8080 -t public",
+    "api": "php -S localhost:8080 -t public public/api/router.php",
     "api:install": "composer install --working-dir=public/api",
     "api:migrate": "php public/api/vendor/bin/phinx migrate -c public/api/phinx.php",
     "api:seed": "php public/api/vendor/bin/phinx seed:run -c public/api/phinx.php",

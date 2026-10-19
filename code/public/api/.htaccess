@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Internals are never served over HTTP.
+RewriteRule ^(vendor|src|db|bin)(/|$) - [F,L]
+RewriteRule ^(config\.local\.php|config\.php|phinx\.php|composer\.json|composer\.lock)$ - [F,L]
+
+# Real files (fetch-recipe.php) are served as-is; everything else is the Slim app.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
