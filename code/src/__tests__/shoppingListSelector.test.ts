@@ -1,15 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { computeShoppingList } from '../features/shopping-list/shoppingListSelector'
 import type { MealPlanEntry } from '../types/mealPlan'
 import type { Recipe } from '../types/recipes'
 import type { IngredientDbEntry } from '../types/ingredients'
 import type { PantryItem } from '../types/pantry'
-
-vi.mock('../features/meal-planner/services/mealPlanService', () => ({
-  getAll: () => [],
-  create: vi.fn(),
-  remove: vi.fn(),
-}))
 
 const ING_TOMATO: IngredientDbEntry = { id: 'ing-tomato', name: 'Tomato', default_unit: 'pcs', category: 'Produce' }
 const ING_ONION: IngredientDbEntry = { id: 'ing-onion', name: 'Onion', default_unit: 'pcs', category: 'Produce' }

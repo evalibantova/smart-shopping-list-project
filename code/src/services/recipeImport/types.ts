@@ -68,7 +68,7 @@ export class ImportError extends Error {
   }
 }
 
-// Units a stored ingredient can use (the same set ingredientsDbService accepts) and the shopping-list categories.
+// Units a stored ingredient can use (the same set the ingredients API accepts) and the shopping-list categories.
 export const INGREDIENT_UNITS = ['g', 'ml', 'kg', 'l', 'pcs', 'cloves', 'tbsp', 'tsp'] as const
 export type IngredientUnit = (typeof INGREDIENT_UNITS)[number]
 export const INGREDIENT_CATEGORIES = [

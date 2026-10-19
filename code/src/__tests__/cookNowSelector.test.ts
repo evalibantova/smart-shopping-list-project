@@ -1,14 +1,8 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { computeCookNowCards } from '../features/cook-now/cookNowSelector'
 import type { MealPlanEntry } from '../types/mealPlan'
 import type { Recipe } from '../types/recipes'
 import type { PantryItem } from '../types/pantry'
-
-vi.mock('../features/meal-planner/services/mealPlanService', () => ({
-  getAll: () => [],
-  create: vi.fn(),
-  remove: vi.fn(),
-}))
 
 const TODAY = '2026-10-09'
 const OTHER_DATE = '2026-10-08'
