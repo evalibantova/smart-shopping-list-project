@@ -1,24 +1,26 @@
 {
   "name": "Orange Agentic Environment",
-  "image": "registry.gitlab.tech.orange/unified-cloud-p/technology-office/ia-support/container/claude-code",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
   "remoteUser": "claude-user",
   "workspaceFolder": "/data/${localWorkspaceFolderBasename}",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/data/${localWorkspaceFolderBasename},type=bind,consistency=cached",
-  "mounts": [
-    "source=claude-code-prefs,target=/home/claude-user,type=volume"
-  ],
-  "containerEnv": {
-    "ANTHROPIC_AUTH_TOKEN": "${localEnv:ANTHROPIC_AUTH_TOKEN}"
-  },
-  "overrideCommand": true,
   "features": {
+    "ghcr.io/devcontainers/features/php:1": {
+      "version": "8.4",
+      "installComposer": true
+    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    }
   },
+  "postCreateCommand": "bash ${containerWorkspaceFolder}/.devcontainer/post-create.sh",
   "customizations": {
     "vscode": {
       "settings": {},
       "extensions": [
         "ms-python.python",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "bmewburn.vscode-intelephense-client"
       ]
     }
   }

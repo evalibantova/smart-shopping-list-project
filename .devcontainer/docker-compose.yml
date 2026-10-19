@@ -1,0 +1,48 @@
+name: shopping-list
+
+services:
+  app:
+    image: registry.gitlab.tech.orange/unified-cloud-p/technology-office/ia-support/container/claude-code
+    # The image's entrypoint is `exec claude "$@"`, which would turn a `sleep infinity` command
+    # into `claude sleep infinity` and exit right away. Replace the entrypoint so the container idles.
+    entrypoint: ["sleep", "infinity"]
+    user: claude-user
+    # The docker-outside-of-docker socket is owned by the host's docker gid, which differs from the
+    # container's `docker` group. Override with DOCKER_GID if your host uses another gid.
+    group_add:
+      - "${DOCKER_GID:-986}"
+    # Share the db container's network so the plan's 127.0.0.1:3306 reaches MySQL.
+    network_mode: service:db
+    environment:
+      ANTHROPIC_AUTH_TOKEN: ${ANTHROPIC_AUTH_TOKEN:-}
+    volumes:
+      - ..:/data/shopping-list:cached
+      - claude-code-prefs:/home/claude-user
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    # MariaDB, not MySQL 8.4: the php feature's hand-built mysqlnd cannot complete the MySQL 8.4
+    # handshake ("Bad handshake"), and MariaDB uses mysql_native_password by default.
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: meal_planner
+      MARIADB_USER: meal_planner
+      MARIADB_PASSWORD: meal_planner
+    volumes:
+      # New volume name: a MySQL 8 data directory cannot be opened by MariaDB.
+      - meal-db-mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  # Same name as the old single-container setup, so existing Claude prefs are kept.
+  claude-code-prefs:
+    name: claude-code-prefs
+  meal-db-mariadb:
