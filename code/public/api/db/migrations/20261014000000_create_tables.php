@@ -60,6 +60,7 @@ final class CreateTables extends AbstractMigration
             ->addColumn('quantity', 'double')
             ->addColumn('max_stock', 'double')
             ->addForeignKey('ingredient_id', 'ingredients', 'id', ['delete' => 'RESTRICT'])
+            ->addIndex(['user_id', 'ingredient_id'], ['unique' => true])
             ->create();
 
         $this->table('meal_plan_entries', ['id' => false, 'primary_key' => 'id'] + self::TABLE)

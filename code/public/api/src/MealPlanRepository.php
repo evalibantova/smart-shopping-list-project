@@ -22,7 +22,7 @@ final class MealPlanRepository extends Repository
             'date' => Input::date($body, 'date'),
             'slot' => Input::oneOf($body, 'slot', self::SLOTS),
             'recipe_id' => Input::id($body, 'recipeId'),
-            'servings' => Input::integer($body, 'servings', 1),
+            'servings' => Input::integer($body, 'servings', 1, Input::MAX_SERVINGS),
             'cooked' => array_key_exists('cooked', $body) ? Input::boolean($body, 'cooked') : false,
         ];
         $this->db->table('meal_plan_entries')->insert($row);
@@ -45,7 +45,7 @@ final class MealPlanRepository extends Repository
             $columns['recipe_id'] = Input::id($body, 'recipeId');
         }
         if (array_key_exists('servings', $body)) {
-            $columns['servings'] = Input::integer($body, 'servings', 1);
+            $columns['servings'] = Input::integer($body, 'servings', 1, Input::MAX_SERVINGS);
         }
         if (array_key_exists('cooked', $body)) {
             $columns['cooked'] = Input::boolean($body, 'cooked');

@@ -86,7 +86,7 @@ final class RecipeRepository extends Repository
         $rules = [
             'emoji' => fn () => Input::str($body, 'emoji', 16),
             'name' => fn () => Input::str($body, 'name', 200),
-            'servings' => fn () => Input::integer($body, 'servings', 1),
+            'servings' => fn () => Input::integer($body, 'servings', 1, Input::MAX_SERVINGS),
             'notes' => fn () => Input::text($body, 'notes'),
             'tagIds' => fn () => self::tagIds($body['tagIds'] ?? null),
             'ingredients' => fn () => self::ingredientLines($body['ingredients'] ?? null),

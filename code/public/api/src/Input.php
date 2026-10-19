@@ -8,6 +8,8 @@ use Psr\Http\Message\ServerRequestInterface;
 /** Request-body parsing. Every failure is an ApiError::invalid() (422). */
 final class Input
 {
+    public const MAX_SERVINGS = 1_000_000;
+    private const MAX_NUMBER = 1e9;
     private const UUID = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
 
     /** @return array<string, mixed> */
@@ -32,32 +34,32 @@ final class Input
         return $value;
     }
 
-    /** String that may be empty (e.g. recipe notes). */
-    public static function text(array $data, string $key): string
+    /** String that may be empty (e.g. recipe notes), of at most $max characters. */
+    public static function text(array $data, string $key, int $max = 20000): string
     {
         $value = $data[$key] ?? null;
-        if (!is_string($value)) {
+        if (!is_string($value) || mb_strlen($value) > $max) {
             throw ApiError::invalid();
         }
 
         return $value;
     }
 
-    public static function integer(array $data, string $key, int $min): int
+    public static function integer(array $data, string $key, int $min, int $max = PHP_INT_MAX): int
     {
         $value = $data[$key] ?? null;
-        if (!is_int($value) || $value < $min) {
+        if (!is_int($value) || $value < $min || $value > $max) {
             throw ApiError::invalid();
         }
 
         return $value;
     }
 
-    /** Number >= 0. */
+    /** Number between 0 and 1e9 (the column is a double; this keeps clients honest). */
     public static function number(array $data, string $key): float
     {
         $value = $data[$key] ?? null;
-        if ((!is_int($value) && !is_float($value)) || $value < 0) {
+        if ((!is_int($value) && !is_float($value)) || $value < 0 || $value > self::MAX_NUMBER) {
             throw ApiError::invalid();
         }
 

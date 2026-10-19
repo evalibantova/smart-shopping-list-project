@@ -117,4 +117,58 @@ final class PantryApiTest extends ApiTestCase
     {
         $this->assertSame([200, []], $this->call('PUT', '/api/pantry/batch', ['deltas' => []]));
     }
+
+    public function testDuplicatePostForTheSameIngredientIsAConflict(): void
+    {
+        $flour = $this->makeIngredient('múka');
+        $this->addItem($flour, 100);
+
+        $this->assertSame([409, ['error' => 'conflict']], $this->call('POST', '/api/pantry', ['ingredientId' => $flour, 'quantity' => 5]));
+        $this->assertCount(1, $this->call('GET', '/api/pantry')[1]);
+    }
+
+    public function testUpdateToAnIngredientAlreadyInThePantryIsAConflict(): void
+    {
+        $flour = $this->makeIngredient('múka');
+        $sugar = $this->makeIngredient('cukor');
+        $this->addItem($flour, 100);
+        $sugarItem = $this->addItem($sugar, 100);
+
+        $this->assertSame([409, ['error' => 'conflict']], $this->call('PUT', '/api/pantry/' . $sugarItem['id'], ['ingredientId' => $flour]));
+    }
+
+    public function testQuantityAboveTheUpperBoundIsInvalid(): void
+    {
+        $flour = $this->makeIngredient('múka');
+
+        $this->assertSame([422, ['error' => 'invalid']], $this->call('POST', '/api/pantry', ['ingredientId' => $flour, 'quantity' => 1e10]));
+    }
+
+    public function testAdjustRequiresAListOfDeltas(): void
+    {
+        $flour = $this->makeIngredient('múka');
+
+        $this->assertSame([422, ['error' => 'invalid']], $this->call('PUT', '/api/pantry/batch', []));
+        $this->assertSame([422, ['error' => 'invalid']], $this->call('PUT', '/api/pantry/batch', ['deltas' => 'x']));
+        $this->assertSame([422, ['error' => 'invalid']], $this->call('PUT', '/api/pantry/batch', ['deltas' => ['a' => ['ingredientId' => $flour, 'delta' => 1]]]));
+    }
+
+    public function testAdjustAccumulatesRepeatedDeltasForTheSameIngredient(): void
+    {
+        $flour = $this->makeIngredient('múka');
+        $item = $this->addItem($flour, 100);
+        $deltas = ['deltas' => [
+            ['ingredientId' => $flour, 'delta' => -30],
+            ['ingredientId' => $flour, 'delta' => -50],
+        ]];
+
+        [, $changed] = $this->call('PUT', '/api/pantry/batch', $deltas);
+        $this->assertCount(1, $changed);
+        $this->assertEquals(20, $changed[0]['quantity']);
+
+        [, $changed] = $this->call('PUT', '/api/pantry/batch', $deltas);
+        $this->assertCount(1, $changed);
+        $this->assertSame($item['id'], $changed[0]['id']);
+        $this->assertEquals(0, $changed[0]['quantity']);
+    }
 }

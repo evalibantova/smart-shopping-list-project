@@ -68,7 +68,7 @@ final class PantryRepository extends Repository
             throw ApiError::invalid();
         }
         $parsed = array_map(function ($line) {
-            if (!is_array($line) || !is_int($line['delta'] ?? null) && !is_float($line['delta'] ?? null)) {
+            if (!is_array($line) || (!is_int($line['delta'] ?? null) && !is_float($line['delta'] ?? null))) {
                 throw ApiError::invalid();
             }
 

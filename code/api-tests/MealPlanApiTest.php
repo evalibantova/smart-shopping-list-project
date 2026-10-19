@@ -84,4 +84,13 @@ final class MealPlanApiTest extends ApiTestCase
             'date' => '2026-10-20', 'slot' => 'lunch', 'recipeId' => '11111111-2222-4333-8444-555555555555', 'servings' => 1,
         ]));
     }
+
+    public function testServingsAboveTheUpperBoundIsInvalid(): void
+    {
+        $recipeId = $this->makeRecipe();
+
+        $this->assertSame(422, $this->call('POST', '/api/meal-plan', [
+            'date' => '2026-10-20', 'slot' => 'dinner', 'recipeId' => $recipeId, 'servings' => 1_000_001,
+        ])[0]);
+    }
 }

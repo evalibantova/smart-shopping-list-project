@@ -145,4 +145,10 @@ final class RecipesApiTest extends ApiTestCase
         $this->assertSame([], $recipe['tagIds']);
         $this->assertSame([], $recipe['ingredients']);
     }
+
+    public function testServingsAndNotesAboveTheirBoundsAreInvalid(): void
+    {
+        $this->assertSame(422, $this->call('POST', '/api/recipes', $this->payload(['servings' => 1_000_001]))[0]);
+        $this->assertSame(422, $this->call('POST', '/api/recipes', $this->payload(['notes' => str_repeat('a', 20001)]))[0]);
+    }
 }
