@@ -1,7 +1,12 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { ChevronLeft, Link2, Plus, Search } from 'lucide-react'
 import { useStore } from '../../store'
-import { recipeService } from './services/recipeService'
+import { useToastStore } from '../../store/toastStore'
+import { useRecipes, useDeleteRecipe } from '../../api/recipes'
+import { useTags } from '../../api/tags'
+import { usePantry, useBatchPantry, recipeDeltas } from '../../api/pantry'
+import { messageForError } from '../../api/client'
+import { Modal } from '../../components/ui/Modal'
 import { Recipe, Tag } from '../../types/recipes'
 import { RecipeDetail } from '../../components/shared/RecipeDetail'
 import { AddEditRecipeModal } from './AddEditRecipeModal'
@@ -33,27 +38,19 @@ type ModalState =
   | { type: 'import'; draft: RecipeDraft }
 
 export default function RecipesPage() {
-  const recipes = useStore((s) => s.recipes)
-  const tags = useStore((s) => s.tags)
-  const pantryItems = useStore((s) => s.pantryItems)
+  const recipes = useRecipes()
+  const tags = useTags()
+  const pantryItems = usePantry()
   const selectedId = useStore((s) => s.selectedId)
   const selectRecipe = useStore((s) => s.selectRecipe)
-  const removeRecipe = useStore((s) => s.removeRecipe)
-  const initRecipes = useStore((s) => s.initRecipes)
-
-  const batchUpdatePantry = useStore((s) => s.batchUpdatePantry)
+  const deleteRecipe = useDeleteRecipe()
+  const batchPantry = useBatchPantry()
 
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const [addToWeekRecipeId, setAddToWeekRecipeId] = useState<string | null>(null)
-
-  // Init recipes on mount if store is empty
-  useEffect(() => {
-    if (recipes.length === 0) {
-      initRecipes()
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   // Filter recipes by search
   const sorted = useMemo(
@@ -81,20 +78,33 @@ export default function RecipesPage() {
     setMobileDetailOpen(false)
   }
 
+  // The trash icon only asks; the recipe is deleted (awaited) once the user confirms
   function handleDelete() {
     if (!selectedId) return
-    recipeService.delete(selectedId)
-    removeRecipe(selectedId)
-    setMobileDetailOpen(false)
+    setConfirmDeleteId(selectedId)
   }
 
+  async function confirmDelete() {
+    const id = confirmDeleteId
+    if (!id) return
+    try {
+      await deleteRecipe.mutateAsync(id)
+      if (useStore.getState().selectedId === id) selectRecipe(null)
+      setMobileDetailOpen(false)
+    } catch (err) {
+      useToastStore.getState().show(messageForError(err, 'delete'))
+    } finally {
+      setConfirmDeleteId(null)
+    }
+  }
+
+  // Optimistic: the pantry shows the deduction at once; a failure rolls it back and toasts (see useBatchPantry)
   function handleCooked() {
     if (!selectedId) return
     const recipe = recipes.find((r) => r.id === selectedId)
     if (!recipe) return
-    try {
-      batchUpdatePantry(recipe.ingredients.map((ing) => ({ ingredientId: ing.ingredientId, delta: -ing.quantity })))
-    } catch { /* best-effort */ }
+    const deltas = recipeDeltas(recipe)
+    if (deltas.length > 0) batchPantry.mutate(deltas)
     selectRecipe(null)
     setMobileDetailOpen(false)
   }
@@ -344,6 +354,28 @@ export default function RecipesPage() {
       )}
       {modal.type === 'import' && (
         <AddEditRecipeModal mode="import" draft={modal.draft} onClose={() => setModal({ type: 'none' })} />
+      )}
+      {confirmDeleteId && (
+        <Modal
+          isOpen
+          onClose={() => setConfirmDeleteId(null)}
+          title="Delete recipe"
+          footer={
+            <>
+              <Button intent="ghost" size="sm" type="button" onClick={() => setConfirmDeleteId(null)} disabled={deleteRecipe.isPending}>
+                Cancel
+              </Button>
+              <Button intent="danger" size="sm" type="button" onClick={confirmDelete} disabled={deleteRecipe.isPending}>
+                {deleteRecipe.isPending ? 'Deleting…' : 'Delete'}
+              </Button>
+            </>
+          }
+        >
+          <p style={{ fontSize: 14, color: 'var(--text)' }}>
+            Delete &ldquo;{recipes.find((r) => r.id === confirmDeleteId)?.name ?? 'this recipe'}&rdquo;? Meals planned
+            with this recipe are removed from the meal plan too.
+          </p>
+        </Modal>
       )}
       {addToWeekRecipeId && (() => {
         const recipe = recipes.find((r) => r.id === addToWeekRecipeId)

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { settingsService } from '../../services/settingsService'
+import { useTags } from '../../api/tags'
+import { useIngredients } from '../../api/ingredients'
 import { importRecipeFromUrl, type ImportStage } from '../../services/recipeImport/importRecipe'
 import { ImportError } from '../../services/recipeImport/types'
 import type { RecipeDraft } from '../../services/recipeImport/mapToRecipe'
@@ -20,6 +22,8 @@ const STAGE_LABEL: Record<ImportStage, string> = {
 
 export function ImportRecipeModal({ onImported, onClose }: Props) {
   const hasKey = settingsService.hasGeminiKey()
+  const tags = useTags()
+  const ingredients = useIngredients()
   const [url, setUrl] = useState('')
   const [stage, setStage] = useState<ImportStage | null>(null)
   const [error, setError] = useState('')
@@ -43,7 +47,7 @@ export function ImportRecipeModal({ onImported, onClose }: Props) {
     setError('')
     setStage('fetching')
     try {
-      const draft = await importRecipeFromUrl(url, { signal: controller.signal, onStage: setStage })
+      const draft = await importRecipeFromUrl(url, { signal: controller.signal, onStage: setStage, tags, ingredients })
       // A request that resolves after Cancel must not reopen a review the user dismissed
       if (controller.signal.aborted) return
       onImported(draft)

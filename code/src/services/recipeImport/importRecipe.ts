@@ -1,5 +1,5 @@
-import { tagService } from '../../features/recipes/services/tagService'
-import { ingredientsDbService } from '../ingredientsDbService'
+import type { IngredientDbEntry } from '../../types/ingredients'
+import type { Tag } from '../../types/recipes'
 import { settingsService } from '../settingsService'
 import { assertHttpUrl, fetchPage } from './fetchPage'
 import { parseRecipeWithGemini } from './geminiParse'
@@ -18,7 +18,14 @@ interface ImportDeps {
 
 export async function importRecipeFromUrl(
   url: string,
-  opts: { signal?: AbortSignal; onStage?: (stage: ImportStage) => void; deps?: Partial<ImportDeps> } = {},
+  opts: {
+    /** The cached tag and ingredient lists (the caller reads them with `useTags` / `useIngredients`). */
+    tags: Tag[]
+    ingredients: IngredientDbEntry[]
+    signal?: AbortSignal
+    onStage?: (stage: ImportStage) => void
+    deps?: Partial<ImportDeps>
+  },
 ): Promise<RecipeDraft> {
   const key = settingsService.getGeminiKey()
   if (!key) throw new ImportError('no_key')
@@ -29,13 +36,12 @@ export async function importRecipeFromUrl(
   const page = await (opts.deps?.fetchPage ?? fetchPage)(clean, { signal: opts.signal })
 
   opts.onStage?.('reading')
-  const tags = tagService.getAll()
+  const { tags, ingredients: db } = opts
   const parsed = await (opts.deps?.parseRecipe ?? parseRecipeWithGemini)(page, key, {
     signal: opts.signal,
     tagNames: tags.map((t) => t.name),
   })
 
-  const db = ingredientsDbService.getAll()
   const draft = mapToRecipe(parsed, db, clean, tags)
 
   // Call 2 only for the rows the local pass could not finish. Its failure never fails the import.

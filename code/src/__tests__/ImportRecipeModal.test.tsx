@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createRoot } from 'react-dom/client'
 import { act } from 'react'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { ImportRecipeModal } from '../features/recipes/ImportRecipeModal'
+import { makeTestClient } from '../test/renderWithClient'
+import type { Seed } from '../test/seed'
+import { FLOUR, TAG_BREAKFAST } from '../test/fixtures'
 import { settingsService } from '../services/settingsService'
 import { importRecipeFromUrl } from '../services/recipeImport/importRecipe'
 import { ImportError } from '../services/recipeImport/types'
@@ -45,12 +49,14 @@ describe('ImportRecipeModal', () => {
     document.body.innerHTML = ''
   })
 
-  function renderModal() {
+  function renderModal(seed: Seed = {}) {
     act(() => {
       root.render(
-        <MemoryRouter>
-          <ImportRecipeModal onImported={onImported} onClose={onClose} />
-        </MemoryRouter>,
+        <QueryClientProvider client={makeTestClient(seed)}>
+          <MemoryRouter>
+            <ImportRecipeModal onImported={onImported} onClose={onClose} />
+          </MemoryRouter>
+        </QueryClientProvider>,
       )
     })
   }
@@ -81,6 +87,18 @@ describe('ImportRecipeModal', () => {
     await act(async () => button('Import').click())
     expect(importRecipeFromUrl).toHaveBeenCalledWith('https://example.com/p', expect.anything())
     expect(onImported).toHaveBeenCalledWith(DRAFT)
+  })
+
+  it('passes the cached tags and ingredients to the import', async () => {
+    settingsService.setGeminiKey('k')
+    vi.mocked(importRecipeFromUrl).mockResolvedValue(DRAFT)
+    renderModal({ ingredients: [FLOUR], tags: [TAG_BREAKFAST] })
+    act(() => typeInto(urlInput(), 'https://example.com/p'))
+    await act(async () => button('Import').click())
+    expect(importRecipeFromUrl).toHaveBeenCalledWith(
+      'https://example.com/p',
+      expect.objectContaining({ tags: [TAG_BREAKFAST], ingredients: [FLOUR] }),
+    )
   })
 
   it('shows the error and re-enables Import on failure', async () => {
