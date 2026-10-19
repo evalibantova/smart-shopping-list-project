@@ -7,3 +7,4 @@ require __DIR__ . '/../public/api/vendor/autoload.php';
 
 // Test helper (not a test class, so PHPUnit does not discover it).
 require_once __DIR__ . '/TestDatabase.php';
+require_once __DIR__ . '/ApiTestCase.php';
