@@ -5,12 +5,13 @@ Plan 1 of the backend work is done and committed on `run/4-superpowers`: a Slim 
 
 This spec covers the rest: the frontend switches to the API, then the app ships to production. It builds on `2026-10-14-backend-persistence-design.md` (the approved spec), whose decisions still hold: single shared dataset with no login, old localStorage data discarded, Gemini key stays in the browser, shopping list stays computed on the client, TanStack Query for server state, Zustand reduced to UI state.
 
-## Slicing: three cycles
-Each cycle gets its own plan and subagent-driven run, with a checkpoint between cycles.
+## Slicing: two cycles
+Each cycle gets its own plan and subagent-driven run, with a checkpoint between them.
 
-1. **Cycle 2 — client layer + pantry end to end + dev environment.** Proves the pattern on one feature.
-2. **Cycle 3 — remaining features.** Recipes, tags, ingredients, meal plan, import and cook-now move to the API; the localStorage services are deleted.
-3. **Cycle 4 — docs and production deploy.**
+1. **Cycle A — the whole frontend switch** (plan `2026-10-19-frontend-on-backend.md`): dev environment fix, API client and app gate, then ingredients, tags, recipes, pantry, meal plan, import and cook-now, then deletion of the localStorage services. Tasks are ordered so unit tests stay green after each one.
+2. **Cycle B — docs and production deploy** (called "cycle B" below).
+
+Why not pantry first (the original three-cycle split): the cookbook import creates local ingredients with random UUIDs and the seeded recipes point at those ids, while the server seeder generates its own ids. A server-side pantry only makes sense with server ingredient ids, so with recipes still local the shopping list, cook-now and the cooked deduction would silently mismatch. Every cross-feature view needs ingredients, recipes, pantry and meal plan together, so the resources must move as one. The app is therefore only coherent in manual use at the end of cycle A.
 
 ## Decisions made while brainstorming
 - **Loading and errors:** one app-level gate (see below), no per-page loading states, no persisted offline cache.
@@ -22,7 +23,7 @@ Each cycle gets its own plan and subagent-driven run, with a checkpoint between 
 ### Layers
 - `src/api/client.ts` — thin `fetch` wrapper. Reuses `timedFetch` from `services/recipeImport/request.ts`. Sends and parses JSON against the relative path `/api/...` (Vite proxy in dev, same origin in production). Throws a typed `ApiError` carrying the HTTP status and the server's `{"error": code}`.
 - `src/api/` resource hooks — `useRecipes`, `useTags`, `useIngredients`, `usePantry`, `useMealPlan`. Each owns the queries and mutations of one resource. One flat query key per resource.
-- Zustand keeps UI state only (`selectedId` and other transient selections). `recipes`, `tags`, `entries`, `pantryItems` and all `init*` actions leave the store. The five localStorage services are deleted in cycle 3 (`pantryService` in cycle 2).
+- Zustand keeps UI state only (`selectedId` and other transient selections). `recipes`, `tags`, `entries`, `pantryItems` and all `init*` actions leave the store. The five localStorage services are deleted in cycle A.
 - Unchanged: pure selectors (`cookNowSelector`, `shoppingListSelector`, `calendarUtils`, `search`), `settingsService`, the shopping list's local checked state.
 
 ### Loading and errors (app-level gate)
@@ -39,19 +40,19 @@ Each cycle gets its own plan and subagent-driven run, with a checkpoint between 
 - `importCookbookIfNeeded()` in `main.tsx`, `src/data/cookbookImport.ts` and the `slist_cookbook_imported` flag are deleted: the server seeds the data. `cookbookSeed.json` stays as the single source for the PHP seeder.
 - The Gemini key stays in `settingsService` (localStorage).
 
-## Dev environment (part of cycle 2)
+## Dev environment (first task of cycle A)
 The devcontainer's hand-built `pdo_mysql` cannot log in to MariaDB or MySQL (`Bad handshake`, with MySQL 8.4 and MariaDB 11 both). Fix by installing PHP from apt in the devcontainer: `php-cli`, `php-mysql`, `php-mbstring`, `php-xml`, `php-curl`, `php-sqlite3`, `unzip`, `mariadb-client`. Remove the `pdo_mysql` build from `.devcontainer/post-create.sh` and keep the PHPUnit phar download. Keep the `db` service (MariaDB 11). `npm run api` stays `php -S localhost:8080 -t public public/api/router.php`.
-This changes the base devcontainer and needs a container rebuild by the user, so it is the first step of cycle 2 and gates the rest. If the rebuild is not possible, the fallback is the throwaway `php:8.4-cli + pdo_mysql` image used so far.
+This changes the base devcontainer and needs a container rebuild by the user, so it is the first step of cycle A and gates the rest. If the rebuild is not possible, the fallback is the throwaway `php:8.4-cli + pdo_mysql` image used so far.
 
 ## Testing
 - Hooks and `ApiError`: vitest with a mocked `fetch`, using the injected-`fetchImpl` style from `fetchPage.test.ts`.
 - Components: a fresh `QueryClient` per test wrapper; the API module mocked where a component test should not touch hooks.
 - The localStorage-asserting tests are replaced, not ported: `recipeService`, `pantryService`, `mealPlanService`, `mealPlanPersistence`, `ingredientsDbService`, `cookbookImport`, and the slice tests that assert service calls.
 - Kept as they are: selector tests (`cookNowSelector`, `shoppingListSelector`, `calendarUtils`, `recipesFilter`) and the import-parsing tests.
-- Each cycle ends with a manual check: `npm run api` plus `npm run dev`, create, edit and delete, reload, confirm persistence, and (cycle 2) confirm cooked deductions hit the pantry.
+- Cycle A ends with a manual check: `npm run api` plus `npm run dev`, create, edit and delete each resource, reload, confirm persistence, and confirm cooked deductions hit the pantry.
 - Gates: `npm test`, `npm run lint`, `npm run test:php`.
 
-## Production (cycle 4)
+## Production (cycle B)
 - Hosting prerequisites: (sub)domain, HTTPS, mod_rewrite and AllowOverride, FTP details; `host-check.php` for PHP >= 8.1 and the extensions (pdo_mysql, mbstring, curl, dom, iconv); verify `public/api/.htaccess` on real Apache.
 - Build: `composer install --no-dev --optimize-autoloader` in `public/api`, then `npm run build` so `vendor/` ships inside `dist/api/`.
 - Database: apply `schema.sql` (from `npm run api:sql`, which includes the seed) through phpMyAdmin; create `config.local.php` on the host from the example.
@@ -63,7 +64,7 @@ This changes the base devcontainer and needs a container rebuild by the user, so
 Accounts and login, importing old localStorage data, offline mode or a persisted query cache, moving the Gemini key to the server, a server-side shopping list or checked state, real-time sync between devices.
 
 ## Risks
-- The host PHP version, extensions and `.htaccess` behaviour are unverified until cycle 4. A failed host check could force changes to the API code.
+- The host PHP version, extensions and `.htaccess` behaviour are unverified until cycle B. A failed host check could force changes to the API code.
 - The apt PHP in the devcontainer is untested until the user rebuilds the container.
 - Unknown foreign ids on a recipe or meal-plan write return 409, not 422. The client has to map that deliberately.
 - The cascade from recipe delete to meal-plan entries is silent, so the delete confirmation should say so. This is a design choice from plan 1, not a bug.
