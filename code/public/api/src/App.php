@@ -20,6 +20,7 @@ final class App
         $tags = new TagRepository($db);
         $recipes = new RecipeRepository($db);
         $pantry = new PantryRepository($db);
+        $mealPlan = new MealPlanRepository($db);
 
         $json = static function (Response $response, mixed $data, int $status = 200): Response {
             $response->getBody()->write(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
@@ -71,7 +72,14 @@ final class App
             return $r->withStatus(204);
         });
 
-        // ROUTES:meal-plan
+        $app->get('/meal-plan', fn (Request $q, Response $r) => $json($r, $mealPlan->all()));
+        $app->post('/meal-plan', fn (Request $q, Response $r) => $json($r, $mealPlan->create(Input::body($q)), 201));
+        $app->put('/meal-plan/{id}', fn (Request $q, Response $r, array $args) => $json($r, $mealPlan->update($args['id'], Input::body($q))));
+        $app->delete('/meal-plan/{id}', function (Request $q, Response $r, array $args) use ($mealPlan) {
+            $mealPlan->delete($args['id']);
+
+            return $r->withStatus(204);
+        });
 
         $errors = $app->addErrorMiddleware(false, false, false);
         $errors->setDefaultErrorHandler(static function (Request $request, \Throwable $e) use ($app, $json): Response {
