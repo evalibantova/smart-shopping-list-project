@@ -14,6 +14,7 @@
     "api:migrate": "php public/api/vendor/bin/phinx migrate -c public/api/phinx.php",
     "api:seed": "php public/api/vendor/bin/phinx seed:run -c public/api/phinx.php",
     "api:reset": "php public/api/vendor/bin/phinx rollback -c public/api/phinx.php -t 0 && npm run api:migrate && npm run api:seed",
+    "api:sql": "mysqldump -h127.0.0.1 -umeal_planner -pmeal_planner --no-tablespaces --skip-comments --ignore-table=meal_planner.phinxlog meal_planner > schema.sql",
     "test:php":"php phpunit.phar"
   },
   "dependencies": {
