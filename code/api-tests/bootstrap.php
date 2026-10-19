@@ -1,8 +1,9 @@
 <?php
 // code/api-tests/bootstrap.php
-// The endpoint has no autoloader (no Composer on the server), so tests load the files the same way it does.
+// Classes load through Composer's PSR-4 autoloader (MealPlanner\Api\ => public/api/src/).
 declare(strict_types=1);
 
-foreach (['FetchError', 'UrlGuard', 'PageFetcher', 'RecipeExtractor'] as $class) {
-    require_once __DIR__ . '/../public/api/src/' . $class . '.php';
-}
+require __DIR__ . '/../public/api/vendor/autoload.php';
+
+// Test helper (not a test class, so PHPUnit does not discover it).
+require_once __DIR__ . '/TestDatabase.php';

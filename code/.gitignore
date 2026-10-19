@@ -4,3 +4,8 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+public/api/vendor/
+public/api/config.local.php
+schema.sql
+.phpunit.cache/

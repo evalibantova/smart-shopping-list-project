@@ -10,7 +10,11 @@
     "test": "vitest",
     "lint": "eslint src",
     "api": "php -S localhost:8080 -t public",
-    "test:php": "php phpunit.phar"
+    "api:install": "composer install --working-dir=public/api",
+    "api:migrate": "php public/api/vendor/bin/phinx migrate -c public/api/phinx.php",
+    "api:seed": "php public/api/vendor/bin/phinx seed:run -c public/api/phinx.php",
+    "api:reset": "php public/api/vendor/bin/phinx rollback -c public/api/phinx.php -t 0 && npm run api:migrate && npm run api:seed",
+    "test:php":"php phpunit.phar"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
