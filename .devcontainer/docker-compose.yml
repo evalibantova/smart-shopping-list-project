@@ -2,7 +2,13 @@ name: shopping-list
 
 services:
   app:
-    image: registry.gitlab.tech.orange/unified-cloud-p/technology-office/ia-support/container/claude-code
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BASE_IMAGE: registry.gitlab.tech.orange/unified-cloud-p/technology-office/ia-support/container/claude-code
+    # Local tag of the built image (must differ from BASE_IMAGE, which the Dockerfile starts FROM).
+    image: shopping-list-app:local
     # The image's entrypoint is `exec claude "$@"`, which would turn a `sleep infinity` command
     # into `claude sleep infinity` and exit right away. Replace the entrypoint so the container idles.
     entrypoint: ["sleep", "infinity"]
@@ -23,8 +29,7 @@ services:
         condition: service_healthy
 
   db:
-    # MariaDB, not MySQL 8.4: the php feature's hand-built mysqlnd cannot complete the MySQL 8.4
-    # handshake ("Bad handshake"), and MariaDB uses mysql_native_password by default.
+    # MariaDB: matches the common shared-hosting database and uses mysql_native_password by default.
     image: mariadb:11
     restart: unless-stopped
     environment:
