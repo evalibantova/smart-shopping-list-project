@@ -19,6 +19,7 @@ final class App
         $ingredients = new IngredientRepository($db);
         $tags = new TagRepository($db);
         $recipes = new RecipeRepository($db);
+        $pantry = new PantryRepository($db);
 
         $json = static function (Response $response, mixed $data, int $status = 200): Response {
             $response->getBody()->write(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
@@ -60,7 +61,16 @@ final class App
             return $r->withStatus(204);
         });
 
-        // ROUTES:pantry
+        $app->get('/pantry', fn (Request $q, Response $r) => $json($r, $pantry->all()));
+        $app->post('/pantry', fn (Request $q, Response $r) => $json($r, $pantry->create(Input::body($q)), 201));
+        $app->put('/pantry/batch', fn (Request $q, Response $r) => $json($r, $pantry->adjust(Input::body($q))));
+        $app->put('/pantry/{id}', fn (Request $q, Response $r, array $args) => $json($r, $pantry->update($args['id'], Input::body($q))));
+        $app->delete('/pantry/{id}', function (Request $q, Response $r, array $args) use ($pantry) {
+            $pantry->delete($args['id']);
+
+            return $r->withStatus(204);
+        });
+
         // ROUTES:meal-plan
 
         $errors = $app->addErrorMiddleware(false, false, false);
