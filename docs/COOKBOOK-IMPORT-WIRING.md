@@ -14,17 +14,17 @@
 
 ## How it loads
 
-`main.tsx` calls `importCookbookIfNeeded()` (`src/data/cookbookImport.ts`) before rendering.
+The PHP seeder `code/public/api/db/seeds/CookbookSeeder.php` loads the seed into MySQL. It uses `code/public/api/src/CookbookData.php`, a port of the old TypeScript import logic. Run `npm run api:migrate`, then `npm run api:seed`; `npm run api:reset` rolls back, migrates and seeds again.
 
-- Guarded by the `slist_cookbook_imported` flag. If it differs from `IMPORT_VERSION`, the import **wipes** ingredients, recipes, tags, pantry and meal plan from `localStorage`, then loads the seed. After editing the JSON, bump `IMPORT_VERSION` to make browsers pick up the change (this also discards user-created data).
+- The seeder only runs on an empty database: if `ingredients` already has a row it does nothing, so a second run never duplicates data. After editing the JSON, run `npm run api:reset` (this also discards user-created data).
 - Recipes are linked to ingredients by name; an unknown name throws.
-- Each recipe gets a tag named after its category and one for `mainTag`; colors come from `TAG_COLORS` in `cookbookImport.ts` (unknown tag names fall back to grey, so add a color when adding a tag). The emoji comes from the category, or from keywords in the name when the category has none, else 🍴.
+- Each recipe gets a tag named after its category and one for `mainTag`; colors come from `TAG_COLORS` in `CookbookData.php` (unknown tag names fall back to grey, so add a color when adding a tag). The emoji comes from the category, or from keywords in the name when the category has none, else 🍴.
 - The pantry and meal plan start empty.
 - Notes render through `components/shared/NotesMarkdown.tsx` (Markdown + GFM autolinks + sanitized inline HTML; links open in a new tab).
 
 ## Tests
 
-`src/__tests__/cookbookImport.test.ts` checks that every recipe ingredient resolves, quantities use the ingredient's `default_unit`, the import is idempotent, and tags have distinct colors.
+`code/api-tests/CookbookDataTest.php` checks the conversion: the whole cookbook becomes 163 ingredients and 53 recipes, every ingredient/tag/recipe link resolves to a generated row, and emoji and tag colors follow the rules above. `code/api-tests/CookbookSeedTest.php` checks the seeder through the API: it loads the cookbook, seeding twice does not duplicate, and an already-populated database is left alone.
 
 ## Known data caveats
 

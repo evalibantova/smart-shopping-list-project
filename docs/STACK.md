@@ -7,8 +7,8 @@
 | Framework | React 19.x | Upgraded from the originally planned 18.3 during development. |
 | Build | Vite | Set `base: '/'`, `build.outDir: 'dist'`. Lock in `.htaccess` SPA fallback before first deploy. |
 | Styling | CSS custom properties + inline styles; Tailwind v4 + `cva` for `Button` | Design tokens (colors, shadows, radii) are plain CSS custom properties on `:root` in `tokens.css`, mapped from the DESIGN.md tables. Tailwind v4 is installed (Vite plugin, `@import "tailwindcss"`), but only `Button` uses it, with `class-variance-authority` for its intent/size variants. Everything else is inline `style` props plus a few shared global classes in `tokens.css` (`.field`, `.field-group`, `.qty-unit`, `.form-label`, `.field-search`, page-layout classes). Future theme switching: override the custom properties under `[data-theme]` — no component changes needed. |
-| App state | Zustand | One flat store. Shopping list, Cook Now badges, and pantry stock are pure selector functions derived from `mealPlan + recipes + pantry` — matches the "data drives UI" constraint. Replaces the useState / useContext approach. |
-| Server state | TanStack Query v5 | Introduce when the PHP REST API is wired. Not used in the localStorage MVP phase — Zustand covers that period entirely. |
+| App state | Zustand | UI state only (`selectedId`). Shopping list, Cook Now badges, and pantry stock are pure selector functions derived from `mealPlan + recipes + pantry` (read from the query cache) — matches the "data drives UI" constraint. |
+| Server state | TanStack Query v5 | The server-state layer (`src/api/`): queries, optimistic mutations and cache for the PHP REST API. |
 | Routing | React Router v7 — `BrowserRouter` | History mode (clean URLs). `.htaccess` already handles the SPA fallback, so hash mode is unnecessary. |
 | Icons | Lucide React | Canonised in DESIGN.md. Tree-shaken per import. Revisit only if Lighthouse flags bundle size. |
 | Forms | Plain controlled components (`useState`) | No form library. Fields are controlled inputs; the recipe form keeps its ingredient rows in a `useState<IngredientRow[]>`, which keeps autocomplete → canonical ID resolution and unit-lock logic imperative and readable. All inputs share the ledger `.field` style (see DESIGN.md "Form inputs"). |
@@ -37,7 +37,7 @@ src/
 │       ├── NotesMarkdown.tsx
 │       └── AddToWeekModal.tsx
 ├── features/                 # one folder per page: recipes, meal-planner, pantry, cook-now, shopping-list
-├── store/                    # Zustand slices (recipes, meal planner, pantry)
+├── store/                    # Zustand store (UI state only)
 ├── services/, types/, data/, utils/
 ```
 
@@ -48,6 +48,6 @@ Text, select, textarea and search fields are not components: use `className="fie
 - **Static hosting** — FTP deploy, no Node.js runtime on server. Build outputs `dist/`.
 - **No hash mode** — `.htaccess` rewrites all paths to `index.html`; clean URLs (`/meal-planner`) work out of the box.
 - **Live-computed shopping list** — never stored, always derived from `mealPlan + recipes + pantry`. Zustand selectors make this a single pure function.
-- **Optimistic UI** — all mutations update the Zustand store immediately; API errors surface via toast and roll back.
-- **MVP uses localStorage** — TanStack Query is deferred until the PHP REST API is introduced.
+- **Optimistic UI** — mutations update the TanStack Query cache immediately; API errors surface via toast and roll back.
+- **Server data lives in MySQL** — TanStack Query v5 talks to the PHP REST API; localStorage is only used for the Gemini key and the shopping list's checked state.
 - **Cross-platform build** — `npm scripts` only; no Unix-only shell syntax. Use `cross-env` if env vars are needed.

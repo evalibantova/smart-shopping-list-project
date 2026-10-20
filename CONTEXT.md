@@ -47,7 +47,7 @@ A personal web app to plan weekly meals and auto-generate a shopping list from r
 | Hosting | Shared hosting — FTP upload only. No Node.js runtime on the server. |
 | Backend | PHP + MySQL. Data exposed via PHP REST API scripts. No server-side JS frameworks (no Express, Next.js, etc.). |
 | Frontend | Static files only (HTML/CSS/JS). Purely client-side app. A build step that outputs a `dist/` folder is fine — Node is allowed at build time, not runtime. |
-| Persistent storage | Browser `localStorage` acceptable for MVP. Production uses the PHP/MySQL REST API. |
+| Persistent storage | Data lives in MySQL behind the PHP REST API. Browser `localStorage` is only used for the Gemini key and the shopping list's checked state. |
 | Build tooling | Node/npm for development and build time only. Build scripts must run on both Windows and Linux — no Unix-only shell syntax; use npm scripts or cross-platform tools (e.g. `cross-env`). |
 | SPA routing | `.htaccess` rewrite rules redirect all requests to `index.html`. Clean URLs (`/meal-planner`, etc.) are fine. |
 ## Tech Stack
