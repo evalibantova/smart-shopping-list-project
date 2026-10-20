@@ -14,7 +14,8 @@ export default defineConfig({
   },
   server: {
     // `npm run api` serves public/api/*.php locally
-    proxy: { '/api': 'http://localhost:8080' },
+    // 127.0.0.1, not localhost: `localhost` may resolve to ::1 for one side and 127.0.0.1 for the other
+    proxy: { '/api': 'http://127.0.0.1:8080' },
   },
   test: {
     environment: 'jsdom',
