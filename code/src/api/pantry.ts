@@ -3,7 +3,7 @@ import type { PantryItem } from '../types/pantry'
 import type { Recipe } from '../types/recipes'
 import { applyPantryDeltas, type PantryDelta } from '../utils/pantryDeltas'
 import { api } from './client'
-import { failOptimistic, optimisticUpdate, replaceById } from './optimistic'
+import { failOptimistic, optimisticUpdate, reconcileWhenIdle, replaceById } from './optimistic'
 import { queryKeys } from './queryKeys'
 
 export const pantryQueryOptions = queryOptions({
@@ -47,6 +47,8 @@ export function useAddPantryItem() {
     onMutate: (item) => optimisticUpdate<PantryItem>(qc, queryKeys.pantry, (old) => [...old, item]),
     onSuccess: (saved) => replaceById(qc, queryKeys.pantry, saved),
     onError: (err, _item, restore) => failOptimistic(qc, KEYS, restore, err),
+    onSettled: () => reconcileWhenIdle(qc, KEYS),
+    scope: { id: 'pantry' },
   })
 }
 
@@ -60,6 +62,8 @@ export function useUpdatePantryItem() {
       ),
     onSuccess: (saved) => replaceById(qc, queryKeys.pantry, saved),
     onError: (err, _vars, restore) => failOptimistic(qc, KEYS, restore, err),
+    onSettled: () => reconcileWhenIdle(qc, KEYS),
+    scope: { id: 'pantry' },
   })
 }
 
@@ -69,6 +73,8 @@ export function useDeletePantryItem() {
     mutationFn: (id: string) => api.delete(`/pantry/${id}`),
     onMutate: (id) => optimisticUpdate<PantryItem>(qc, queryKeys.pantry, (old) => old.filter((i) => i.id !== id)),
     onError: (err, _id, restore) => failOptimistic(qc, KEYS, restore, err, 'delete'),
+    onSettled: () => reconcileWhenIdle(qc, KEYS),
+    scope: { id: 'pantry' },
   })
 }
 
@@ -84,5 +90,7 @@ export function useBatchPantry() {
       qc.setQueryData<PantryItem[]>(queryKeys.pantry, (old) => old?.map((i) => byId.get(i.id) ?? i))
     },
     onError: (err, _deltas, restore) => failOptimistic(qc, KEYS, restore, err),
+    onSettled: () => reconcileWhenIdle(qc, KEYS),
+    scope: { id: 'pantry' },
   })
 }

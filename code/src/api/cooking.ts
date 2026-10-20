@@ -3,7 +3,7 @@ import type { MealPlanEntry } from '../types/mealPlan'
 import type { PantryItem } from '../types/pantry'
 import { applyPantryDeltas, type PantryDelta } from '../utils/pantryDeltas'
 import { api } from './client'
-import { failOptimistic, optimisticUpdate } from './optimistic'
+import { failOptimistic, optimisticUpdate, reconcileWhenIdle } from './optimistic'
 import { queryKeys } from './queryKeys'
 
 export interface SetCookedInput {
@@ -49,5 +49,7 @@ export function useSetEntryCooked() {
       }
     },
     onError: (err, _input, restore) => failOptimistic(qc, [queryKeys.mealPlan, queryKeys.pantry], restore, err),
+    onSettled: () => reconcileWhenIdle(qc, [queryKeys.mealPlan, queryKeys.pantry]),
+    scope: { id: 'meal-plan' },
   })
 }

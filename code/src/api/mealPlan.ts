@@ -1,7 +1,7 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { MealPlanEntry } from '../types/mealPlan'
 import { api } from './client'
-import { failOptimistic, optimisticUpdate, replaceById } from './optimistic'
+import { failOptimistic, optimisticUpdate, reconcileWhenIdle, replaceById } from './optimistic'
 import { queryKeys } from './queryKeys'
 
 export const mealPlanQueryOptions = queryOptions({
@@ -32,6 +32,8 @@ export function useAddMealEntry() {
     onMutate: (entry) => optimisticUpdate<MealPlanEntry>(qc, queryKeys.mealPlan, (old) => [...old, entry]),
     onSuccess: (saved) => replaceById(qc, queryKeys.mealPlan, saved),
     onError: (err, _entry, restore) => failOptimistic(qc, KEYS, restore, err),
+    onSettled: () => reconcileWhenIdle(qc, KEYS),
+    scope: { id: 'meal-plan' },
   })
 }
 
@@ -47,6 +49,8 @@ export function useUpdateMealEntry() {
       ),
     onSuccess: (saved) => replaceById(qc, queryKeys.mealPlan, saved),
     onError: (err, _vars, restore) => failOptimistic(qc, KEYS, restore, err),
+    onSettled: () => reconcileWhenIdle(qc, KEYS),
+    scope: { id: 'meal-plan' },
   })
 }
 
@@ -56,5 +60,7 @@ export function useRemoveMealEntry() {
     mutationFn: (id: string) => api.delete(`/meal-plan/${id}`),
     onMutate: (id) => optimisticUpdate<MealPlanEntry>(qc, queryKeys.mealPlan, (old) => old.filter((e) => e.id !== id)),
     onError: (err, _id, restore) => failOptimistic(qc, KEYS, restore, err, 'delete'),
+    onSettled: () => reconcileWhenIdle(qc, KEYS),
+    scope: { id: 'meal-plan' },
   })
 }

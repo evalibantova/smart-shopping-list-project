@@ -36,3 +36,13 @@ export function failOptimistic(
 export function replaceById<T extends { id: string }>(qc: QueryClient, key: QueryKey, saved: T): void {
   qc.setQueryData<T[]>(key, (old) => old?.map((x) => (x.id === saved.id ? saved : x)))
 }
+
+/**
+ * The `onSettled` of an optimistic mutation: re-sync the lists with the server, but only when this is the last
+ * pending write. Inside `onSettled` the mutation itself still counts as pending (so `1` means "only me"); an
+ * earlier refetch would overwrite the optimistic state of the writes still in flight.
+ */
+export function reconcileWhenIdle(qc: QueryClient, keys: QueryKey[]): void {
+  if (qc.isMutating() > 1) return
+  for (const queryKey of keys) void qc.invalidateQueries({ queryKey })
+}
