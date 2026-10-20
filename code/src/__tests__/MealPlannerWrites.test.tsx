@@ -157,7 +157,8 @@ describe('meal planner writes', () => {
       renderOverlay()
       act(() => byLabel('Mark as cooked').click())
       await waitFor(() => expect(useToastStore.getState().message).toBe('Could not save — please try again.'))
-      expect(entries()).toEqual([ENTRY_PANCAKES])
+      // the rollback first shows the old entry; the refetch then carries cooked: false (the fake server saw the reversal PUT)
+      await waitFor(() => expect(entries()).toEqual([{ ...ENTRY_PANCAKES, cooked: false }]))
       expect(pantry()).toEqual(SEED.pantry)
     })
 

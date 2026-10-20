@@ -1,4 +1,6 @@
 import { vi } from 'vitest'
+import type { PantryItem } from '../types/pantry'
+import { applyPantryDeltas, type PantryDelta } from '../utils/pantryDeltas'
 import type { Seed } from './seed'
 
 export interface RecordedCall {
@@ -53,14 +55,17 @@ const LIST_PATHS: Record<string, keyof Seed> = {
  * PUT merges the body into the seeded object with that id (the batch route answers `[]`), DELETE is 204.
  */
 export function installApi(opts: { seed?: Seed; handler?: Handler } = {}) {
-  const seed = opts.seed ?? {}
-  const known: { id: string }[] = [
-    ...(seed.recipes ?? []),
-    ...(seed.tags ?? []),
-    ...(seed.ingredients ?? []),
-    ...(seed.pantry ?? []),
-    ...(seed.mealPlan ?? []),
-  ]
+  // The lists are copied and kept up to date by the default write handlers, so a refetch after a write
+  // (the hooks reconcile with the server) sees what the write did, like the real API.
+  const lists: Record<keyof Seed, { id: string }[]> = {
+    recipes: [...(opts.seed?.recipes ?? [])],
+    tags: [...(opts.seed?.tags ?? [])],
+    ingredients: [...(opts.seed?.ingredients ?? [])],
+    pantry: [...(opts.seed?.pantry ?? [])],
+    mealPlan: [...(opts.seed?.mealPlan ?? [])],
+  }
+  const known = () => Object.values(lists).flat()
+  const listFor = (path: string) => LIST_PATHS[path.split('/').slice(0, 3).join('/')]
   let n = 0
   const fetchStub = installFetch(async (call) => {
     const custom = await opts.handler?.(call)
@@ -69,16 +74,27 @@ export function installApi(opts: { seed?: Seed; handler?: Handler } = {}) {
     const body = (call.body ?? {}) as object
     if (call.method === 'GET') {
       const key = LIST_PATHS[call.path]
-      return jsonResponse(key ? (seed[key] ?? []) : [])
+      return jsonResponse(key ? lists[key] : [])
     }
+    const key = listFor(call.path)
     if (call.method === 'POST') {
       const createdAt = call.path === '/api/recipes' ? { createdAt: 1 } : {}
-      return jsonResponse({ id: `srv-${++n}`, ...createdAt, ...body }, 201)
+      const created = { id: `srv-${++n}`, ...createdAt, ...body }
+      if (key) lists[key].push(created)
+      return jsonResponse(created, 201)
     }
     if (call.method === 'PUT') {
-      if (call.path === '/api/pantry/batch') return jsonResponse([])
-      return jsonResponse({ ...known.find((k) => k.id === id), id, ...body })
+      if (call.path === '/api/pantry/batch') {
+        const before = lists.pantry as PantryItem[]
+        const after = applyPantryDeltas(before, (body as { deltas: PantryDelta[] }).deltas ?? [])
+        lists.pantry = after
+        return jsonResponse(after.filter((item, i) => item !== before[i]))
+      }
+      const saved = { ...known().find((k) => k.id === id), id, ...body }
+      if (key) lists[key] = lists[key].map((k) => (k.id === id ? saved : k))
+      return jsonResponse(saved)
     }
+    if (key) lists[key] = lists[key].filter((k) => k.id !== id)
     return emptyResponse()
   })
   return {
