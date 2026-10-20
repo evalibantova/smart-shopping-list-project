@@ -54,6 +54,24 @@ describe('request', () => {
     await expect(request('GET', '/x', undefined, { fetchImpl })).rejects.toMatchObject({ status: 200, code: 'bad_response' })
   })
 
+  it('treats an empty 200 body as bad_response', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response('', { status: 200 }))
+    await expect(request('GET', '/x', undefined, { fetchImpl })).rejects.toMatchObject({ status: 200, code: 'bad_response' })
+  })
+
+  it('turns a caller-aborted signal into ApiError(0, "aborted")', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      (_url, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
+        }),
+    )
+    const controller = new AbortController()
+    const outcome = request('GET', '/x', undefined, { fetchImpl, signal: controller.signal })
+    controller.abort()
+    await expect(outcome).rejects.toMatchObject({ status: 0, code: 'aborted' })
+  })
+
   it('turns a network failure into ApiError(0, "network")', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockRejectedValue(new TypeError('Failed to fetch'))
     await expect(request('GET', '/x', undefined, { fetchImpl })).rejects.toMatchObject({ status: 0, code: 'network' })
