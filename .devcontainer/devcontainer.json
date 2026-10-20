@@ -9,6 +9,7 @@
       "moby": false
     }
   },
+  "forwardPorts": [5173],
   "postCreateCommand": "bash ${containerWorkspaceFolder}/.devcontainer/post-create.sh",
   "customizations": {
     "vscode": {
